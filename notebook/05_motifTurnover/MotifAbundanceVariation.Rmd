@@ -1,0 +1,185 @@
+---
+title: "Motif Abundance & Variation"
+author: "Charlie Hale"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r}
+library(matrixStats)   
+library(parallel)      
+library(data.table)
+```
+
+# Load motifs
+``` {r}
+source("/workdir/coh22/andro_tfbs/src/load_motif_data.R")  # Adjust the filename as needed
+mat.list <- load_motif_data(
+  unenriched_clusters_path = "/workdir/coh22/andro_tfbs/lists/unenriched_clusters.txt",
+  cluster_meta_path = "/workdir/coh22/andro_tfbs/data/JASPAR2024_SummarizedClusters.txt",
+  motifs_dir = "/workdir/coh22/andro_tfbs/output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies"
+)
+
+mats_to_df <- function(mat) {
+  mat <- as.data.frame(mat)
+  mat$assemblyID <- rownames(mat)
+  return(mat)
+}
+
+df.list <- lapply(mat.list, mats_to_df)
+# Combine into a single df
+combined_df <- rbindlist(df.list, use.names = TRUE, fill = TRUE)
+```
+
+``` {r}
+## Calculate motif occurrence rates for each taxon
+all.motifs.by.taxa <- split(combined_df, combined_df$assemblyID)
+og.counts <- lapply(all.motifs.by.taxa, nrow)
+
+calculateMotifOccurrenceRate <- function(mat, og.count) {
+  # Sum motifs across all orthogroups
+  sums <- colSums(mat[,1:(ncol(mat) - 1)], na.rm = TRUE) # for candidate list
+  # Divide by number of orthogroups represented in the species
+  occurrence.rates <- sums / og.count
+  # join with assemblyID
+  results <- c(mat$assemblyID[1], occurrence.rates)
+  names(results)[1] <- "assemblyID"
+  return(results)
+}
+
+all.motif.occurrence.list <- mapply(calculateMotifOccurrenceRate,  all.motifs.by.taxa, og.counts)
+all.motif.occurrence.rates <- as.data.frame(t(all.motif.occurrence.list)) 
+all.motif.occurrence.rates[,-1] <- sapply(all.motif.occurrence.rates[,-1], as.numeric)
+
+# Function to calculate the coefficient of variation
+coefficient_of_variation <- function(x) {
+  return (sd(x) / mean(x))
+}
+
+# Calculate the medians for each column
+medians <- sapply(all.motif.occurrence.rates[, -1], median, na.rm = TRUE)
+# Calculate the coefficients of variation for each column
+coefficients_of_variation <- sapply(all.motif.occurrence.rates[, -1], function(x) {
+  if(is.numeric(x)) {
+    coefficient_of_variation(x)
+  } else {
+    NA
+  }
+})
+
+# Combine the results into a dataframe
+results <- data.frame(
+  Motif_cluster = names(all.motif.occurrence.rates[, -1]),
+  Median = medians,
+  Coefficient_of_Variation = coefficients_of_variation
+)
+
+library(ggrepel)
+
+# Create the plot
+ggplot(results, aes(x = Median, y = Coefficient_of_Variation, label = Motif_cluster)) +
+  geom_point(color = "darkgreen", size = 7) +  # Use consistent color and size
+  geom_text_repel(size = 5, box.padding = 0.5, max.overlaps = 12) +  # Improve label spacing
+  ylim(0, 0.15) +  # Set appropriate y-axis limits
+  theme_minimal(base_size = 24) +  # Adjust base font size for readability
+  labs(
+    #title = "Motif Cluster Abundance and Variability",
+    x = "Median Occurrence Rate (per 500bp upstream region)",
+    y = "Coefficient of Variation"
+  ) +
+  theme(
+    #plot.title = element_text(hjust = 0.5, face = "bold", size = 16),  # Center and bold title
+    axis.title = element_text(face = "bold"),  # Bold axis labels
+    axis.text = element_text(size = 24)  # Increase axis text size
+  )
+```
+
+
+## OLD CODE: Compute mean occurrence  per gene for motifs
+``` {r}
+# Compute column means for each matrix
+mean_list <- lapply(mat.list, colMeans)
+
+#Compute "mean of means" across all matrices
+mean_df <- as.data.table(do.call(rbind, mean_list))[, lapply(.SD, mean)]
+mean_df <- colMeans(combined_df)
+# Reshape to long format to enable merging later
+mean_long <- reshape2::melt(mean_df, variable.name = "Motif", value.name = "mean_occurrence")
+mean_long$Motif <- rownames(mean_long)
+```
+
+
+Calculate the mean coefficient of variation for each motif. Require that a motif is present in at least 10% of taxa to produce more stable estimates.
+``` {r}
+library(matrixStats)   
+library(parallel)      
+library(data.table
+
+# Compute CV for a single matrix
+compute_cv <- function(mat, min_nonzero_frac = 0.1) {
+  n <- nrow(mat)
+  min_nonzero_count <- ceiling(min_nonzero_frac * n)
+  # Identify columns meeting the non-zero threshold
+  valid_cols <- which(colSums(mat != 0) >= min_nonzero_count)
+  if (length(valid_cols) == 0) return(NULL)
+  
+  # Filter the matrix and compute statistics
+  mat_f <- mat[, valid_cols, drop = FALSE]
+  means <- colMeans(mat_f, na.rm = TRUE)
+  sds   <- colSds(mat_f, na.rm = TRUE)
+  cvs   <- sds / means
+  cvs[is.nan(cvs) | is.infinite(cvs)] <- NA
+  setNames(cvs, colnames(mat_f))
+}
+
+# Assuming mat_list is your list of matrices with shared column names.
+# Use available cores (minus one) for parallel processing
+ncores <- max(1, detectCores() - 1)
+cv_list <- mclapply(mat.list, compute_cv, mc.cores = ncores)
+
+# Combine results using data.table for efficiency
+dt_list <- list()
+for(mat_name in names(cv_list)) {
+  cv_vec <- cv_list[[mat_name]]
+  if (is.null(cv_vec)) next
+  dt_list[[mat_name]] <- data.table(Matrix = mat_name, 
+                                    Motif   = names(cv_vec), 
+                                    CV     = cv_vec)
+}
+cv_dt <- rbindlist(dt_list)
+
+# Check that each motif has been observed a reasonable number of times
+motif_counts <- cv_dt[, .(n_matrices = .N), by = Motif]
+
+# Calculate mean CV for each gene across all matrices
+mean_cv_dt <- cv_dt[, .(mean_CV = mean(CV, na.rm = TRUE)), by = Motif]
+
+#  Join with mean occurrence data 
+data.to.plot <- merge(mean_cv_dt, mean_long, by = "Motif", all.x = TRUE)
+```
+
+``` {r}
+# Combine the results into a dataframe
+library(ggrepel)
+
+# Create the plot
+ggplot(data.to.plot, aes(x = mean_occurrence, y = mean_CV, label = Motif)) +
+  geom_point(color = "darkgreen", size = 5) +  # Use consistent color and size
+  geom_text_repel(size = 5, box.padding = 0.5, max.overlaps = 12) +  # Improve label spacing
+  #ylim(0, 0.15) +  # Set appropriate y-axis limits
+  theme_minimal(base_size = 14) +  # Adjust base font size for readability
+  labs(
+    title = "Motif abundance and variability",
+    x = "Mean occurrences per 500bp upstream region",
+    y = "Coefficient of Variation"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 16),  # Center and bold title
+    axis.title = element_text(face = "bold"),  # Bold axis labels
+    axis.text = element_text(size = 12)  # Increase axis text size
+  )
+```

@@ -1,0 +1,83 @@
+---
+title: "PlotFeatureOverlap"
+author: "Charlie Hale"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r}
+library(tidyverse)
+```
+Load data and input number of overlaps / nonoverlaps into a df
+```{r}
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# Read observed counts and total motifs
+moa_overlap   <- read.table("/workdir/coh22/andro_tfbs/output/feature_overlap/moa/motifs_moa_overlap.bed") %>% nrow()
+atac_overlap  <- read.table("/workdir/coh22/andro_tfbs/output/feature_overlap/atac/motifs_atac_overlap.bed") %>% nrow()
+cns_overlap   <- read.table("/workdir/coh22/andro_tfbs/output/feature_overlap/cns/motifs_cns_overlap.bed") %>% nrow()
+all_motifs    <- read.table("/workdir/coh22/andro_tfbs/output/feature_overlap/maize_ref/B73_500up_motifs.bed") %>% nrow()
+
+# Create data frame for observed percentages
+observed <- data.frame(
+  Category = c("MOA-seq", "scATAC-seq", "CNS"),
+  perc     = c(moa_overlap, atac_overlap, cns_overlap) / all_motifs * 100,
+  Type     = "Observed"
+)
+
+# Read null counts and compute mean null percentages for each feature
+moa_null   <- read.table("/workdir/coh22/andro_tfbs/output/feature_overlap/moa/null_overlap/null_overlap_counts.txt", header = TRUE)
+mean_moa   <- mean(moa_null$OverlapCount) / all_motifs * 100
+
+atac_null  <- read.table("/workdir/coh22/andro_tfbs/output/feature_overlap/atac/null_overlap/null_overlap_counts.txt", header = TRUE)
+mean_atac  <- mean(atac_null$OverlapCount) / all_motifs * 100
+
+cns_null   <- read.table("/workdir/coh22/andro_tfbs/output/feature_overlap/cns/null_overlap/null_overlap_counts.txt", header = TRUE)
+mean_cns   <- mean(cns_null$OverlapCount) / all_motifs * 100
+
+null_data <- data.frame(
+  Category = c("MOA-seq", "scATAC-seq", "CNS"),
+  perc     = c(mean_moa, mean_atac, mean_cns),
+  Type     = "Null"
+)
+
+# Combine observed and null data
+plot_data <- rbind(observed, null_data)
+# Set Category factor order so that after coord_flip the order is as desired
+plot_data$Category <- factor(plot_data$Category, levels = c("CNS", "scATAC-seq", "MOA-seq"))
+plot_data$Type     <- factor(plot_data$Type, levels = c("Observed", "Null"))
+
+# Create a helper variable for fill: for observed, use the feature name; for null, use "Null"
+plot_data <- plot_data %>%
+  mutate(Fill = ifelse(Type == "Observed", as.character(Category), "Null"))
+
+# Plot the paired bars with position_dodge for grouping
+ggplot(plot_data, aes(x = Category, y = perc, fill = Fill, group = Type)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
+  coord_flip() +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  # Set colors: observed bars inherit a feature-specific color; null bars in gray
+  scale_fill_manual(values = c("MOA-seq"   = "#F8766D", 
+                               "scATAC-seq"= "#7CAE00", 
+                               "CNS"       = "#00BFC4", 
+                               "Null"      = "gray")) +
+  labs(
+    title = "Overlap of maize motifs with known cis-regulatory features",
+    x     = "",
+    y     = "Percent of maize motif instances overlapping"
+  ) +
+  geom_text(aes(label = sprintf("%.1f%%", perc)),
+            position = position_dodge(width = 0.9),
+            hjust = -0.2, size = 5) +
+  theme_minimal() +
+  ylim(0, 100) +
+  guides(fill = "none")
+
+```
+

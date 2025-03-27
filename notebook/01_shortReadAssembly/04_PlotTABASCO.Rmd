@@ -1,0 +1,75 @@
+---
+title: "PlotTABASCO"
+author: "Charlie Hale"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+# Load required libraries
+library(tidyr)
+library(ggplot2)
+
+# Get list of all .count files in the working directory
+files <- list.files(path = "/workdir/coh22/poaceae_tfbs/output/tabasco/", pattern = "\\.count$", full.names = TRUE)
+
+# Read each file into a data frame, attaching the sample name (filename without extension)
+df_list <- lapply(files, function(f) {
+  tmp <- read.table(f, header = TRUE)
+  tmp$Sample <- sub("\\.count$", "", basename(f))
+  tmp
+})
+
+df <- do.call(rbind, df_list) %>%
+  rename(assemblyID = Sample)
+
+# Mark which samples are SRA
+metadata <- read.csv("/workdir/coh22/poaceae_tfbs/data/Poaceae_metadata_2024.08.21.csv")
+df_annotated <- left_join(df, metadata)
+df_annotated$complete_plus_duplicated <- df_annotated$complete + df_annotated$duplicated
+# Convert data to long format for ggplot2
+# Convert data to long format for ggplot
+df_long <- pivot_longer(df_annotated, cols = c("complete", "duplicated", "fraged", "missing"),
+                        names_to = "Category", values_to = "Count")
+
+
+# Order samples based on SortingMetric (descending)
+df_long$assemblyID <- factor(df_long$assemblyID, levels = df_annotated %>% 
+                           arrange(complete_plus_duplicated) %>% pull(assemblyID))
+```
+Function to make busco-style plot
+``` {r}
+plot_tabasco <- function(df, text_size = 18) {
+  library(ggplot2)
+  
+  ggplot(df, aes(y = assemblyID, x = Count, fill = Category)) +
+  geom_bar(stat = "identity", width = 1) +
+  theme_minimal() +
+  labs(title = "",
+       x = "Count",
+       y = NULL) +
+  scale_fill_manual(values = c("complete"   = "#F5C242",
+                               "duplicated" = "#D47500",
+                               "fraged"     = "dodgerblue1",
+                               "missing"    = "#3B67A4")) +
+  scale_y_discrete(expand = c(0, 0)) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid.major.y = element_blank(),
+        text = element_text(size = text_size))
+}
+```
+
+``` {r}
+#Plot all assemblies
+# Create the horizontal stacked bar plot
+plot_tabasco(df_long)
+```
+
+``` {r}
+# Plot SRA assemblies only
+sra <- dplyr::filter(df_long, source == "SRA")
+plot_tabasco(sra)
+#ggsave("busco_plot.png", plot = busco_plot, width = 8, height = 6, dpi = 300)
+```
+
