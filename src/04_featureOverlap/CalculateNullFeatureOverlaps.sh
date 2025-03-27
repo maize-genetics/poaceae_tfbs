@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Usage info
+usage() {
+  echo "Usage: $0 --null_dir <null_dir> --genome_file <genome_file> --motif_file <motif_file> --feature_file <feature_file>"
+  exit 1
+}
+
+# Check argument count (4 named arguments = 8 total parameters)
+if [ "$#" -ne 8 ]; then
+  usage
+fi
+
+# Parse named arguments
+while [ "$1" != "" ]; do
+  case $1 in
+    --null_dir )    shift; null_dir=$1 ;;
+    --genome_file ) shift; genome_file=$1 ;;
+    --motif_file )  shift; motif_file=$1 ;;
+    --feature_file )shift; feature_file=$1 ;;
+    * )             usage ;;
+  esac
+  shift
+done
+
+# Define subdirectories
+shuffled_dir="${null_dir}/shuffled"
+overlap_dir="${null_dir}/overlap"
+
+mkdir -p "$null_dir" "$shuffled_dir" "$overlap_dir"
+
+# Export required variables for GNU parallel
+export genome_file motif_file feature_file shuffled_dir overlap_dir
+
+# Define the function to process one iteration
+process_iteration() {
+  i=$1
+  # Create filenames using the basename (removing .bed extension)
+  shuffled_bed="${shuffled_dir}/$(basename ${feature_file} .bed)_shuffled_${i}.bed"
+  overlap_bed="${overlap_dir}/$(basename ${motif_file} .bed)_overlap_null_${i}.bed"
+
+  # Shuffle the feature file and perform intersection
+  bedtools shuffle -i "$feature_file" -g "$genome_file" -noOverlapping > "$shuffled_bed"
+  bedtools intersect -a "$motif_file" -b "$shuffled_bed" -u > "$overlap_bed"
+  count=$(wc -l < "$overlap_bed")
+  echo -e "${i}\t${count}"
+}
+export -f process_iteration
+
+# Create the summary file with header
+summary_file="${null_dir}/null_overlap_counts.txt"
+echo -e "Iteration\tOverlapCount" > "$summary_file"
+
+# Run 100 iterations in parallel (40 jobs at a time), keeping output in order
+seq 1 100 | parallel -j 40 -k process_iteration {} >> "$summary_file"

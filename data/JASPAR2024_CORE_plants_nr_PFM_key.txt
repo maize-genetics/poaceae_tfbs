@@ -1,0 +1,806 @@
+MatrixID	Name	Class	Family	Type	UniprotID	SpeciesName	BaseID	TaxGroup	Cluster	ClusterColor	ClusterDesc
+MA0001.3	AGL3	MADS box factors	Type II		P29383	Arabidopsis thaliana	MA0001	plants	cluster_23	0,139,139	MIKC
+MA0005.3	AG	MADS box factors	Type II		P17839	Arabidopsis thaliana	MA0005	plants	cluster_23	0,139,139	MIKC
+MA0008.4	HAT5	Homeo domain factors	HD-ZIP		Q02283	Arabidopsis thaliana	MA0008	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0020.2	Dof2	Other C4 zinc finger-type factors	DOF	SELEX	Q41800	Zea mays	MA0020	plants	cluster_03	0,255,255	DOF_CDF
+MA0021.1	Dof3	Other C4 zinc finger-type factors	DOF	SELEX	Q41801	Zea mays	MA0021	plants	cluster_03	0,255,255	DOF_CDF
+MA0034.2	Gam1	Tryptophan cluster factors	MYB	SELEX	Q96464	Hordeum vulgare	MA0034	plants	cluster_11	138,43,226	MYB
+MA0053.1	MNB1A	Other C4 zinc finger-type factors	DOF	SELEX	P38564	Zea mays	MA0053	plants	cluster_03	0,255,255	DOF_CDF
+MA0054.1	myb.Ph3	Tryptophan cluster factors	Myb	SELEX	Q02994	Petunia x hybrida	MA0054	plants	cluster_11	138,43,226	MYB
+MA0064.1	PBF	Other C4 zinc finger-type factors	DOF	SELEX	O24463	Zea mays	MA0064	plants	cluster_03	0,255,255	DOF_CDF
+MA0082.2	squamosa	MADS box factors	Type II		Q38742	Antirrhinum majus	MA0082	plants	cluster_23	0,139,139	MIKC
+MA0096.1	bZIP910	Basic leucine zipper factors (bZIP)	Group S	SELEX	O22676	Antirrhinum majus	MA0096	plants	cluster_14	95,158,160	BZIP_TGA
+MA0097.1	bZIP911	Basic leucine zipper factors (bZIP)	Group S	SELEX	O22677	Antirrhinum majus	MA0097	plants	cluster_14	95,158,160	BZIP_TGA
+MA0110.4	ATHB-5	Homeo domain factors	HD-ZIP	DAP-seq	P46667	Arabidopsis thaliana	MA0110	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0121.2	ARR10	Tryptophan cluster factors	GARP_ARR-B	SELEX	O49397	Arabidopsis thaliana	MA0121	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA0123.1	abi4	AP2/EREBP	ERF/DREB	SELEX	Q8L7W9	Zea mays	MA0123	plants	cluster_24	184,134,11	ERF_DREB_B
+MA0128.1	EmBP-1	Basic leucine zipper factors (bZIP)	Group G	SELEX	P25032	Triticum aestivum	MA0128	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0129.1	TGA1A	Basic leucine zipper factors (bZIP)	Group D	SELEX	P14232	Nicotiana sp.	MA0129	plants	cluster_14	95,158,160	BZIP_TGA
+MA0548.3	AGL15	MADS box factors	Type II		Q38847	Arabidopsis thaliana	MA0548	plants	cluster_23	0,139,139	MIKC
+MA0549.2	BZR2	Basic helix-loop-helix factors (bHLH)	BES/BZR	ChIP-chip	Q9LN63	Arabidopsis thaliana	MA0549	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0550.3	BZR1	Basic helix-loop-helix factors (bHLH)	BES/BZR	ChIP-chip	Q8S307	Arabidopsis thaliana	MA0550	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0551.2	HY5	Basic leucine zipper factors (bZIP)	Group H	ChIP-chip	O24646	Arabidopsis thaliana	MA0551	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0552.2	PIF1	Basic helix-loop-helix factors (bHLH)	bHLH	ChIP-chip	Q8GZM7	Arabidopsis thaliana	MA0552	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0553.1	SMZ	AP2/EREBP	AP2	ChIP-chip	Q6PV68	Arabidopsis thaliana	MA0553	plants	cluster_36	72,61,139	SMZ_RAP2-7_TOE2
+MA0554.2	SOC1	MADS box factors	Type II		O64645	Arabidopsis thaliana	MA0554	plants	cluster_23	0,139,139	MIKC
+MA0555.2	SVP	MADS box factors	Type II		Q9FVC1	Arabidopsis thaliana	MA0555	plants	cluster_23	0,139,139	MIKC
+MA0556.2	AP3	MADS box factors	Type II		P35632	Arabidopsis thaliana	MA0556	plants	cluster_23	0,139,139	MIKC
+MA0557.2	FHY3	GCM domain factors	FRS/FRF	ChIP-seq	Q9LIE5	Arabidopsis thaliana	MA0557	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0558.2	FLC	MADS box factors	Type II		Q5Q9J1	Arabidopsis thaliana	MA0558	plants	cluster_23	0,139,139	MIKC
+MA0559.1	PI	MADS box factors	MIKC	ChIP-seq	P48007	Arabidopsis thaliana	MA0559	plants	cluster_23	0,139,139	MIKC
+MA0560.2	PIF3	Basic helix-loop-helix factors (bHLH)	bHLH	ChIP-seq	O80536	Arabidopsis thaliana	MA0560	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0561.1	PIF4	Basic helix-loop-helix factors (bHLH)	bHLH	ChIP-seq	Q8W2F3	Arabidopsis thaliana	MA0561	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0562.1	PIF5	Basic helix-loop-helix factors (bHLH)	bHLH	ChIP-seq	Q84LH8	Arabidopsis thaliana	MA0562	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0563.2	SEP3	MADS box factors	Type II		O22456	Arabidopsis thaliana	MA0563	plants	cluster_23	0,139,139	MIKC
+MA0564.2	ABI3	B3	LAV	PBM	Q01593	Arabidopsis thaliana	MA0564	plants	cluster_29	139,0,139	ABI
+MA0565.3	FUS3	B3	LAV	DAP-seq	Q9LW31	Arabidopsis thaliana	MA0565	plants	cluster_29	139,0,139	ABI
+MA0566.1	MYC2	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q39204	Arabidopsis thaliana	MA0566	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0567.1	ERF1B	AP2/EREBP	ERF/DREB	PBM	Q8LDC8	Arabidopsis thaliana	MA0567	plants	cluster_24	184,134,11	ERF_DREB_B
+MA0568.2	MYC3	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q9FIP9	Arabidopsis thaliana	MA0568	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0569.2	MYC4	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	O49687	Arabidopsis thaliana	MA0569	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0570.3	ABF1	Basic leucine zipper factors (bZIP)	Group A	ChIP-seq	Q9M7Q5	Arabidopsis thaliana	MA0570	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0571.2	ANT	AP2/EREBP	AP2	SELEX	Q38914	Arabidopsis thaliana	MA0571	plants	cluster_31	255,140,0	AIL_ANT_PLT1
+MA0573.2	ATHB-9	Homeo domain factors	HD-ZIP	SELEX	O04292	Arabidopsis thaliana	MA0573	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0574.1	MYB15	Tryptophan cluster factors	Myb	SELEX	Q9LTC4	Arabidopsis thaliana	MA0574	plants	cluster_02	250,235,215	MYB_TRB
+MA0575.2	MYB77	Tryptophan cluster factors	MYB	SELEX	Q9SN12	Arabidopsis thaliana	MA0575	plants	cluster_11	138,43,226	MYB
+MA0576.2	RAX3	Tryptophan cluster factors	MYB	SELEX	Q9M2Y9	Arabidopsis thaliana	MA0576	plants	cluster_02	250,235,215	MYB_TRB
+MA0577.4	SPL3	C3H(C),C2HC zinc fingers factors	SBP	SELEX	P93015	Arabidopsis thaliana	MA0577	plants	cluster_28	189,183,107	SPL_A
+MA0578.1	SPL8	C3H(C),C2HC zinc fingers factors	SBP	SELEX	Q8GXL3	Arabidopsis thaliana	MA0578	plants	cluster_40	148,0,211	SPL8
+MA0579.2	CDC5	Tryptophan cluster factors	MYB-related	SELEX	P92948	Arabidopsis thaliana	MA0579	plants	cluster_41	255,20,147	CDC5
+MA0580.1	DYT1	Basic helix-loop-helix factors (bHLH)	bHLH	SELEX	O81900	Arabidopsis thaliana	MA0580	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0581.2	LEC2	B3	LAV	SELEX	Q1PFR7	Arabidopsis thaliana	MA0581	plants	cluster_29	139,0,139	ABI
+MA0582.2	RAV1	B3	RAV	SELEX	Q9ZWM9	Arabidopsis thaliana	MA0582	plants	cluster_17	255,127,80	ARF_RAV
+MA0584.2	SEP1	MADS box factors	Type II		P29382	Arabidopsis thaliana	MA0584	plants	cluster_23	0,139,139	MIKC
+MA0585.2	AGL1	MADS box factors	Type II		P29381	Arabidopsis thaliana	MA0585	plants	cluster_23	0,139,139	MIKC
+MA0586.3	SPL14	C3H(C),C2HC zinc fingers factors	SBP	DAP-seq	Q8RY95	Arabidopsis thaliana	MA0586	plants	cluster_28	189,183,107	SPL_A
+MA0587.2	TCP16	TCP		SELEX	Q9M1U4	Arabidopsis thaliana	MA0587	plants	cluster_01	240,248,255	ARF_TCP
+MA0588.2	TGA1	Basic leucine zipper factors (bZIP)	Group D	SELEX	Q39237	Arabidopsis thaliana	MA0588	plants	cluster_14	95,158,160	BZIP_TGA
+MA0589.2	WRKY1	GCM domain factors	WRKY	SELEX	Q9SI37	Arabidopsis thaliana	MA0589	plants	cluster_10	0,0,255	WRKY
+MA0590.1	LFY	LEAFY		SELEX-seq	Q00958	Arabidopsis thaliana	MA0590	plants	cluster_42	0,191,255	LFY
+MA0930.3	ABF3	Basic leucine zipper factors (bZIP)	Group A		Q9M7Q3	Arabidopsis thaliana	MA0930	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0931.2	ABI5	Basic leucine zipper factors (bZIP)	Group A	PBM	Q9SJN0	Arabidopsis thaliana	MA0931	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0932.1	AHL12	A.T hook factors	AHL	PBM	Q8LPN5	Arabidopsis thaliana	MA0932	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0933.1	AHL20	A.T hook factors	AHL	PBM	Q8GWQ2	Arabidopsis thaliana	MA0933	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0934.1	AHL25	A.T hook factors	AHL	PBM	Q6DBQ1	Arabidopsis thaliana	MA0934	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0935.1	NAC025	GCM domain factors	NAC	PBM	Q8GY42	Arabidopsis thaliana	MA0935	plants	cluster_20	220,20,60	NAC_B
+MA0936.1	NAC046	GCM domain factors	NAC	PBM	Q9SQQ6	Arabidopsis thaliana	MA0936	plants	cluster_20	220,20,60	NAC_B
+MA0937.1	NAC055	GCM domain factors	NAC	PBM	Q9LDY8	Arabidopsis thaliana	MA0937	plants	cluster_20	220,20,60	NAC_B
+MA0938.3	NAC058	GCM domain factors	NAC		Q9LS50	Arabidopsis thaliana	MA0938	plants	cluster_16	210,105,30	NAC_A
+MA0939.1	NAC079	GCM domain factors	NAC	PBM	Q9FLR3	Arabidopsis thaliana	MA0939	plants	cluster_20	220,20,60	NAC_B
+MA0940.1	AP1	MADS box factors	MIKC	ChIP-seq	P35631	Arabidopsis thaliana	MA0940	plants	cluster_23	0,139,139	MIKC
+MA0941.2	ABF2	Basic leucine zipper factors (bZIP)	Group A	PBM	Q9M7Q4	Arabidopsis thaliana	MA0941	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0942.2	ARF1	B3	ARF	PBM	Q8L7G0	Arabidopsis thaliana	MA0942	plants	cluster_15	127,255,0	ERF_DREB_A
+MA0943.2	ARF5	B3	ARF	PBM	P93024	Arabidopsis thaliana	MA0943	plants	cluster_15	127,255,0	ERF_DREB_A
+MA0944.2	ARF8	B3	ARF	PBM	Q9FGV1	Arabidopsis thaliana	MA0944	plants	cluster_17	255,127,80	ARF_RAV
+MA0945.2	ARR1	Tryptophan cluster factors	GARP_ARR-B	PBM	Q940D0	Arabidopsis thaliana	MA0945	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA0946.1	ARR11	Tryptophan cluster factors	GARP_ARR-B	PBM	Q9FXD6	Arabidopsis thaliana	MA0946	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA0947.1	ARR14	Tryptophan cluster factors	GARP_ARR-B	PBM	Q8L9Y3	Arabidopsis thaliana	MA0947	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA0948.2	ARR18	Tryptophan cluster factors	GARP_ARR-B	PBM	Q9FGT7	Arabidopsis thaliana	MA0948	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA0949.2	ARR2	Tryptophan cluster factors	GARP_ARR-B	PBM	Q9ZWJ9	Arabidopsis thaliana	MA0949	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA0950.1	ATHB-12	Homeo domain factors	HD-ZIP	PBM	Q9M276	Arabidopsis thaliana	MA0950	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0951.1	ATHB-16	Homeo domain factors	HD-ZIP	PBM	Q940J1	Arabidopsis thaliana	MA0951	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0952.1	ATHB-51	Homeo domain factors	HD-ZIP	PBM	Q9LZR0	Arabidopsis thaliana	MA0952	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0953.2	ATHB-6	Homeo domain factors	HD-ZIP	PBM	P46668	Arabidopsis thaliana	MA0953	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0954.3	ATHB-7	Homeo domain factors	HD-ZIP	DAP-seq	P46897	Arabidopsis thaliana	MA0954	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0955.2	POPTR_0002s00440g	C3H(C),C2HC zinc fingers factors	SBP	PBM		Populus trichocarpa	MA0955	plants	cluster_28	189,183,107	SPL_A
+MA0956.2	BEE2	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q93VJ4	Arabidopsis thaliana	MA0956	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0957.1	BHLH3	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	O23487	Arabidopsis thaliana	MA0957	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0958.1	BHLH13	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q9LNJ5	Arabidopsis thaliana	MA0958	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0959.1	AIB	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q9ZPY8	Arabidopsis thaliana	MA0959	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0960.1	BHLH104	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q8L467	Arabidopsis thaliana	MA0960	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0961.2	bHLH112	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q94JL3	Oryza sativa Japonica Group	MA0961	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0962.2	bHLH34	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q9LTC7	Arabidopsis thaliana	MA0962	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0963.1	bHLH78	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q9FJL4	Arabidopsis thaliana	MA0963	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0964.3	BIM1	Basic helix-loop-helix factors (bHLH)	bHLH		Q9LEZ3	Arabidopsis thaliana	MA0964	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0965.3	BIM2	Basic helix-loop-helix factors (bHLH)	bHLH		Q9CAA4	Arabidopsis thaliana	MA0965	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0966.2	BIM3	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q9FMB6	Arabidopsis thaliana	MA0966	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0967.1	BZIP60	Basic leucine zipper factors (bZIP)	Group K	PBM	Q9C7S0	Arabidopsis thaliana	MA0967	plants	cluster_14	95,158,160	BZIP_TGA
+MA0968.3	BZIP68	Basic leucine zipper factors (bZIP)	Group G	DAP-seq	Q84LG2	Arabidopsis thaliana	MA0968	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0969.2	CAMTA2	GCM domain factors	CAMTA	PBM	Q6NPP4	Arabidopsis thaliana	MA0969	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0970.2	CAMTA3	GCM domain factors	CAMTA	PBM	Q8GSA7	Arabidopsis thaliana	MA0970	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0971.2	DREB1A	AP2/EREBP	ERF/DREB	PBM	Q9M0L0	Arabidopsis thaliana	MA0971	plants	cluster_15	127,255,0	ERF_DREB_A
+MA0972.1	CCA1	Tryptophan cluster factors	Myb-related	PBM	P92973	Arabidopsis thaliana	MA0972	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA0973.2	CDF2	Other C4 zinc finger-type factors	DOF	PBM	Q93ZL5	Arabidopsis thaliana	MA0973	plants	cluster_03	0,255,255	DOF_CDF
+MA0974.3	CDF3	Other C4 zinc finger-type factors	DOF	DAP-seq	Q8LFV3	Arabidopsis thaliana	MA0974	plants	cluster_03	0,255,255	DOF_CDF
+MA0975.1	CRF2	AP2/EREBP	ERF/DREB	PBM	Q9SUQ2	Arabidopsis thaliana	MA0975	plants	cluster_24	184,134,11	ERF_DREB_B
+MA0976.3	CRF4	AP2/EREBP	ERF/DREB	DAP-seq	Q9SUE3	Arabidopsis thaliana	MA0976	plants	cluster_24	184,134,11	ERF_DREB_B
+MA0977.1	DOF2.5	Other C4 zinc finger-type factors	DOF	PBM	Q9ZPY0	Arabidopsis thaliana	MA0977	plants	cluster_03	0,255,255	DOF_CDF
+MA0978.1	DREB1E	AP2/EREBP	ERF/DREB	PBM	Q9SGJ6	Arabidopsis thaliana	MA0978	plants	cluster_15	127,255,0	ERF_DREB_A
+MA0980.3	RAP2-10	AP2/EREBP	ERF/DREB	DAP-seq	Q9SW63	Arabidopsis thaliana	MA0980	plants	cluster_15	127,255,0	ERF_DREB_A
+MA0981.2	DOF1.8	Other C4 zinc finger-type factors	DOF	PBM	Q84JQ8	Arabidopsis thaliana	MA0981	plants	cluster_03	0,255,255	DOF_CDF
+MA0982.2	DOF2.4	Other C4 zinc finger-type factors	DOF	PBM	O80928	Arabidopsis thaliana	MA0982	plants	cluster_03	0,255,255	DOF_CDF
+MA0983.2	DOF5.6	Other C4 zinc finger-type factors	DOF	PBM	Q9FM03	Arabidopsis thaliana	MA0983	plants	cluster_03	0,255,255	DOF_CDF
+MA0984.2	DOF5.7	Other C4 zinc finger-type factors	DOF	PBM	Q9LSL6	Arabidopsis thaliana	MA0984	plants	cluster_03	0,255,255	DOF_CDF
+MA0986.1	DREB2C	AP2/EREBP	ERF/DREB	PBM	Q8LFR2	Arabidopsis thaliana	MA0986	plants	cluster_15	127,255,0	ERF_DREB_A
+MA0987.2	PHYPADRAFT_140773	Other C4 zinc finger-type factors	DOF	PBM		Physcomitrium patens	MA0987	plants	cluster_03	0,255,255	DOF_CDF
+MA0988.2	PHYPADRAFT_143875	Basic helix-loop-helix factors (bHLH)		PBM	A9TDF9	Physcomitrium patens	MA0988	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA0989.2	PHYPADRAFT_153324	Other C4 zinc finger-type factors	DOF	PBM		Physcomitrium patens	MA0989	plants	cluster_03	0,255,255	DOF_CDF
+MA0990.2	HDG11	Homeo domain factors	HD-ZIP	PBM	Q9FX31	Arabidopsis thaliana	MA0990	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA0992.3	ERF4	AP2/EREBP	ERF/DREB	DAP-seq	O80340	Arabidopsis thaliana	MA0992	plants	cluster_24	184,134,11	ERF_DREB_B
+MA0993.2	ERF7	AP2/EREBP	ERF/DREB	PBM	Q9LDE4	Arabidopsis thaliana	MA0993	plants	cluster_30	85,107,47	ERF
+MA0994.3	ERF8	AP2/EREBP	ERF/DREB		Q9MAI5	Arabidopsis thaliana	MA0994	plants	cluster_24	184,134,11	ERF_DREB_B
+MA0995.3	ERF039	AP2/EREBP	ERF/DREB	DAP-seq	Q9SUK8	Arabidopsis thaliana	MA0995	plants	cluster_15	127,255,0	ERF_DREB_A
+MA0997.2	ERF069	AP2/EREBP	ERF/DREB	PBM	Q8W4I5	Arabidopsis thaliana	MA0997	plants	cluster_30	85,107,47	ERF
+MA0998.2	ERF096	AP2/EREBP	ERF/DREB	PBM	Q9LSX0	Arabidopsis thaliana	MA0998	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1000.3	ERF105	AP2/EREBP	ERF/DREB	DAP-seq	Q8VY90	Arabidopsis thaliana	MA1000	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1001.4	ERF076	AP2/EREBP	ERF/DREB		Q9C5I3	Arabidopsis thaliana	MA1001	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1004.2	ERF13	AP2/EREBP	ERF/DREB	PBM	Q8L9K1	Arabidopsis thaliana	MA1004	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1005.3	ERF082	AP2/EREBP	ERF/DREB	DAP-seq	O80339	Arabidopsis thaliana	MA1005	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1006.2	ERF6	AP2/EREBP	ERF/DREB	PBM	Q8VZ91	Arabidopsis thaliana	MA1006	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1007.1	PHYPADRAFT_173530	AP2/EREBP	ERF/DREB	PBM		Physcomitrium patens	MA1007	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1008.2	PHYPADRAFT_182268	AP2/EREBP	ERF/DREB	PBM	A9S898	Physcomitrium patens	MA1008	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1009.1	ARF3	B3	ARF	PBM	O23661	Arabidopsis thaliana	MA1009	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1010.2	PHYPADRAFT_64121	AP2/EREBP	ERF/DREB	PBM	A9RC32	Physcomitrium patens	MA1010	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1011.2	PHYPADRAFT_72483	Basic helix-loop-helix factors (bHLH)		PBM		Physcomitrium patens	MA1011	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1012.1	AGL27	MADS box factors	MIKC	ChIP-seq	Q9AT76	Arabidopsis thaliana	MA1012	plants	cluster_23	0,139,139	MIKC
+MA1013.1	GATA10	Other C4 zinc finger-type factors	C4-GATA-related	PBM	Q8VZP4	Arabidopsis thaliana	MA1013	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1014.1	GATA11	Other C4 zinc finger-type factors	C4-GATA-related	PBM	Q6DBP8	Arabidopsis thaliana	MA1014	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1015.2	GATA12	Other C4 zinc finger-type factors	C4-GATA-related	PBM	P69781	Arabidopsis thaliana	MA1015	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1016.2	GATA15	Other C4 zinc finger-type factors	C4-GATA-related	PBM	Q8LG10	Arabidopsis thaliana	MA1016	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1017.2	GATA8	Other C4 zinc finger-type factors	C4-GATA-related	PBM	Q9SV30	Arabidopsis thaliana	MA1017	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1018.2	GATA9	Other C4 zinc finger-type factors	C4-GATA-related	PBM	O82632	Arabidopsis thaliana	MA1018	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1019.2	Glyma19g26560.1	TCP		PBM	I1N7U7	Glycine max	MA1019	plants	cluster_01	240,248,255	ARF_TCP
+MA1020.1	GT-1	Tryptophan cluster factors	Trihelix	PBM	Q9FX53	Arabidopsis thaliana	MA1020	plants	cluster_18	100,149,237	TRP_Trihelix
+MA1021.2	PHYPADRAFT_48267	Basic helix-loop-helix factors (bHLH)		PBM		Physcomitrium patens	MA1021	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1022.2	PHYPADRAFT_38837	Other C4 zinc finger-type factors	DOF	PBM		Physcomitrium patens	MA1022	plants	cluster_03	0,255,255	DOF_CDF
+MA1023.1	PHYPADRAFT_28324	AP2/EREBP	ERF/DREB	PBM		Physcomitrium patens	MA1023	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1024.2	HAT1	Homeo domain factors	HD-ZIP	PBM	P46600	Arabidopsis thaliana	MA1024	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1025.2	HBI1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q9ZPW3	Arabidopsis thaliana	MA1025	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1026.3	ATHB-15	Homeo domain factors	HD-ZIP	DAP-seq	Q9ZU11	Arabidopsis thaliana	MA1026	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1027.2	KAN1	Tryptophan cluster factors	GARP_G2-like	PBM	Q93WJ9	Arabidopsis thaliana	MA1027	plants	cluster_04	127,255,212	HSF_GARP
+MA1028.1	KAN4	Tryptophan cluster factors	GARP_G2-like	PBM	Q9FJV5	Arabidopsis thaliana	MA1028	plants	cluster_04	127,255,212	HSF_GARP
+MA1030.2	P0510F09.23	Tryptophan cluster factors	MYB	PBM	Q5N9C9	Oryza sativa Japonica Group	MA1030	plants	cluster_02	250,235,215	MYB_TRB
+MA1031.2	OJ1581_H09.2	TCP		PBM	Q6H878	Oryza sativa Japonica Group	MA1031	plants	cluster_01	240,248,255	ARF_TCP
+MA1032.2	DREB1G	AP2/EREBP	ERF/DREB	PBM	Q6EP77	Oryza sativa Japonica Group	MA1032	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1033.1	OJ1058_F05.8	Basic leucine zipper factors (bZIP)	Group A	PBM	Q75HX9	Oryza sativa Japonica Group	MA1033	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1034.1	Os05g0497200	AP2/EREBP	ERF/DREB	PBM	Q75K84	Oryza sativa Japonica Group	MA1034	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1035.1	TCP4	TCP		PBM	Q8LPR5	Arabidopsis thaliana	MA1035	plants	cluster_01	240,248,255	ARF_TCP
+MA1036.1	MYB111	Tryptophan cluster factors	Myb	PBM	Q9FJ07	Arabidopsis thaliana	MA1036	plants	cluster_02	250,235,215	MYB_TRB
+MA1037.2	MYB24	Tryptophan cluster factors	MYB	PBM	Q9SPG9	Arabidopsis thaliana	MA1037	plants	cluster_02	250,235,215	MYB_TRB
+MA1038.2	MYB3	Tryptophan cluster factors	MYB	PBM	Q9S9K9	Arabidopsis thaliana	MA1038	plants	cluster_02	250,235,215	MYB_TRB
+MA1039.1	MYB4	Tryptophan cluster factors	Myb	PBM	Q9SZP1	Arabidopsis thaliana	MA1039	plants	cluster_02	250,235,215	MYB_TRB
+MA1040.1	MYB46	Tryptophan cluster factors	Myb	PBM	Q9LXV2	Arabidopsis thaliana	MA1040	plants	cluster_02	250,235,215	MYB_TRB
+MA1041.1	MYB55	Tryptophan cluster factors	Myb	PBM	Q9M118	Arabidopsis thaliana	MA1041	plants	cluster_02	250,235,215	MYB_TRB
+MA1042.1	MYB59	Tryptophan cluster factors	Myb	PBM	Q4JL84	Arabidopsis thaliana	MA1042	plants	cluster_02	250,235,215	MYB_TRB
+MA1043.2	NAC083	GCM domain factors	NAC	PBM	Q9FY93	Arabidopsis thaliana	MA1043	plants	cluster_20	220,20,60	NAC_B
+MA1044.2	NAC92	GCM domain factors	NAC	PBM	Q9FKA0	Arabidopsis thaliana	MA1044	plants	cluster_20	220,20,60	NAC_B
+MA1045.2	NAC043	GCM domain factors	NAC	PBM	Q84WP6	Arabidopsis thaliana	MA1045	plants	cluster_32	153,50,204	NAC043_NTL9
+MA1046.1	NTL9	GCM domain factors	NAC	DAP-seq	F4JN35	Arabidopsis thaliana	MA1046	plants	cluster_32	153,50,204	NAC043_NTL9
+MA1047.3	TGA5	Basic leucine zipper factors (bZIP)	Group D	DAP-seq	Q39163	Arabidopsis thaliana	MA1047	plants	cluster_14	95,158,160	BZIP_TGA
+MA1048.1	ERF018	AP2/EREBP	ERF/DREB	PBM	Q9S7L5	Arabidopsis thaliana	MA1048	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1049.2	ERF094	AP2/EREBP	ERF/DREB	PBM	Q9LND1	Arabidopsis thaliana	MA1049	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1050.1	OsI_08196	TCP		PBM	A2X7K8	Oryza sativa Indica Group	MA1050	plants	cluster_01	240,248,255	ARF_TCP
+MA1051.1	RAP2-3	AP2/EREBP	ERF/DREB	PBM	P42736	Arabidopsis thaliana	MA1051	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1053.1	ERF109	AP2/EREBP	ERF/DREB	PBM	Q9SZ06	Arabidopsis thaliana	MA1053	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1054.2	ARALYDRAFT_897773	TCP		PBM	D7L3Y2	Arabidopsis lyrata subsp. lyrata	MA1054	plants	cluster_01	240,248,255	ARF_TCP
+MA1055.3	SPL1	C3H(C),C2HC zinc fingers factors	SBP	SELEX	Q9SMX9	Arabidopsis thaliana	MA1055	plants	cluster_28	189,183,107	SPL_A
+MA1056.2	SPL11	C3H(C),C2HC zinc fingers factors	SBP	PBM	Q9FZK0	Arabidopsis thaliana	MA1056	plants	cluster_28	189,183,107	SPL_A
+MA1057.2	SPL12	C3H(C),C2HC zinc fingers factors	SBP	PBM	Q9S7P5	Arabidopsis thaliana	MA1057	plants	cluster_28	189,183,107	SPL_A
+MA1058.2	SPL4	C3H(C),C2HC zinc fingers factors	SBP	PBM	Q9S7A9	Arabidopsis thaliana	MA1058	plants	cluster_28	189,183,107	SPL_A
+MA1059.3	SPL5	C3H(C),C2HC zinc fingers factors	SBP	DAP-seq	Q9S758	Arabidopsis thaliana	MA1059	plants	cluster_28	189,183,107	SPL_A
+MA1060.2	SPL7	C3H(C),C2HC zinc fingers factors	SBP	PBM	Q8S9G8	Arabidopsis thaliana	MA1060	plants	cluster_28	189,183,107	SPL_A
+MA1061.2	SPT	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q9FUA4	Arabidopsis thaliana	MA1061	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1062.3	TCP15	TCP		DAP-seq	Q9C9L2	Arabidopsis thaliana	MA1062	plants	cluster_01	240,248,255	ARF_TCP
+MA1063.2	TCP19	TCP		PBM	Q9LT89	Arabidopsis thaliana	MA1063	plants	cluster_01	240,248,255	ARF_TCP
+MA1064.2	TCP2	TCP		PBM	Q93V43	Arabidopsis thaliana	MA1064	plants	cluster_01	240,248,255	ARF_TCP
+MA1065.3	TCP20	TCP		DAP-seq	Q9LSD5	Arabidopsis thaliana	MA1065	plants	cluster_01	240,248,255	ARF_TCP
+MA1066.1	TCP23	TCP		PBM	Q9LQF0	Arabidopsis thaliana	MA1066	plants	cluster_01	240,248,255	ARF_TCP
+MA1067.1	TCP5	TCP		PBM	Q9FME3	Arabidopsis thaliana	MA1067	plants	cluster_01	240,248,255	ARF_TCP
+MA1068.3	TGA2	Basic leucine zipper factors (bZIP)	Group D		P43273	Arabidopsis thaliana	MA1068	plants	cluster_14	95,158,160	BZIP_TGA
+MA1069.3	TGA6	Basic leucine zipper factors (bZIP)	Group D		Q39140	Arabidopsis thaliana	MA1069	plants	cluster_14	95,158,160	BZIP_TGA
+MA1070.3	TGA7	Basic leucine zipper factors (bZIP)	Group D		Q93ZE2	Arabidopsis thaliana	MA1070	plants	cluster_14	95,158,160	BZIP_TGA
+MA1071.2	DOF5.3	Other C4 zinc finger-type factors	DOF	PBM	Q84TE9	Arabidopsis thaliana	MA1071	plants	cluster_03	0,255,255	DOF_CDF
+MA1074.2	UNE10	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q8GZ38	Arabidopsis thaliana	MA1074	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1075.1	WRKY12	GCM domain factors	WRKY	PBM	Q93WY4	Arabidopsis thaliana	MA1075	plants	cluster_10	0,0,255	WRKY
+MA1076.3	WRKY15	GCM domain factors	WRKY	DAP-seq	O22176	Arabidopsis thaliana	MA1076	plants	cluster_10	0,0,255	WRKY
+MA1077.2	WRKY18	GCM domain factors	WRKY	PBM	Q9C5T4	Arabidopsis thaliana	MA1077	plants	cluster_10	0,0,255	WRKY
+MA1078.2	WRKY2	GCM domain factors	WRKY	PBM	Q9FG77	Arabidopsis thaliana	MA1078	plants	cluster_10	0,0,255	WRKY
+MA1079.3	WRKY21	GCM domain factors	WRKY		O04336	Arabidopsis thaliana	MA1079	plants	cluster_10	0,0,255	WRKY
+MA1080.1	WRKY23	GCM domain factors	WRKY	PBM	O22900	Arabidopsis thaliana	MA1080	plants	cluster_10	0,0,255	WRKY
+MA1081.3	WRKY25	GCM domain factors	WRKY		O22921	Arabidopsis thaliana	MA1081	plants	cluster_10	0,0,255	WRKY
+MA1083.3	WRKY30	GCM domain factors	WRKY		Q9FL62	Arabidopsis thaliana	MA1083	plants	cluster_10	0,0,255	WRKY
+MA1084.1	WRKY38	GCM domain factors	WRKY	PBM	Q8GWF1	Arabidopsis thaliana	MA1084	plants	cluster_10	0,0,255	WRKY
+MA1085.3	WRKY40	GCM domain factors	WRKY	ChIP-seq	Q9SAH7	Arabidopsis thaliana	MA1085	plants	cluster_10	0,0,255	WRKY
+MA1086.2	WRKY43	GCM domain factors	WRKY	PBM	Q8GY11	Arabidopsis thaliana	MA1086	plants	cluster_10	0,0,255	WRKY
+MA1087.3	WRKY45	GCM domain factors	WRKY		Q9S763	Arabidopsis thaliana	MA1087	plants	cluster_10	0,0,255	WRKY
+MA1088.2	WRKY48	GCM domain factors	WRKY	PBM	Q9FGZ4	Arabidopsis thaliana	MA1088	plants	cluster_10	0,0,255	WRKY
+MA1089.2	WRKY57	GCM domain factors	WRKY	PBM	Q9C983	Arabidopsis thaliana	MA1089	plants	cluster_10	0,0,255	WRKY
+MA1090.2	WRKY60	GCM domain factors	WRKY	PBM	Q9SK33	Arabidopsis thaliana	MA1090	plants	cluster_10	0,0,255	WRKY
+MA1091.1	WRKY62	GCM domain factors	WRKY	PBM	Q9LZV6	Arabidopsis thaliana	MA1091	plants	cluster_10	0,0,255	WRKY
+MA1092.2	WRKY63	GCM domain factors	WRKY	PBM	Q9C6H5	Arabidopsis thaliana	MA1092	plants	cluster_10	0,0,255	WRKY
+MA1093.2	WRKY75	GCM domain factors	WRKY	PBM	Q9FYA2	Arabidopsis thaliana	MA1093	plants	cluster_10	0,0,255	WRKY
+MA1094.3	WRKY8	GCM domain factors	WRKY		Q9FL26	Arabidopsis thaliana	MA1094	plants	cluster_10	0,0,255	WRKY
+MA1095.1	ARALYDRAFT_495258	TCP		PBM	D7MRK3	Arabidopsis lyrata subsp. lyrata	MA1095	plants	cluster_01	240,248,255	ARF_TCP
+MA1096.1	ARALYDRAFT_496250	TCP		PBM	D7MUG0	Arabidopsis lyrata subsp. lyrata	MA1096	plants	cluster_01	240,248,255	ARF_TCP
+MA1097.1	ARALYDRAFT_493022	TCP		PBM	D7MCT1	Arabidopsis lyrata subsp. lyrata	MA1097	plants	cluster_01	240,248,255	ARF_TCP
+MA1098.1	ARALYDRAFT_484486	TCP		PBM	D7LRC3	Arabidopsis lyrata subsp. lyrata	MA1098	plants	cluster_01	240,248,255	ARF_TCP
+MA1156.2	JKD	C2H2 zinc finger factors	IDD	DAP-seq	Q700D2	Arabidopsis thaliana	MA1156	plants	cluster_08	0,0,0	C2H2_DOF
+MA1157.2	NUC	C2H2 zinc finger factors	IDD	DAP-seq	Q9FFH3	Arabidopsis thaliana	MA1157	plants	cluster_08	0,0,0	C2H2_DOF
+MA1158.2	MGP	C2H2 zinc finger factors	IDD	DAP-seq	Q9ZWA6	Arabidopsis thaliana	MA1158	plants	cluster_08	0,0,0	C2H2_DOF
+MA1159.2	SGR5	C2H2 zinc finger factors	IDD	DAP-seq	F4IPE3	Arabidopsis thaliana	MA1159	plants	cluster_08	0,0,0	C2H2_DOF
+MA1160.2	IDD6	C2H2 zinc finger factors	IDD	DAP-seq	Q8RWX7	Arabidopsis thaliana	MA1160	plants	cluster_08	0,0,0	C2H2_DOF
+MA1161.1	TSO1	CPP		DAP-seq	Q9LUI3	Arabidopsis thaliana	MA1161	plants	cluster_06	245,245,220	CPP
+MA1162.1	TCX2	CPP		DAP-seq	F4JIF5	Arabidopsis thaliana	MA1162	plants	cluster_06	245,245,220	CPP
+MA1163.3	PHL11	Tryptophan cluster factors	GARP_G2-like		C0SVS4	Arabidopsis thaliana	MA1163	plants	cluster_04	127,255,212	HSF_GARP
+MA1164.2	HHO5	Tryptophan cluster factors	GARP_G2-like	DAP-seq	F4JRB0	Arabidopsis thaliana	MA1164	plants	cluster_04	127,255,212	HSF_GARP
+MA1165.3	HHO6	Tryptophan cluster factors	GARP_G2-like		Q9FX84	Arabidopsis thaliana	MA1165	plants	cluster_04	127,255,212	HSF_GARP
+MA1166.2	PHL12	Tryptophan cluster factors	GARP_G2-like	DAP-seq	Q8VYI2	Arabidopsis thaliana	MA1166	plants	cluster_04	127,255,212	HSF_GARP
+MA1167.2	EFM	Tryptophan cluster factors	GARP_G2-like	DAP-seq	Q9ZQ85	Arabidopsis thaliana	MA1167	plants	cluster_04	127,255,212	HSF_GARP
+MA1168.2	MYR2	Tryptophan cluster factors	GARP_G2-like	DAP-seq	Q9SQQ9	Arabidopsis thaliana	MA1168	plants	cluster_04	127,255,212	HSF_GARP
+MA1169.1	MYB105	Tryptophan cluster factors	Myb	DAP-seq	Q9SEZ4	Arabidopsis thaliana	MA1169	plants	cluster_11	138,43,226	MYB
+MA1170.2	MYB118	Tryptophan cluster factors	MYB	DAP-seq	Q9LVW4	Arabidopsis thaliana	MA1170	plants	cluster_11	138,43,226	MYB
+MA1171.2	MYB52	Tryptophan cluster factors	MYB	DAP-seq	Q6R0C4	Arabidopsis thaliana	MA1171	plants	cluster_11	138,43,226	MYB
+MA1172.2	MYB3R5	Tryptophan cluster factors	MYB	DAP-seq	Q6R032	Arabidopsis thaliana	MA1172	plants	cluster_11	138,43,226	MYB
+MA1173.2	MYB101	Tryptophan cluster factors	MYB	DAP-seq	O80883	Arabidopsis thaliana	MA1173	plants	cluster_11	138,43,226	MYB
+MA1174.2	MYB56	Tryptophan cluster factors	MYB	DAP-seq	Q6R053	Arabidopsis thaliana	MA1174	plants	cluster_11	138,43,226	MYB
+MA1175.2	MYB81	Tryptophan cluster factors	MYB	DAP-seq	Q9SLH1	Arabidopsis thaliana	MA1175	plants	cluster_11	138,43,226	MYB
+MA1176.2	MYB119	Tryptophan cluster factors	MYB	DAP-seq	Q9FIM4	Arabidopsis thaliana	MA1176	plants	cluster_11	138,43,226	MYB
+MA1177.2	MYB65	Tryptophan cluster factors	MYB	DAP-seq	Q9FR97	Arabidopsis thaliana	MA1177	plants	cluster_11	138,43,226	MYB
+MA1178.3	MYB3R1	Tryptophan cluster factors	MYB		Q9S7G7	Arabidopsis thaliana	MA1178	plants	cluster_11	138,43,226	MYB
+MA1179.2	MYB1	Tryptophan cluster factors	MYB	DAP-seq	Q42575	Arabidopsis thaliana	MA1179	plants	cluster_11	138,43,226	MYB
+MA1180.2	MYB3R4	Tryptophan cluster factors	MYB	DAP-seq	Q94FL9	Arabidopsis thaliana	MA1180	plants	cluster_11	138,43,226	MYB
+MA1181.2	MYB113	Tryptophan cluster factors	MYB	DAP-seq	Q9FNV9	Arabidopsis thaliana	MA1181	plants	cluster_11	138,43,226	MYB
+MA1182.2	RVE8	Tryptophan cluster factors	MYB-related	DAP-seq	Q8RWU3	Arabidopsis thaliana	MA1182	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1183.2	RVE6	Tryptophan cluster factors	MYB-related	DAP-seq	Q8H0W3	Arabidopsis thaliana	MA1183	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1184.2	RVE1	Tryptophan cluster factors	MYB-related	DAP-seq	F4KGY6	Arabidopsis thaliana	MA1184	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1185.2	LHY	Tryptophan cluster factors	MYB-related	DAP-seq	F4HQG9	Arabidopsis thaliana	MA1185	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1186.2	YAB4	Tryptophan cluster factors	MYB-related	DAP-seq	Q9M9A3	Arabidopsis thaliana	MA1186	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1187.2	RVE4	Tryptophan cluster factors	MYB-related	DAP-seq	Q6R0G4	Arabidopsis thaliana	MA1187	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1188.1	At3g11280	Tryptophan cluster factors	Myb-related	DAP-seq		Arabidopsis thaliana	MA1188	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1189.2	AT5G61620	Tryptophan cluster factors	MYB-related	DAP-seq	Q9FKF9	Arabidopsis thaliana	MA1189	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1190.2	RVE5	Tryptophan cluster factors	MYB-related	DAP-seq	C0SVG5	Arabidopsis thaliana	MA1190	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1191.2	RVE7L	Tryptophan cluster factors	MYB-related	DAP-seq	F4J2J6	Arabidopsis thaliana	MA1191	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1192.2	DIV1	Tryptophan cluster factors	MYB-related	DAP-seq		Arabidopsis thaliana	MA1192	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1193.2	AT2G38090	Tryptophan cluster factors	MYB-related	DAP-seq		Arabidopsis thaliana	MA1193	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1194.2	AT3G10580	Tryptophan cluster factors	MYB-related	DAP-seq		Arabidopsis thaliana	MA1194	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1195.2	AT5G56840	Tryptophan cluster factors	MYB-related	DAP-seq		Arabidopsis thaliana	MA1195	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1196.2	AT5G05790	Tryptophan cluster factors	MYB-related	DAP-seq		Arabidopsis thaliana	MA1196	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1197.2	CAMTA1	GCM domain factors	CAMTA	DAP-seq	Q9FY74	Arabidopsis thaliana	MA1197	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1198.2	HAT2	Homeo domain factors	HD-ZIP	DAP-seq	P46601	Arabidopsis thaliana	MA1198	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1199.1	AGL16	MADS box factors	MIKC	DAP-seq	A2RVQ5	Arabidopsis thaliana	MA1199	plants	cluster_23	0,139,139	MIKC
+MA1202.1	AGL55	MADS box factors	Type I	DAP-seq	Q9C960	Arabidopsis thaliana	MA1202	plants	cluster_43	105,105,105	AGL55
+MA1203.1	AGL63	MADS box factors	MIKC	DAP-seq	Q9SA07	Arabidopsis thaliana	MA1203	plants	cluster_23	0,139,139	MIKC
+MA1204.1	AGL13	MADS box factors	MIKC	DAP-seq	Q38837	Arabidopsis thaliana	MA1204	plants	cluster_23	0,139,139	MIKC
+MA1205.1	AGL6	MADS box factors	MIKC	DAP-seq	P29386	Arabidopsis thaliana	MA1205	plants	cluster_23	0,139,139	MIKC
+MA1206.2	ARF2	B3	ARF	DAP-seq	Q94JM3	Arabidopsis thaliana	MA1206	plants	cluster_17	255,127,80	ARF_RAV
+MA1207.2	GT-3a	Tryptophan cluster factors	Trihelix	DAP-seq	Q9SDW0	Arabidopsis thaliana	MA1207	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1208.2	GT-2	Tryptophan cluster factors	Trihelix	DAP-seq	Q39117	Arabidopsis thaliana	MA1208	plants	cluster_10	0,0,255	WRKY
+MA1209.2	ATHB-20	Homeo domain factors	HD-ZIP	DAP-seq	Q8LAT0	Arabidopsis thaliana	MA1209	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1210.3	HAT22	Homeo domain factors	HD-ZIP		P46604	Arabidopsis thaliana	MA1210	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1211.2	ATHB-X	Homeo domain factors	HD-ZIP	DAP-seq	A9Z1E8	Arabidopsis thaliana	MA1211	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1212.2	ATHB-13	Homeo domain factors	HD-ZIP	DAP-seq	Q8LC03	Arabidopsis thaliana	MA1212	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1213.3	ZHD3	Homeo domain factors	PLINC		O64722	Arabidopsis thaliana	MA1213	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1214.2	ATHB-40	Homeo domain factors	HD-ZIP	DAP-seq	O23208	Arabidopsis thaliana	MA1214	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1215.2	ATHB-53	Homeo domain factors	HD-ZIP	DAP-seq	Q9LVR0	Arabidopsis thaliana	MA1215	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1218.2	DREB1D	AP2/EREBP	ERF/DREB	DAP-seq	Q9FJ93	Arabidopsis thaliana	MA1218	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1219.3	ERF011	AP2/EREBP	ERF/DREB		Q9SNE1	Arabidopsis thaliana	MA1219	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1220.2	TINY	AP2/EREBP	ERF/DREB	DAP-seq	Q39127	Arabidopsis thaliana	MA1220	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1221.1	RAP2-6	AP2/EREBP	ERF/DREB	DAP-seq	Q7G1L2	Arabidopsis thaliana	MA1221	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1222.1	ERF014	AP2/EREBP	ERF/DREB	DAP-seq	Q9LPE8	Arabidopsis thaliana	MA1222	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1223.2	ERF035	AP2/EREBP	ERF/DREB	DAP-seq	Q9M210	Arabidopsis thaliana	MA1223	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1225.1	ERF5	AP2/EREBP	ERF/DREB	DAP-seq	O80341	Arabidopsis thaliana	MA1225	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1226.2	DREB2G	AP2/EREBP	ERF/DREB	DAP-seq	P61827	Arabidopsis thaliana	MA1226	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1227.3	ERF027	AP2/EREBP	ERF/DREB	DAP-seq	Q38Q39	Arabidopsis thaliana	MA1227	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1228.2	ERF091	AP2/EREBP	ERF/DREB	DAP-seq	Q8LBQ7	Arabidopsis thaliana	MA1228	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1229.2	ERF034	AP2/EREBP	ERF/DREB	DAP-seq	Q8LBQ7	Arabidopsis thaliana	MA1229	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1230.2	ERF037	AP2/EREBP	ERF/DREB	DAP-seq	O80654	Arabidopsis thaliana	MA1230	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1231.3	ERF15	AP2/EREBP	ERF/DREB		Q8VYM0	Arabidopsis thaliana	MA1231	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1232.2	ERF054	AP2/EREBP	ERF/DREB	DAP-seq	Q9M0J3	Arabidopsis thaliana	MA1232	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1233.3	ERF021	AP2/EREBP	ERF/DREB	DAP-seq	Q9C9I2	Arabidopsis thaliana	MA1233	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1234.2	ERF017	AP2/EREBP	ERF/DREB	DAP-seq	Q84QC2	Arabidopsis thaliana	MA1234	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1235.1	AIL7	AP2/EREBP	AP2	DAP-seq	Q6J9N8	Arabidopsis thaliana	MA1235	plants	cluster_31	255,140,0	AIL_ANT_PLT1
+MA1238.3	ERF038	AP2/EREBP	ERF/DREB	DAP-seq	Q9ZQP3	Arabidopsis thaliana	MA1238	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1239.2	ERF104	AP2/EREBP	ERF/DREB	DAP-seq	Q9FKG1	Arabidopsis thaliana	MA1239	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1240.2	ERF077	AP2/EREBP	ERF/DREB	DAP-seq	Q9ZWA2	Arabidopsis thaliana	MA1240	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1241.2	ERF043	AP2/EREBP	ERF/DREB	DAP-seq	Q9M080	Arabidopsis thaliana	MA1241	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1242.1	DREB2F	AP2/EREBP	ERF/DREB	DAP-seq	Q9SVX5	Arabidopsis thaliana	MA1242	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1243.2	DREB2E	AP2/EREBP	ERF/DREB	DAP-seq	O80917	Arabidopsis thaliana	MA1243	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1244.2	ABR1	AP2/EREBP	ERF/DREB	DAP-seq	Q9FGF8	Arabidopsis thaliana	MA1244	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1245.3	ERF112	AP2/EREBP	ERF/DREB	DAP-seq	P93007	Arabidopsis thaliana	MA1245	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1246.2	LEP	AP2/EREBP	ERF/DREB	DAP-seq	Q9M644	Arabidopsis thaliana	MA1246	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1247.2	ERF087	AP2/EREBP	ERF/DREB	DAP-seq	Q9FZ90	Arabidopsis thaliana	MA1247	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1248.2	ERF012	AP2/EREBP	ERF/DREB	DAP-seq	Q9SFE4	Arabidopsis thaliana	MA1248	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1250.2	DREB2D	AP2/EREBP	ERF/DREB	DAP-seq	Q9LQZ2	Arabidopsis thaliana	MA1250	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1251.2	RAP2-9	AP2/EREBP	ERF/DREB	DAP-seq	Q8W3M3	Arabidopsis thaliana	MA1251	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1252.2	ERF086	AP2/EREBP	ERF/DREB	DAP-seq	Q6J9Q2	Arabidopsis thaliana	MA1252	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1253.2	ERF036	AP2/EREBP	ERF/DREB	DAP-seq	Q9LU18	Arabidopsis thaliana	MA1253	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1256.2	RAP2-12	AP2/EREBP	ERF/DREB	DAP-seq	Q9SSA8	Arabidopsis thaliana	MA1256	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1257.2	ERF9	AP2/EREBP	ERF/DREB	DAP-seq	Q9FE67	Arabidopsis thaliana	MA1257	plants	cluster_37	47,79,79	ERF9_AS2
+MA1258.2	DREB2A	AP2/EREBP	ERF/DREB	DAP-seq	O82132	Arabidopsis thaliana	MA1258	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1259.2	ERF023	AP2/EREBP	ERF/DREB	DAP-seq	Q1ECI2	Arabidopsis thaliana	MA1259	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1260.2	ERF013	AP2/EREBP	ERF/DREB	DAP-seq	Q9CAP4	Arabidopsis thaliana	MA1260	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1261.2	ERF122	AP2/EREBP	ERF/DREB	DAP-seq	Q38Q40	Arabidopsis thaliana	MA1261	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1262.2	ERF2	AP2/EREBP	ERF/DREB	DAP-seq	O80338	Arabidopsis thaliana	MA1262	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1263.2	ERF055	AP2/EREBP	ERF/DREB	DAP-seq	Q9SKW5	Arabidopsis thaliana	MA1263	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1264.2	ERF095	AP2/EREBP	ERF/DREB	DAP-seq	Q9LTC6	Arabidopsis thaliana	MA1264	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1265.3	ERF015	AP2/EREBP	ERF/DREB	DAP-seq	Q6NLD5	Arabidopsis thaliana	MA1265	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1266.2	RAP2-11	AP2/EREBP	ERF/DREB	DAP-seq	Q6J9S1	Arabidopsis thaliana	MA1266	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1267.2	DOF5.8	Other C4 zinc finger-type factors	DOF	DAP-seq	Q9FGD6	Arabidopsis thaliana	MA1267	plants	cluster_08	0,0,0	C2H2_DOF
+MA1268.2	CDF5	Other C4 zinc finger-type factors	DOF	DAP-seq	Q9SEZ3	Arabidopsis thaliana	MA1268	plants	cluster_08	0,0,0	C2H2_DOF
+MA1269.2	DOF4.5	Other C4 zinc finger-type factors	DOF	DAP-seq	O49550	Arabidopsis thaliana	MA1269	plants	cluster_03	0,255,255	DOF_CDF
+MA1270.2	DOF3.2	Other C4 zinc finger-type factors	DOF	DAP-seq	Q9M1E6	Arabidopsis thaliana	MA1270	plants	cluster_08	0,0,0	C2H2_DOF
+MA1272.3	DOF2.2	Other C4 zinc finger-type factors	DOF		Q9ZV33	Arabidopsis thaliana	MA1272	plants	cluster_03	0,255,255	DOF_CDF
+MA1273.2	DOF4.2	Other C4 zinc finger-type factors	DOF	DAP-seq	Q9SUB1	Arabidopsis thaliana	MA1273	plants	cluster_03	0,255,255	DOF_CDF
+MA1274.1	DOF3.6	Other C4 zinc finger-type factors	DOF	DAP-seq	Q9M2U1	Arabidopsis thaliana	MA1274	plants	cluster_08	0,0,0	C2H2_DOF
+MA1275.2	DOF1.6	Other C4 zinc finger-type factors	DOF	DAP-seq	Q9SX97	Arabidopsis thaliana	MA1275	plants	cluster_03	0,255,255	DOF_CDF
+MA1276.2	DOF3.5	Other C4 zinc finger-type factors	DOF	DAP-seq	Q9SVC5	Arabidopsis thaliana	MA1276	plants	cluster_03	0,255,255	DOF_CDF
+MA1277.2	DOF1.7	Other C4 zinc finger-type factors	DOF	DAP-seq	O82155	Arabidopsis thaliana	MA1277	plants	cluster_03	0,255,255	DOF_CDF
+MA1278.2	DOF3.4	Other C4 zinc finger-type factors	DOF	DAP-seq	Q39088	Arabidopsis thaliana	MA1278	plants	cluster_08	0,0,0	C2H2_DOF
+MA1279.2	DOF1.5	Other C4 zinc finger-type factors	DOF	DAP-seq	P68350	Arabidopsis thaliana	MA1279	plants	cluster_08	0,0,0	C2H2_DOF
+MA1280.2	DOF5.4	Other C4 zinc finger-type factors	DOF	DAP-seq	Q8LDR0	Arabidopsis thaliana	MA1280	plants	cluster_03	0,255,255	DOF_CDF
+MA1281.2	DOF5.1	Other C4 zinc finger-type factors	DOF	DAP-seq	Q9LZ56	Arabidopsis thaliana	MA1281	plants	cluster_08	0,0,0	C2H2_DOF
+MA1282.2	TCP13	TCP		DAP-seq	Q9S7W5	Arabidopsis thaliana	MA1282	plants	cluster_01	240,248,255	ARF_TCP
+MA1283.2	TCP14	TCP		DAP-seq	Q93Z00	Arabidopsis thaliana	MA1283	plants	cluster_01	240,248,255	ARF_TCP
+MA1284.2	TCP1	TCP		DAP-seq	Q9FYG7	Arabidopsis thaliana	MA1284	plants	cluster_01	240,248,255	ARF_TCP
+MA1285.2	TCP9	TCP		DAP-seq	O64647	Arabidopsis thaliana	MA1285	plants	cluster_01	240,248,255	ARF_TCP
+MA1286.2	TCP24	TCP		DAP-seq	Q9C758	Arabidopsis thaliana	MA1286	plants	cluster_01	240,248,255	ARF_TCP
+MA1287.2	TCP21	TCP		DAP-seq	Q9FTA2	Arabidopsis thaliana	MA1287	plants	cluster_01	240,248,255	ARF_TCP
+MA1288.2	TCP22	TCP		DAP-seq	Q9C7G4	Arabidopsis thaliana	MA1288	plants	cluster_01	240,248,255	ARF_TCP
+MA1289.2	TCP3	TCP		DAP-seq	Q9MAH8	Arabidopsis thaliana	MA1289	plants	cluster_01	240,248,255	ARF_TCP
+MA1290.1	TCP17	TCP		DAP-seq	Q9LEZ9	Arabidopsis thaliana	MA1290	plants	cluster_01	240,248,255	ARF_TCP
+MA1291.1	TCP7	TCP		DAP-seq	Q9FMX2	Arabidopsis thaliana	MA1291	plants	cluster_01	240,248,255	ARF_TCP
+MA1292.2	MYB27	Tryptophan cluster factors	MYB	DAP-seq	Q9SCP1	Arabidopsis thaliana	MA1292	plants	cluster_02	250,235,215	MYB_TRB
+MA1293.2	MYB57	Tryptophan cluster factors	MYB	DAP-seq	Q9SSA1	Arabidopsis thaliana	MA1293	plants	cluster_02	250,235,215	MYB_TRB
+MA1294.2	MYB62	Tryptophan cluster factors	MYB	DAP-seq	Q9C9G7	Arabidopsis thaliana	MA1294	plants	cluster_02	250,235,215	MYB_TRB
+MA1295.2	WRKY20	GCM domain factors	WRKY	DAP-seq	Q93WV0	Arabidopsis thaliana	MA1295	plants	cluster_10	0,0,255	WRKY
+MA1296.2	WRKY46	GCM domain factors	WRKY	DAP-seq	Q9SKD9	Arabidopsis thaliana	MA1296	plants	cluster_10	0,0,255	WRKY
+MA1297.2	WRKY26	GCM domain factors	WRKY	DAP-seq	Q9C5T3	Arabidopsis thaliana	MA1297	plants	cluster_10	0,0,255	WRKY
+MA1298.2	WRKY29	GCM domain factors	WRKY	DAP-seq	Q9SUS1	Arabidopsis thaliana	MA1298	plants	cluster_10	0,0,255	WRKY
+MA1299.2	WRKY17	GCM domain factors	WRKY	DAP-seq	Q9SJA8	Arabidopsis thaliana	MA1299	plants	cluster_10	0,0,255	WRKY
+MA1300.2	WRKY6	GCM domain factors	WRKY	DAP-seq	Q9C519	Arabidopsis thaliana	MA1300	plants	cluster_10	0,0,255	WRKY
+MA1301.2	WRKY33	GCM domain factors	WRKY	DAP-seq	Q8S8P5	Arabidopsis thaliana	MA1301	plants	cluster_10	0,0,255	WRKY
+MA1302.2	WRKY65	GCM domain factors	WRKY	DAP-seq	Q9LP56	Arabidopsis thaliana	MA1302	plants	cluster_10	0,0,255	WRKY
+MA1303.2	WRKY22	GCM domain factors	WRKY	DAP-seq	O04609	Arabidopsis thaliana	MA1303	plants	cluster_10	0,0,255	WRKY
+MA1304.2	WRKY59	GCM domain factors	WRKY	DAP-seq	Q9SJ09	Arabidopsis thaliana	MA1304	plants	cluster_10	0,0,255	WRKY
+MA1305.2	WRKY55	GCM domain factors	WRKY	DAP-seq	Q9SHB5	Arabidopsis thaliana	MA1305	plants	cluster_10	0,0,255	WRKY
+MA1306.2	WRKY11	GCM domain factors	WRKY	DAP-seq	Q9SV15	Arabidopsis thaliana	MA1306	plants	cluster_10	0,0,255	WRKY
+MA1307.3	WRKY31	GCM domain factors	WRKY		Q93WT0	Arabidopsis thaliana	MA1307	plants	cluster_10	0,0,255	WRKY
+MA1308.2	WRKY70	GCM domain factors	WRKY	DAP-seq	Q9LY00	Arabidopsis thaliana	MA1308	plants	cluster_10	0,0,255	WRKY
+MA1309.1	WRKY3	GCM domain factors	WRKY	DAP-seq	Q9ZQ70	Arabidopsis thaliana	MA1309	plants	cluster_10	0,0,255	WRKY
+MA1310.2	WRKY42	GCM domain factors	WRKY	DAP-seq	Q9XEC3	Arabidopsis thaliana	MA1310	plants	cluster_10	0,0,255	WRKY
+MA1311.3	WRKY28	GCM domain factors	WRKY	DAP-seq	Q8VWJ2	Arabidopsis thaliana	MA1311	plants	cluster_10	0,0,255	WRKY
+MA1312.2	WRKY47	GCM domain factors	WRKY	DAP-seq	Q9ZSI7	Arabidopsis thaliana	MA1312	plants	cluster_10	0,0,255	WRKY
+MA1313.2	WRKY7	GCM domain factors	WRKY	DAP-seq	Q9STX0	Arabidopsis thaliana	MA1313	plants	cluster_10	0,0,255	WRKY
+MA1314.2	WRKY14	GCM domain factors	WRKY	DAP-seq	Q9SA80	Arabidopsis thaliana	MA1314	plants	cluster_10	0,0,255	WRKY
+MA1315.2	WRKY24	GCM domain factors	WRKY	DAP-seq	Q9FFS3	Arabidopsis thaliana	MA1315	plants	cluster_10	0,0,255	WRKY
+MA1316.2	WRKY71	GCM domain factors	WRKY	DAP-seq	Q93WV4	Arabidopsis thaliana	MA1316	plants	cluster_10	0,0,255	WRKY
+MA1317.2	WRKY50	GCM domain factors	WRKY	DAP-seq	Q8VWQ5	Arabidopsis thaliana	MA1317	plants	cluster_10	0,0,255	WRKY
+MA1318.2	WRKY27	GCM domain factors	WRKY	DAP-seq	Q9FLX8	Arabidopsis thaliana	MA1318	plants	cluster_10	0,0,255	WRKY
+MA1320.2	SPL15	C3H(C),C2HC zinc fingers factors	SBP	DAP-seq	Q9M2Q6	Arabidopsis thaliana	MA1320	plants	cluster_28	189,183,107	SPL_A
+MA1321.2	SPL13A	C3H(C),C2HC zinc fingers factors	SBP	DAP-seq	B9DI20	Arabidopsis thaliana	MA1321	plants	cluster_28	189,183,107	SPL_A
+MA1322.3	SPL9	C3H(C),C2HC zinc fingers factors	SBP	SELEX	Q700W2	Arabidopsis thaliana	MA1322	plants	cluster_28	189,183,107	SPL_A
+MA1323.2	GATA19	Other C4 zinc finger-type factors	C4-GATA-related	DAP-seq	Q6QPM2	Arabidopsis thaliana	MA1323	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1324.1	GATA20	Other C4 zinc finger-type factors	C4-GATA-related	DAP-seq	Q9ZPX0	Arabidopsis thaliana	MA1324	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1325.2	GATA14	Other C4 zinc finger-type factors	C4-GATA-related	DAP-seq	Q9M1U2	Arabidopsis thaliana	MA1325	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1326.2	ZHD5	Homeo domain factors	PLINC	DAP-seq	Q9FRL5	Arabidopsis thaliana	MA1326	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1327.3	ATHB-23	Homeo domain factors	HD-ZIP	DAP-seq	Q8LFD3	Arabidopsis thaliana	MA1327	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1328.1	ZHD9	Homeo domain factors	PLINC	DAP-seq	Q8LFD3	Arabidopsis thaliana	MA1328	plants	cluster_06	245,245,220	CPP
+MA1329.3	ZHD1	Homeo domain factors	PLINC	DAP-seq	Q9SB61	Arabidopsis thaliana	MA1329	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1330.2	ZHD6	Homeo domain factors	PLINC	DAP-seq		Arabidopsis thaliana	MA1330	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1331.2	BEH4	Basic helix-loop-helix factors (bHLH)	BES/BZR	DAP-seq	Q9ZV88	Arabidopsis thaliana	MA1331	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1332.2	BEH2	Basic helix-loop-helix factors (bHLH)	BES/BZR	DAP-seq	Q94A43	Arabidopsis thaliana	MA1332	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1333.2	BEH3	Basic helix-loop-helix factors (bHLH)	BES/BZR	DAP-seq	O49404	Arabidopsis thaliana	MA1333	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1334.2	BZIP11	Basic leucine zipper factors (bZIP)	Group S	DAP-seq	O65683	Arabidopsis thaliana	MA1334	plants	cluster_14	95,158,160	BZIP_TGA
+MA1335.1	TGA4	Basic leucine zipper factors (bZIP)	Group D	DAP-seq	Q39162	Arabidopsis thaliana	MA1335	plants	cluster_14	95,158,160	BZIP_TGA
+MA1336.2	TGA3	Basic leucine zipper factors (bZIP)	Group D	DAP-seq	Q39234	Arabidopsis thaliana	MA1336	plants	cluster_14	95,158,160	BZIP_TGA
+MA1337.2	BZIP44	Basic leucine zipper factors (bZIP)	Group S	DAP-seq	C0Z2L5	Arabidopsis thaliana	MA1337	plants	cluster_14	95,158,160	BZIP_TGA
+MA1338.3	DPBF3	Basic leucine zipper factors (bZIP)	Group A		Q9LES3	Arabidopsis thaliana	MA1338	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1339.1	BZIP43	Basic leucine zipper factors (bZIP)	Group S	DAP-seq	Q9FMC2	Arabidopsis thaliana	MA1339	plants	cluster_14	95,158,160	BZIP_TGA
+MA1340.2	BZIP3	Basic leucine zipper factors (bZIP)	Group S	DAP-seq	Q9LFU3	Arabidopsis thaliana	MA1340	plants	cluster_14	95,158,160	BZIP_TGA
+MA1341.2	BZIP53	Basic leucine zipper factors (bZIP)	Group S	DAP-seq	Q9LZP8	Arabidopsis thaliana	MA1341	plants	cluster_14	95,158,160	BZIP_TGA
+MA1343.2	BZIP52	Basic leucine zipper factors (bZIP)	Group I	DAP-seq	Q8VWG0	Arabidopsis thaliana	MA1343	plants	cluster_12	165,42,42	BZIP
+MA1344.2	BZIP28	Basic leucine zipper factors (bZIP)	Group B	DAP-seq	Q9SG86	Arabidopsis thaliana	MA1344	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1345.2	BZIP48	Basic leucine zipper factors (bZIP)	Group S	DAP-seq	Q8RU59	Arabidopsis thaliana	MA1345	plants	cluster_14	95,158,160	BZIP_TGA
+MA1346.2	TGA10	Basic leucine zipper factors (bZIP)	Group D	DAP-seq	E3VNM4	Arabidopsis thaliana	MA1346	plants	cluster_14	95,158,160	BZIP_TGA
+MA1348.1	TGA9	Basic leucine zipper factors (bZIP)	Group D	DAP-seq	Q93XM6	Arabidopsis thaliana	MA1348	plants	cluster_14	95,158,160	BZIP_TGA
+MA1349.2	BZIP16	Basic leucine zipper factors (bZIP)	Group G	DAP-seq	Q501B2	Arabidopsis thaliana	MA1349	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1350.1	BZIP42	Basic leucine zipper factors (bZIP)	Group S	DAP-seq	Q9LW45	Arabidopsis thaliana	MA1350	plants	cluster_14	95,158,160	BZIP_TGA
+MA1351.3	GBF3	Basic leucine zipper factors (bZIP)	Group G		P42776	Arabidopsis thaliana	MA1351	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1352.1	TRP1	Tryptophan cluster factors	Myb-related	DAP-seq	Q8L7L8	Arabidopsis thaliana	MA1352	plants	cluster_34	233,150,122	TRP
+MA1353.2	AT1G72740	Tryptophan cluster factors	MYB-related	DAP-seq	F4IEY4	Arabidopsis thaliana	MA1353	plants	cluster_02	250,235,215	MYB_TRB
+MA1354.1	AT4G12670	Tryptophan cluster factors	Myb-related	DAP-seq	Q700D7	Arabidopsis thaliana	MA1354	plants	cluster_34	233,150,122	TRP
+MA1355.2	TRB2	Tryptophan cluster factors	MYB-related	DAP-seq	Q9JFW5	Arabidopsis thaliana	MA1355	plants	cluster_02	250,235,215	MYB_TRB
+MA1356.1	TRP2	Tryptophan cluster factors	Myb-related	DAP-seq	Q9SNB9	Arabidopsis thaliana	MA1356	plants	cluster_34	233,150,122	TRP
+MA1357.2	bHLH80	Basic helix-loop-helix factors (bHLH)	bHLH	DAP-seq	Q9C8P8	Arabidopsis thaliana	MA1357	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1358.2	bHLH130	Basic helix-loop-helix factors (bHLH)	bHLH	DAP-seq	Q66GR3	Arabidopsis thaliana	MA1358	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1359.3	BPE	Basic helix-loop-helix factors (bHLH)	bHLH		Q0JXE7	Arabidopsis thaliana	MA1359	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1360.3	bHLH74	Basic helix-loop-helix factors (bHLH)	bHLH		Q6NKN9	Arabidopsis thaliana	MA1360	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1361.2	bHLH18	Basic helix-loop-helix factors (bHLH)	bHLH	DAP-seq	Q1PF17	Arabidopsis thaliana	MA1361	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1362.2	bHLH77	Basic helix-loop-helix factors (bHLH)	bHLH	DAP-seq	Q9LK48	Arabidopsis thaliana	MA1362	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1363.1	LRL2	Basic helix-loop-helix factors (bHLH)	bHLH	DAP-seq	Q8S3D5	Arabidopsis thaliana	MA1363	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1364.2	BHLH72	Basic helix-loop-helix factors (bHLH)	bHLH	DAP-seq	Q570R7	Arabidopsis thaliana	MA1364	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1365.3	AT5G47660	Tryptophan cluster factors	Trihelix	DAP-seq	Q9FGJ1	Arabidopsis thaliana	MA1365	plants	cluster_10	0,0,255	WRKY
+MA1366.2	DF1	Tryptophan cluster factors	Trihelix	DAP-seq	Q9C6K3	Arabidopsis thaliana	MA1366	plants	cluster_10	0,0,255	WRKY
+MA1367.2	AT1G76870	Tryptophan cluster factors	Trihelix	DAP-seq		Arabidopsis thaliana	MA1367	plants	cluster_18	100,149,237	TRP_Trihelix
+MA1368.3	GT-4	Tryptophan cluster factors	Trihelix	DAP-seq	Q9LU92	Arabidopsis thaliana	MA1368	plants	cluster_02	250,235,215	MYB_TRB
+MA1369.2	HDG1	Homeo domain factors	HD-ZIP	DAP-seq	Q9M2E8	Arabidopsis thaliana	MA1369	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1370.2	IDD5	C2H2 zinc finger factors	IDD	DAP-seq	Q9ZUL3	Arabidopsis thaliana	MA1370	plants	cluster_08	0,0,0	C2H2_DOF
+MA1371.2	IDD4	C2H2 zinc finger factors	IDD	DAP-seq	Q8GYC1	Arabidopsis thaliana	MA1371	plants	cluster_08	0,0,0	C2H2_DOF
+MA1372.2	ZAT10	C2H2 zinc finger factors	C2H2	DAP-seq	Q96289	Arabidopsis thaliana	MA1372	plants	cluster_35	143,188,143	ZAT10_SIZF2
+MA1373.1	GAF1	C2H2 zinc finger factors	IDD	DAP-seq	Q9SCQ6	Arabidopsis thaliana	MA1373	plants	cluster_08	0,0,0	C2H2_DOF
+MA1374.2	IDD7	C2H2 zinc finger factors	IDD	DAP-seq	Q8H1F5	Arabidopsis thaliana	MA1374	plants	cluster_08	0,0,0	C2H2_DOF
+MA1375.2	ANL2	Homeo domain factors	HD-ZIP	DAP-seq	Q0WV12	Arabidopsis thaliana	MA1375	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1376.2	DEAR3	AP2/EREBP	ERF/DREB	PBM	O22174	Arabidopsis thaliana	MA1376	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1377.2	PLT1	AP2/EREBP	AP2	DAP-seq	Q5YGP8	Arabidopsis thaliana	MA1377	plants	cluster_31	255,140,0	AIL_ANT_PLT1
+MA1378.1	AIL6	AP2/EREBP	AP2	DAP-seq	Q52QU2	Arabidopsis thaliana	MA1378	plants	cluster_31	255,140,0	AIL_ANT_PLT1
+MA1379.1	SOL1	CPP		DAP-seq	Q9M9H7	Arabidopsis thaliana	MA1379	plants	cluster_06	245,245,220	CPP
+MA1380.1	TCX6	CPP		DAP-seq	Q9SL70	Arabidopsis thaliana	MA1380	plants	cluster_06	245,245,220	CPP
+MA1381.2	AT3G46070	C2H2 zinc finger factors	C2H2	DAP-seq	Q9LX86	Arabidopsis thaliana	MA1381	plants	cluster_19	255,248,220	AZF
+MA1382.2	FAR1	GCM domain factors	FRS/FRF	DAP-seq	Q9SWG3	Arabidopsis thaliana	MA1382	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1383.2	KAN2	Tryptophan cluster factors	GARP_G2-like	DAP-seq	Q9C616	Arabidopsis thaliana	MA1383	plants	cluster_04	127,255,212	HSF_GARP
+MA1384.1	PHL7	Tryptophan cluster factors	GARP_G2-like	DAP-seq	Q9SJW0	Arabidopsis thaliana	MA1384	plants	cluster_04	127,255,212	HSF_GARP
+MA1385.2	AT2G40260	Tryptophan cluster factors	GARP_G2-like	DAP-seq		Arabidopsis thaliana	MA1385	plants	cluster_04	127,255,212	HSF_GARP
+MA1386.3	HHO3	Tryptophan cluster factors	GARP_G2-like		Q9FPE8	Arabidopsis thaliana	MA1386	plants	cluster_04	127,255,212	HSF_GARP
+MA1387.2	HRS1	Tryptophan cluster factors	GARP_G2-like	DAP-seq	Q9FX67	Arabidopsis thaliana	MA1387	plants	cluster_04	127,255,212	HSF_GARP
+MA1388.2	PHL2	Tryptophan cluster factors	GARP_G2-like	DAP-seq	Q94A57	Arabidopsis thaliana	MA1388	plants	cluster_04	127,255,212	HSF_GARP
+MA1389.2	PHL1	Tryptophan cluster factors	GARP_G2-like	DAP-seq	Q8GUN5	Arabidopsis thaliana	MA1389	plants	cluster_04	127,255,212	HSF_GARP
+MA1390.3	HHO2	Tryptophan cluster factors	GARP_G2-like		Q8VZS3	Arabidopsis thaliana	MA1390	plants	cluster_04	127,255,212	HSF_GARP
+MA1391.3	MYB33	Tryptophan cluster factors	MYB	DAP-seq	Q8W1W6	Arabidopsis thaliana	MA1391	plants	cluster_11	138,43,226	MYB
+MA1392.3	MYB98	Tryptophan cluster factors	MYB		Q9S7L2	Arabidopsis thaliana	MA1392	plants	cluster_11	138,43,226	MYB
+MA1393.3	MYB70	Tryptophan cluster factors	MYB	DAP-seq	O22179	Arabidopsis thaliana	MA1393	plants	cluster_11	138,43,226	MYB
+MA1394.3	MYB73	Tryptophan cluster factors	MYB	DAP-seq	O23160	Arabidopsis thaliana	MA1394	plants	cluster_11	138,43,226	MYB
+MA1396.2	GATA6	Other C4 zinc finger-type factors	C4-GATA-related	DAP-seq	Q9SD38	Arabidopsis thaliana	MA1396	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1397.2	AT1G74840	Tryptophan cluster factors	MYB-related	DAP-seq		Arabidopsis thaliana	MA1397	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1398.3	KUA1	Tryptophan cluster factors	MYB-related	DAP-seq	Q9LVS0	Arabidopsis thaliana	MA1398	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1400.2	AT1G19000	Tryptophan cluster factors	MYB-related	DAP-seq		Arabidopsis thaliana	MA1400	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1401.2	RVE7	Tryptophan cluster factors	MYB-related	DAP-seq	B3H5A8	Arabidopsis thaliana	MA1401	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1402.1	BPC6	BBR/BPC		DAP-seq	Q8L999	Arabidopsis thaliana	MA1402	plants	cluster_21	0,255,255	BPC
+MA1403.1	BPC5	BBR/BPC		DAP-seq	F4JUI3	Arabidopsis thaliana	MA1403	plants	cluster_21	0,255,255	BPC
+MA1404.1	BPC1	BBR/BPC		DAP-seq	Q9SKD0	Arabidopsis thaliana	MA1404	plants	cluster_21	0,255,255	BPC
+MA1405.2	SIZF2	C2H2 zinc finger factors	C2H2	PBM	I3NN78	Solanum lycopersicum	MA1405	plants	cluster_35	143,188,143	ZAT10_SIZF2
+MA1406.2	ATHB-4	Homeo domain factors	HD-ZIP	PBM	P92953	Arabidopsis thaliana	MA1406	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1408.2	FaEOBII	Tryptophan cluster factors	MYB-related	PBM		Fragaria x ananassa	MA1408	plants	cluster_02	250,235,215	MYB_TRB
+MA1409.2	OsRR22	Tryptophan cluster factors	GARP_ARR-B	PBM	Q5SML5	Oryza sativa	MA1409	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1410.2	StBRC1	TCP		PBM		Solanum lycopersicum	MA1410	plants	cluster_01	240,248,255	ARF_TCP
+MA1411.2	TSAR1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Medicago truncatula	MA1411	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1412.2	TSAR2	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Medicago truncatula	MA1412	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1414.2	E2FA	Fork head/winged helix factors	E2F	ChIP-seq	Q9FNY0	Arabidopsis thaliana	MA1414	plants	cluster_44	105,105,105	E2FA
+MA1415.2	REF6	C2H2 zinc finger factors	Jumonji	ChIP-seq	Q9STM3	Arabidopsis thaliana	MA1415	plants	cluster_11	138,43,226	MYB
+MA1416.1	RAMOSA1	C2H2 zinc finger factors	C2H2	PBM		Zea mays	MA1416	plants	cluster_21	0,255,255	BPC
+MA1417.2	O2	Basic leucine zipper factors (bZIP)	Group C	ChIP-seq	P12959	Zea mays	MA1417	plants	cluster_14	95,158,160	BZIP_TGA
+MA1424.2	ERF019	AP2/EREBP	ERF/DREB	DAP-seq	O80542	Arabidopsis thaliana	MA1424	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1425.2	HYH	Basic leucine zipper factors (bZIP)	Group H	PBM	Q8W191	Arabidopsis thaliana	MA1425	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1426.2	MYB124	Tryptophan cluster factors	MYB	PBM	Q94FL6	Arabidopsis thaliana	MA1426	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1427.3	NAC028	GCM domain factors	NAC		Q9SRZ8	Arabidopsis thaliana	MA1427	plants	cluster_25	169,169,169	NAC_C
+MA1428.2	TCP8	TCP		PBM	Q9C518	Arabidopsis thaliana	MA1428	plants	cluster_01	240,248,255	ARF_TCP
+MA1430.2	TB1	TCP		PBM	Q8LN68	Oryza sativa	MA1430	plants	cluster_01	240,248,255	ARF_TCP
+MA1659.2	ABF4	Basic leucine zipper factors (bZIP)	Group A	DAP-seq	Q9M7Q2	Arabidopsis thaliana	MA1659	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1660.2	NAC013	GCM domain factors	NAC	DAP-seq	F4IED2	Arabidopsis thaliana	MA1660	plants	cluster_16	210,105,30	NAC_A
+MA1661.2	GTL1	Tryptophan cluster factors	Trihelix	DAP-seq	A0A1P8ATX4	Arabidopsis thaliana	MA1661	plants	cluster_10	0,0,255	WRKY
+MA1662.2	AT3G10030	Tryptophan cluster factors	Trihelix	DAP-seq	Q94JR1	Arabidopsis thaliana	MA1662	plants	cluster_11	138,43,226	MYB
+MA1663.3	NAC050	GCM domain factors	NAC		Q9SQX9	Arabidopsis thaliana	MA1663	plants	cluster_25	169,169,169	NAC_C
+MA1664.3	HSFA6B	Heat shock factors	HSF		Q9LUH8	Arabidopsis thaliana	MA1664	plants	cluster_39	0,206,209	HSFA6B_HSFC1
+MA1665.3	HSFB2A	Heat shock factors	HSF		Q9SCW4	Arabidopsis thaliana	MA1665	plants	cluster_04	127,255,212	HSF_GARP
+MA1666.3	HSFB2B	Heat shock factors	HSF		Q9T0D3	Arabidopsis thaliana	MA1666	plants	cluster_04	127,255,212	HSF_GARP
+MA1667.3	HSFC1	Heat shock factors	HSF		Q9LV52	Arabidopsis thaliana	MA1667	plants	cluster_39	0,206,209	HSFA6B_HSFC1
+MA1669.2	DREB1B	AP2/EREBP	ERF/DREB	DAP-seq	P93835	Arabidopsis thaliana	MA1669	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1670.2	DREB1C	AP2/EREBP	ERF/DREB	DAP-seq	Q9SYS6	Arabidopsis thaliana	MA1670	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1671.2	ERF118	AP2/EREBP	ERF/DREB	DAP-seq	Q9CA27	Arabidopsis thaliana	MA1671	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1672.2	GBF2	Basic leucine zipper factors (bZIP)	Group G	PBM	P42775	Arabidopsis thaliana	MA1672	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1673.2	LBD18	Other C4 zinc finger-type factors	LBD	DAP-seq	O22131	Arabidopsis thaliana	MA1673	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1674.3	NAC017	GCM domain factors	NAC		Q9XIC5	Arabidopsis thaliana	MA1674	plants	cluster_25	169,169,169	NAC_C
+MA1675.2	NAC029	GCM domain factors	NAC	DAP-seq	O49255	Arabidopsis thaliana	MA1675	plants	cluster_20	220,20,60	NAC_B
+MA1676.3	NAC062	GCM domain factors	NAC		Q9SCK6	Arabidopsis thaliana	MA1676	plants	cluster_25	169,169,169	NAC_C
+MA1677.2	NAC078	GCM domain factors	NAC	DAP-seq	Q84K00	Arabidopsis thaliana	MA1677	plants	cluster_25	169,169,169	NAC_C
+MA1678.3	NTL8	GCM domain factors	NAC		Q9XIN7	Arabidopsis thaliana	MA1678	plants	cluster_25	169,169,169	NAC_C
+MA1679.2	RAP2-1	AP2/EREBP	ERF/DREB	DAP-seq	Q8LC30	Arabidopsis thaliana	MA1679	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1681.2	SRM1	Tryptophan cluster factors	MYB-related	DAP-seq	Q9FNN6	Arabidopsis thaliana	MA1681	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1682.2	TCX3	CPP		DAP-seq	Q8L548	Arabidopsis thaliana	MA1682	plants	cluster_06	245,245,220	CPP
+MA1685.2	ARF10	B3	ARF	DAP-seq	D9HNT7	Zea mays	MA1685	plants	cluster_01	240,248,255	ARF_TCP
+MA1686.1	ARF13	B3	ARF	DAP-seq	D9HNU0	Zea mays	MA1686	plants	cluster_01	240,248,255	ARF_TCP
+MA1687.1	ARF14	B3	ARF	DAP-seq	D9HNU1	Zea mays	MA1687	plants	cluster_01	240,248,255	ARF_TCP
+MA1688.2	ARF16	B3	ARF	DAP-seq	K7URZ7	Zea mays	MA1688	plants	cluster_17	255,127,80	ARF_RAV
+MA1689.2	ARF18	B3	ARF	DAP-seq	A0A060CYJ7	Zea mays	MA1689	plants	cluster_17	255,127,80	ARF_RAV
+MA1690.2	ARF25	B3	ARF	DAP-seq	C0PH36	Zea mays	MA1690	plants	cluster_01	240,248,255	ARF_TCP
+MA1691.2	ARF27	B3	ARF	DAP-seq	D9HNV4	Zea mays	MA1691	plants	cluster_22	0,0,139	GRF_ARF
+MA1692.2	ARF29	B3	ARF	DAP-seq	D9HNV6	Zea mays	MA1692	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1693.2	ARF34	B3	ARF	DAP-seq	A0A060D7X7	Zea mays	MA1693	plants	cluster_22	0,0,139	GRF_ARF
+MA1694.2	ARF35	B3	ARF	DAP-seq		Zea mays	MA1694	plants	cluster_17	255,127,80	ARF_RAV
+MA1695.2	ARF36	B3	ARF	DAP-seq		Zea mays	MA1695	plants	cluster_01	240,248,255	ARF_TCP
+MA1696.2	ARF39	B3	ARF	DAP-seq		Zea mays	MA1696	plants	cluster_01	240,248,255	ARF_TCP
+MA1697.2	ARF4	B3	ARF	DAP-seq	D9HNT1	Zea mays	MA1697	plants	cluster_17	255,127,80	ARF_RAV
+MA1698.2	ARF7	B3	ARF	DAP-seq	D9HNT4	Zea mays	MA1698	plants	cluster_17	255,127,80	ARF_RAV
+MA1706.2	AT1G14600	Tryptophan cluster factors	GARP_G2-like	PBM	Q700D9	Arabidopsis thaliana	MA1706	plants	cluster_04	127,255,212	HSF_GARP
+MA1732.1	E2FD	Fork head/winged helix factors	E2F	DAP-seq	Q9LFQ9	Arabidopsis thaliana	MA1732	plants	cluster_27	169,169,169	E2F
+MA1733.2	ASR3	Tryptophan cluster factors	Trihelix	DAP-seq	Q8VZ20	Arabidopsis thaliana	MA1733	plants	cluster_02	250,235,215	MYB_TRB
+MA1734.1	AT1G19040	GCM domain factors	NAC	DAP-seq	A0JQ66	Arabidopsis thaliana	MA1734	plants	cluster_16	210,105,30	NAC_A
+MA1735.2	AT2G38300	Tryptophan cluster factors	GARP_G2-like	DAP-seq	Q8GYE4	Arabidopsis thaliana	MA1735	plants	cluster_04	127,255,212	HSF_GARP
+MA1736.2	AT5G04390	C2H2 zinc finger factors	C2H2	PBM	Q84K31	Arabidopsis thaliana	MA1736	plants	cluster_19	255,248,220	AZF
+MA1737.2	AT5G05090	Tryptophan cluster factors	GARP_G2-like	PBM	Q9FF65	Arabidopsis thaliana	MA1737	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1738.1	ATMYB31	Tryptophan cluster factors	Myb	DAP-seq	Q9CA52	Arabidopsis thaliana	MA1738	plants	cluster_02	250,235,215	MYB_TRB
+MA1739.2	BHLH122	Basic helix-loop-helix factors (bHLH)	bHLH	DAP-seq	Q9C690	Arabidopsis thaliana	MA1739	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1740.2	BHLH49	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q9CAA9	Arabidopsis thaliana	MA1740	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1741.1	BRN2	GCM domain factors	NAC	DAP-seq	Q9SV87	Arabidopsis thaliana	MA1741	plants	cluster_16	210,105,30	NAC_A
+MA1742.2	BZIP18	Basic leucine zipper factors (bZIP)	Group I	DAP-seq	O22873	Arabidopsis thaliana	MA1742	plants	cluster_12	165,42,42	BZIP
+MA1743.2	BZIP2	Basic leucine zipper factors (bZIP)	Group S	DAP-seq	Q9SI15	Arabidopsis thaliana	MA1743	plants	cluster_14	95,158,160	BZIP_TGA
+MA1744.2	BZIP30	Basic leucine zipper factors (bZIP)	Group I	PBM	Q9SIG8	Arabidopsis thaliana	MA1744	plants	cluster_12	165,42,42	BZIP
+MA1745.2	BZIP63	Basic leucine zipper factors (bZIP)	Group C	PBM	B9DGI8	Arabidopsis thaliana	MA1745	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1746.1	BZIP69	Basic leucine zipper factors (bZIP)	Group I	DAP-seq	Q9LNE0	Arabidopsis thaliana	MA1746	plants	cluster_12	165,42,42	BZIP
+MA1747.2	DOF4.3	Other C4 zinc finger-type factors	DOF	DAP-seq	Q9SUB0	Arabidopsis thaliana	MA1747	plants	cluster_03	0,255,255	DOF_CDF
+MA1748.2	DREB1F	AP2/EREBP	ERF/DREB	PBM	Q9LN86	Arabidopsis thaliana	MA1748	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1749.1	E2FC	Fork head/winged helix factors	E2F	DAP-seq	Q9FV70	Arabidopsis thaliana	MA1749	plants	cluster_27	169,169,169	E2F
+MA1750.1	E2FE	Fork head/winged helix factors	E2F	DAP-seq	Q8LSZ4	Arabidopsis thaliana	MA1750	plants	cluster_27	169,169,169	E2F
+MA1751.2	EIL3	EIL		DAP-seq	O23116	Arabidopsis thaliana	MA1751	plants	cluster_26	0,100,0	EIL_SBP
+MA1752.2	ERF025	AP2/EREBP	ERF/DREB	DAP-seq	Q9FJ90	Arabidopsis thaliana	MA1752	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1753.2	ERF057	AP2/EREBP	ERF/DREB	DAP-seq	Q9FJQ2	Arabidopsis thaliana	MA1753	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1754.2	ERF073	AP2/EREBP	ERF/DREB	DAP-seq	Q8H0T5	Arabidopsis thaliana	MA1754	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1755.2	GATA4	Other C4 zinc finger-type factors	C4-GATA-related	PBM	O49743	Arabidopsis thaliana	MA1755	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA1756.2	GRF9	C3H zinc finger factors	GRF	DAP-seq	Q8S9M3	Arabidopsis thaliana	MA1756	plants	cluster_22	0,0,139	GRF_ARF
+MA1757.2	HDG7	Homeo domain factors	HD-ZIP	DAP-seq	Q9LTK3	Arabidopsis thaliana	MA1757	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1758.2	HSFA1E	Heat shock factors	HSF		Q9SCW5	Arabidopsis thaliana	MA1758	plants	cluster_04	127,255,212	HSF_GARP
+MA1759.2	HSFA4A	Heat shock factors	HSF		O49403	Arabidopsis thaliana	MA1759	plants	cluster_04	127,255,212	HSF_GARP
+MA1760.1	HSFA6A	Heat shock factors	HSF		Q1PDN3	Arabidopsis thaliana	MA1760	plants	cluster_04	127,255,212	HSF_GARP
+MA1761.2	HSFB3	Heat shock factors	HSF		O22230	Arabidopsis thaliana	MA1761	plants	cluster_04	127,255,212	HSF_GARP
+MA1762.2	MYB10	Tryptophan cluster factors	MYB	DAP-seq	Q9LTV4	Arabidopsis thaliana	MA1762	plants	cluster_02	250,235,215	MYB_TRB
+MA1764.2	MYB116	Tryptophan cluster factors	MYB	DAP-seq	Q94FU0	Arabidopsis thaliana	MA1764	plants	cluster_02	250,235,215	MYB_TRB
+MA1765.2	MYB121	Tryptophan cluster factors	MYB	DAP-seq	Q9LRU5	Arabidopsis thaliana	MA1765	plants	cluster_02	250,235,215	MYB_TRB
+MA1766.2	MYB17	Tryptophan cluster factors	MYB	DAP-seq	Q9M2D9	Arabidopsis thaliana	MA1766	plants	cluster_02	250,235,215	MYB_TRB
+MA1767.2	MYB23	Tryptophan cluster factors	MYB	DAP-seq	Q96276	Arabidopsis thaliana	MA1767	plants	cluster_45	30,144,255	MYB23
+MA1768.2	MYB30	Tryptophan cluster factors	MYB	DAP-seq	Q9SCU7	Arabidopsis thaliana	MA1768	plants	cluster_02	250,235,215	MYB_TRB
+MA1769.2	MYB39	Tryptophan cluster factors	MYB	DAP-seq	Q8GWP0	Arabidopsis thaliana	MA1769	plants	cluster_02	250,235,215	MYB_TRB
+MA1770.2	MYB40	Tryptophan cluster factors	MYB	DAP-seq	F4K6R6	Arabidopsis thaliana	MA1770	plants	cluster_02	250,235,215	MYB_TRB
+MA1771.2	MYB41	Tryptophan cluster factors	MYB	DAP-seq	Q9M0J5	Arabidopsis thaliana	MA1771	plants	cluster_02	250,235,215	MYB_TRB
+MA1772.2	MYB43	Tryptophan cluster factors	MYB	DAP-seq	Q9SPG7	Arabidopsis thaliana	MA1772	plants	cluster_02	250,235,215	MYB_TRB
+MA1773.2	MYB51	Tryptophan cluster factors	MYB	DAP-seq	O49782	Arabidopsis thaliana	MA1773	plants	cluster_02	250,235,215	MYB_TRB
+MA1774.2	MYB60	Tryptophan cluster factors	MYB	DAP-seq	Q8GYP5	Arabidopsis thaliana	MA1774	plants	cluster_02	250,235,215	MYB_TRB
+MA1775.2	MYB61	Tryptophan cluster factors	MYB	DAP-seq	Q8VZQ2	Arabidopsis thaliana	MA1775	plants	cluster_02	250,235,215	MYB_TRB
+MA1776.2	MYB67	Tryptophan cluster factors	MYB	DAP-seq	Q9LTW2	Arabidopsis thaliana	MA1776	plants	cluster_02	250,235,215	MYB_TRB
+MA1777.2	MYB74	Tryptophan cluster factors	MYB	DAP-seq	Q9M0Y5	Arabidopsis thaliana	MA1777	plants	cluster_02	250,235,215	MYB_TRB
+MA1778.2	MYB80	Tryptophan cluster factors	MYB	DAP-seq	Q9XHV0	Arabidopsis thaliana	MA1778	plants	cluster_02	250,235,215	MYB_TRB
+MA1779.2	MYB83	Tryptophan cluster factors	MYB	DAP-seq	Q9C6U1	Arabidopsis thaliana	MA1779	plants	cluster_02	250,235,215	MYB_TRB
+MA1780.2	MYB92	Tryptophan cluster factors	MYB	DAP-seq	Q9SBF3	Arabidopsis thaliana	MA1780	plants	cluster_02	250,235,215	MYB_TRB
+MA1781.2	MYB94	Tryptophan cluster factors	MYB	DAP-seq	Q9SN78	Arabidopsis thaliana	MA1781	plants	cluster_02	250,235,215	MYB_TRB
+MA1783.1	NAC005	GCM domain factors	NAC	DAP-seq	O81914	Arabidopsis thaliana	MA1783	plants	cluster_16	210,105,30	NAC_A
+MA1784.1	NAC011	GCM domain factors	NAC	DAP-seq	Q9LQK5	Arabidopsis thaliana	MA1784	plants	cluster_16	210,105,30	NAC_A
+MA1785.2	NAC018	GCM domain factors	NAC	DAP-seq	Q9ZNU2	Arabidopsis thaliana	MA1785	plants	cluster_20	220,20,60	NAC_B
+MA1786.2	NAC019	GCM domain factors	NAC	PBM	Q9C932	Arabidopsis thaliana	MA1786	plants	cluster_20	220,20,60	NAC_B
+MA1787.2	NAC047	GCM domain factors	NAC	DAP-seq	Q84TD6	Arabidopsis thaliana	MA1787	plants	cluster_20	220,20,60	NAC_B
+MA1788.1	NAC054	GCM domain factors	NAC	DAP-seq	Q9FRV4	Arabidopsis thaliana	MA1788	plants	cluster_16	210,105,30	NAC_A
+MA1789.1	NAC071	GCM domain factors	NAC	DAP-seq	O49697	Arabidopsis thaliana	MA1789	plants	cluster_16	210,105,30	NAC_A
+MA1790.1	NAC073	GCM domain factors	NAC	DAP-seq	O49459	Arabidopsis thaliana	MA1790	plants	cluster_16	210,105,30	NAC_A
+MA1791.1	NAC087	GCM domain factors	NAC	DAP-seq	Q9FK44	Arabidopsis thaliana	MA1791	plants	cluster_16	210,105,30	NAC_A
+MA1792.1	NAC098	GCM domain factors	NAC	DAP-seq	O04017	Arabidopsis thaliana	MA1792	plants	cluster_16	210,105,30	NAC_A
+MA1793.2	NID1	Tryptophan cluster factors	MYB-related	PBM	Q84TG2	Arabidopsis thaliana	MA1793	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1794.2	NLP7	RWP-RK		DAP-seq	Q84TH9	Arabidopsis thaliana	MA1794	plants	cluster_10	0,0,255	WRKY
+MA1795.2	RAP2-4	AP2/EREBP	ERF/DREB	PBM	Q8H1E4	Arabidopsis thaliana	MA1795	plants	cluster_15	127,255,0	ERF_DREB_A
+MA1796.1	RAP2-7	AP2/EREBP	AP2	PBM	Q9SK03	Arabidopsis thaliana	MA1796	plants	cluster_36	72,61,139	SMZ_RAP2-7_TOE2
+MA1797.1	RAV2	B3	RAV	PBM	P82280	Arabidopsis thaliana	MA1797	plants	cluster_17	255,127,80	ARF_RAV
+MA1799.2	SPL10	C3H(C),C2HC zinc fingers factors	SBP	PBM	Q8S9L0	Arabidopsis thaliana	MA1799	plants	cluster_28	189,183,107	SPL_A
+MA1800.1	TEM1	B3	RAV	PBM	Q9C6M5	Arabidopsis thaliana	MA1800	plants	cluster_17	255,127,80	ARF_RAV
+MA1801.2	TREE1	C2H2 zinc finger factors	C2H2	PBM	O81793	Arabidopsis thaliana	MA1801	plants	cluster_12	165,42,42	BZIP
+MA1802.2	TRP5	Tryptophan cluster factors	MYB-related	PBM	Q6R0E3	Arabidopsis thaliana	MA1802	plants	cluster_18	100,149,237	TRP_Trihelix
+MA1803.2	VIP1	Basic leucine zipper factors (bZIP)	Group I	DAP-seq	Q9MA75	Arabidopsis thaliana	MA1803	plants	cluster_12	165,42,42	BZIP
+MA1804.2	WIN1	AP2/EREBP	ERF/DREB	PBM	Q9XI33	Arabidopsis thaliana	MA1804	plants	cluster_30	85,107,47	ERF
+MA1805.2	WRKY53	GCM domain factors	WRKY	PBM	Q9SUP6	Arabidopsis thaliana	MA1805	plants	cluster_10	0,0,255	WRKY
+MA1807.2	ZHD10	Homeo domain factors	PLINC	DAP-seq	Q9FIW9	Arabidopsis thaliana	MA1807	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1808.2	GLYMA-06G314400	Basic leucine zipper factors (bZIP)	Group A	ChIP-seq	I1KFN0	Glycine max	MA1808	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1809.2	GLYMA-07G038400	C3H zinc finger factors	GRF	ChIP-seq	I1KHB3	Glycine max	MA1809	plants	cluster_22	0,0,139	GRF_ARF
+MA1810.2	GLYMA-08G357600	B3	LAV	ChIP-seq	I1KZD3	Glycine max	MA1810	plants	cluster_29	139,0,139	ABI
+MA1811.2	GLYMA-13G317000	Basic leucine zipper factors (bZIP)	Group A	ChIP-seq	K7M309	Glycine max	MA1811	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1812.2	ASR1	Tryptophan cluster factors	MYB-related	ChIP-seq	A0A3Q7EM19	Solanum lycopersicum	MA1812	plants	cluster_01	240,248,255	ARF_TCP
+MA1813.2	EIL4	EIL		ChIP-seq	Q76DI3	Solanum lycopersicum	MA1813	plants	cluster_46	178,34,34	EIL4
+MA1814.2	RIN	MADS box factors	Type II		Q8S4L4	Solanum lycopersicum	MA1814	plants	cluster_23	0,139,139	MIKC
+MA1815.2	GRF4	C3H zinc finger factors	GRF	ChIP-seq	Q6ZIK5	Oryza sativa	MA1815	plants	cluster_12	165,42,42	BZIP
+MA1816.2	O11	Basic helix-loop-helix factors (bHLH)	bHLH	ChIP-seq	A0A1D6EAS7	Zea mays	MA1816	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1817.2	Zm00001d020267	AP2/EREBP	ERF/DREB	ChIP-seq	A0A060D1F1	Zea mays	MA1817	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1818.1	Zm00001d052229	AP2/EREBP	ERF/DREB	ChIP-seq	C4JBG6	Zea mays	MA1818	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1819.2	Zm00001d005892	AP2/EREBP	ERF/DREB	ChIP-seq	A0A1D6ERG6	Zea mays	MA1819	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1820.2	Zm00001d024324	AP2/EREBP	ERF/DREB	ChIP-seq	K7TL41	Zea mays	MA1820	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1821.2	Zm00001d020595	AP2/EREBP	ERF/DREB	ChIP-seq	A0A1D6I4Y7	Zea mays	MA1821	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1822.2	Zm00001d018571	Basic leucine zipper factors (bZIP)		ChIP-seq	A0A1D6HQE4	Zea mays	MA1822	plants	cluster_28	189,183,107	SPL_A
+MA1823.2	Zm00001d027846	Other C4 zinc finger-type factors	DOF	ChIP-seq	B4FDH4	Zea mays	MA1823	plants	cluster_25	169,169,169	NAC_C
+MA1824.2	Zm00001d005692	Homeo domain factors	HD-ZIP	ChIP-seq	C0PNY4	Zea mays	MA1824	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA1825.2	Zm00001d044409	Tryptophan cluster factors	MYB-related	ChIP-seq	A0A1D6NLI6	Zea mays	MA1825	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1827.2	Zm00001d044785	Tryptophan cluster factors	GARP_G2-like	ChIP-seq	K7W4V3	Zea mays	MA1827	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA1828.2	Zm00001d038683	TCP		ChIP-seq	C0HEC8	Zea mays	MA1828	plants	cluster_01	240,248,255	ARF_TCP
+MA1829.2	Zm00001d035604	Tryptophan cluster factors	MYB	ChIP-seq	A0A1D6LHJ4	Zea mays	MA1829	plants	cluster_02	250,235,215	MYB_TRB
+MA1830.2	Zm00001d015407	Tryptophan cluster factors	GARP_G2-like	ChIP-seq	A0A060D7H5	Zea mays	MA1830	plants	cluster_04	127,255,212	HSF_GARP
+MA1831.2	Zm00001d031796	AP2/EREBP	ERF/DREB	ChIP-seq	A0A060D609	Zea mays	MA1831	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1832.2	Zm00001d002364	AP2/EREBP	ERF/DREB	ChIP-seq	C4J4G2	Zea mays	MA1832	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1833.2	Zm00001d049364	AP2/EREBP	ERF/DREB	ChIP-seq	B6TYT8	Zea mays	MA1833	plants	cluster_24	184,134,11	ERF_DREB_B
+MA1834.2	Zm00001d034298	Basic helix-loop-helix factors (bHLH)	bHLH	ChIP-seq	A0A1D6L6L0	Zea mays	MA1834	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA1835.2	TFLG2-Zm00001d042777	Basic leucine zipper factors (bZIP)	Group D	ChIP-seq	O49067	Zea mays	MA1835	plants	cluster_28	189,183,107	SPL_A
+MA2005.2	NAC016	GCM domain factors	NAC	DAP-seq	A4FVP6	Arabidopsis thaliana	MA2005	plants	cluster_16	210,105,30	NAC_A
+MA2006.2	NAC020	GCM domain factors	NAC		Q67Z40	Arabidopsis thaliana	MA2006	plants	cluster_16	210,105,30	NAC_A
+MA2007.2	MYB107	Tryptophan cluster factors	MYB	DAP-seq	Q9LDI5	Arabidopsis thaliana	MA2007	plants	cluster_02	250,235,215	MYB_TRB
+MA2008.2	MYB99	Tryptophan cluster factors	MYB	DAP-seq	Q9SNW9	Arabidopsis thaliana	MA2008	plants	cluster_02	250,235,215	MYB_TRB
+MA2009.2	NAC010	GCM domain factors	NAC		F4HY61	Arabidopsis thaliana	MA2009	plants	cluster_16	210,105,30	NAC_A
+MA2010.2	SMB	GCM domain factors	NAC	DAP-seq	Q9MA17	Arabidopsis thaliana	MA2010	plants	cluster_25	169,169,169	NAC_C
+MA2011.2	ERF010	AP2/EREBP	ERF/DREB		Q9FH94	Arabidopsis thaliana	MA2011	plants	cluster_15	127,255,0	ERF_DREB_A
+MA2013.2	ERF115	AP2/EREBP	ERF/DREB		Q9LY29	Arabidopsis thaliana	MA2013	plants	cluster_24	184,134,11	ERF_DREB_B
+MA2014.2	BAM8	Basic helix-loop-helix factors (bHLH)	BES/BZR		Q9FH80	Arabidopsis thaliana	MA2014	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2015.2	NAC002	GCM domain factors	NAC		Q39013	Arabidopsis thaliana	MA2015	plants	cluster_20	220,20,60	NAC_B
+MA2016.2	GRF6	C3H zinc finger factors	GRF		Q9ZQ12	Arabidopsis thaliana	MA2016	plants	cluster_22	0,0,139	GRF_ARF
+MA2017.2	JUB1	GCM domain factors	NAC		Q9SK55	Arabidopsis thaliana	MA2017	plants	cluster_47	255,250,240	JUB1
+MA2018.2	NAC69	GCM domain factors	NAC		Q9M126	Arabidopsis thaliana	MA2018	plants	cluster_20	220,20,60	NAC_B
+MA2019.2	HSFA1B	Heat shock factors	HSF		O81821	Arabidopsis thaliana	MA2019	plants	cluster_04	127,255,212	HSF_GARP
+MA2020.2	HSFB4	Heat shock factors	HSF		Q9C635	Arabidopsis thaliana	MA2020	plants	cluster_04	127,255,212	HSF_GARP
+MA2021.2	LBD13	Other C4 zinc finger-type factors	LBD		Q9AT61	Arabidopsis thaliana	MA2021	plants	cluster_48	34,139,34	LBD13
+MA2022.2	LOB	Other C4 zinc finger-type factors	LBD		Q9FML4	Arabidopsis thaliana	MA2022	plants	cluster_24	184,134,11	ERF_DREB_B
+MA2023.2	PHL4	Tryptophan cluster factors	GARP_G2-like		Q8GXC2	Arabidopsis thaliana	MA2023	plants	cluster_04	127,255,212	HSF_GARP
+MA2024.2	MYB63	Tryptophan cluster factors	MYB		Q6R0A6	Arabidopsis thaliana	MA2024	plants	cluster_02	250,235,215	MYB_TRB
+MA2025.2	MYB93	Tryptophan cluster factors	MYB		Q9S9Z2	Arabidopsis thaliana	MA2025	plants	cluster_02	250,235,215	MYB_TRB
+MA2026.2	MYB108	Tryptophan cluster factors	MYB		Q9LDE1	Arabidopsis thaliana	MA2026	plants	cluster_02	250,235,215	MYB_TRB
+MA2027.2	MYB44	Tryptophan cluster factors	MYB		Q9FDW1	Arabidopsis thaliana	MA2027	plants	cluster_11	138,43,226	MYB
+MA2028.2	MYB49	Tryptophan cluster factors	MYB		Q9SPG6	Arabidopsis thaliana	MA2028	plants	cluster_02	250,235,215	MYB_TRB
+MA2029.2	MYB88	Tryptophan cluster factors	MYB		F4IRB4	Arabidopsis thaliana	MA2029	plants	cluster_49	255,0,255	MYB88
+MA2030.2	MYB96	Tryptophan cluster factors	MYB		Q24JK1	Arabidopsis thaliana	MA2030	plants	cluster_02	250,235,215	MYB_TRB
+MA2031.2	AT5G04760	Tryptophan cluster factors	MYB-related		Q9LZ21	Arabidopsis thaliana	MA2031	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA2032.2	TRB1	Tryptophan cluster factors	MYB-related		Q8VWK4	Arabidopsis thaliana	MA2032	plants	cluster_02	250,235,215	MYB_TRB
+MA2033.2	NAC038	GCM domain factors	NAC		Q9ZQ25	Arabidopsis thaliana	MA2033	plants	cluster_16	210,105,30	NAC_A
+MA2034.2	NAC057	GCM domain factors	NAC		Q9LSH5	Arabidopsis thaliana	MA2034	plants	cluster_25	169,169,169	NAC_C
+MA2035.2	NAC075	GCM domain factors	NAC		Q9M0F8	Arabidopsis thaliana	MA2035	plants	cluster_16	210,105,30	NAC_A
+MA2036.2	NAC076	GCM domain factors	NAC		O65508	Arabidopsis thaliana	MA2036	plants	cluster_25	169,169,169	NAC_C
+MA2037.2	NAC096	GCM domain factors	NAC		Q9LS24	Arabidopsis thaliana	MA2037	plants	cluster_25	169,169,169	NAC_C
+MA2038.2	NAC103	GCM domain factors	NAC		Q9FMJ1	Arabidopsis thaliana	MA2038	plants	cluster_25	169,169,169	NAC_C
+MA2039.2	ASIL2	Tryptophan cluster factors	Trihelix		Q9LJG8	Arabidopsis thaliana	MA2039	plants	cluster_15	127,255,0	ERF_DREB_A
+MA2040.2	ENAP2	Tryptophan cluster factors	Trihelix		F4K0Q7	Arabidopsis thaliana	MA2040	plants	cluster_15	127,255,0	ERF_DREB_A
+MA2041.2	MYB13	Tryptophan cluster factors	MYB		Q9LNC9	Arabidopsis thaliana	MA2041	plants	cluster_02	250,235,215	MYB_TRB
+MA2042.2	MYB58	Tryptophan cluster factors	MYB		Q9SA47	Arabidopsis thaliana	MA2042	plants	cluster_02	250,235,215	MYB_TRB
+MA2043.2	NAC004	GCM domain factors	NAC		O81913	Arabidopsis thaliana	MA2043	plants	cluster_25	169,169,169	NAC_C
+MA2044.2	NAC007	GCM domain factors	NAC		Q9FWX2	Arabidopsis thaliana	MA2044	plants	cluster_25	169,169,169	NAC_C
+MA2045.2	NAC031	GCM domain factors	NAC		Q9S851	Arabidopsis thaliana	MA2045	plants	cluster_16	210,105,30	NAC_A
+MA2046.2	NAC035	GCM domain factors	NAC		Q9ZVP8	Arabidopsis thaliana	MA2046	plants	cluster_20	220,20,60	NAC_B
+MA2047.2	NAC037	GCM domain factors	NAC		Q9SL41	Arabidopsis thaliana	MA2047	plants	cluster_25	169,169,169	NAC_C
+MA2048.2	NAC045	GCM domain factors	NAC		A4VCM0	Arabidopsis thaliana	MA2048	plants	cluster_25	169,169,169	NAC_C
+MA2049.2	NAC053	GCM domain factors	NAC		Q949N0	Arabidopsis thaliana	MA2049	plants	cluster_25	169,169,169	NAC_C
+MA2050.2	NAC101	GCM domain factors	NAC		Q9LVA1	Arabidopsis thaliana	MA2050	plants	cluster_25	169,169,169	NAC_C
+MA2051.2	NAC68	GCM domain factors	NAC		A8MQY1	Arabidopsis thaliana	MA2051	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2052.2	ZAT6	C2H2 zinc finger factors	C2H2		O22533	Arabidopsis thaliana	MA2052	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA2053.2	NAC105	GCM domain factors	NAC		Q9FH59	Arabidopsis thaliana	MA2053	plants	cluster_25	169,169,169	NAC_C
+MA2055.1	PK00315.1	Basic leucine zipper factors (bZIP)	Group I	PBM		Cannabis sativa	MA2055	plants	cluster_12	165,42,42	BZIP
+MA2056.1	PK01144.1	Other C4 zinc finger-type factors	DOF	PBM		Cannabis sativa	MA2056	plants	cluster_03	0,255,255	DOF_CDF
+MA2057.1	PK01630.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Cannabis sativa	MA2057	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2058.1	PK03929.1	Other C4 zinc finger-type factors	DOF	PBM		Cannabis sativa	MA2058	plants	cluster_03	0,255,255	DOF_CDF
+MA2059.1	PK05432.1	GCM domain factors	WRKY	PBM		Cannabis sativa	MA2059	plants	cluster_10	0,0,255	WRKY
+MA2060.1	PK05451.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Cannabis sativa	MA2060	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2061.1	PK06517.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Cannabis sativa	MA2061	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2062.1	PK07031.1	Other C4 zinc finger-type factors	DOF	PBM		Cannabis sativa	MA2062	plants	cluster_03	0,255,255	DOF_CDF
+MA2063.1	PK07402.1	AP2/EREBP		PBM		Cannabis sativa	MA2063	plants	cluster_15	127,255,0	ERF_DREB_A
+MA2064.1	PK07858.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Cannabis sativa	MA2064	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2065.1	PK08602.1	AP2/EREBP		PBM		Cannabis sativa	MA2065	plants	cluster_15	127,255,0	ERF_DREB_A
+MA2066.1	PK09021.1	Basic leucine zipper factors (bZIP)	Group D	PBM		Cannabis sativa	MA2066	plants	cluster_14	95,158,160	BZIP_TGA
+MA2067.1	PK09702.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Cannabis sativa	MA2067	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2068.1	PK10344.1	TCP		PBM		Cannabis sativa	MA2068	plants	cluster_01	240,248,255	ARF_TCP
+MA2069.1	PK10955.1	Other C4 zinc finger-type factors	DOF	PBM		Cannabis sativa	MA2069	plants	cluster_03	0,255,255	DOF_CDF
+MA2070.1	PK15337.1	Other C4 zinc finger-type factors	DOF	PBM		Cannabis sativa	MA2070	plants	cluster_03	0,255,255	DOF_CDF
+MA2071.1	PK15505.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Cannabis sativa	MA2071	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2072.1	PK16335.1	Basic leucine zipper factors (bZIP)	Group D	PBM		Cannabis sativa	MA2072	plants	cluster_12	165,42,42	BZIP
+MA2073.1	PK16340.1	Other C4 zinc finger-type factors	DOF	PBM		Cannabis sativa	MA2073	plants	cluster_03	0,255,255	DOF_CDF
+MA2074.1	PK17878.1	AP2/EREBP	ERF/DREB	PBM		Cannabis sativa	MA2074	plants	cluster_24	184,134,11	ERF_DREB_B
+MA2075.1	PK18009.1	Basic leucine zipper factors (bZIP)	Group A	PBM		Cannabis sativa	MA2075	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2076.1	PK18401.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Cannabis sativa	MA2076	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2077.1	PK18474.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Cannabis sativa	MA2077	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2078.1	PK19363.1	AP2/EREBP	ERF/DREB	PBM		Cannabis sativa	MA2078	plants	cluster_24	184,134,11	ERF_DREB_B
+MA2079.1	PK19717.1	TCP		PBM		Cannabis sativa	MA2079	plants	cluster_01	240,248,255	ARF_TCP
+MA2080.1	PK20225.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Cannabis sativa	MA2080	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2081.1	PK20317.1	Other C4 zinc finger-type factors	DOF	PBM		Cannabis sativa	MA2081	plants	cluster_03	0,255,255	DOF_CDF
+MA2082.1	PK20392.1	Homeo domain factors	HD-ZIP	PBM		Cannabis sativa	MA2082	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA2083.1	PK21166.1	Tryptophan cluster factors	MYB	PBM		Cannabis sativa	MA2083	plants	cluster_02	250,235,215	MYB_TRB
+MA2084.1	PK23009.1	Other C4 zinc finger-type factors	DOF	PBM		Cannabis sativa	MA2084	plants	cluster_03	0,255,255	DOF_CDF
+MA2085.1	PK23763.1	Other C4 zinc finger-type factors	DOF	PBM		Cannabis sativa	MA2085	plants	cluster_03	0,255,255	DOF_CDF
+MA2086.1	PK23964.1	Basic leucine zipper factors (bZIP)	Group G	PBM		Cannabis sativa	MA2086	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2087.1	PK24205.1	Basic leucine zipper factors (bZIP)	Group A	PBM		Cannabis sativa	MA2087	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2088.1	PK24580.1	AP2/EREBP	ERF/DREB	PBM		Cannabis sativa	MA2088	plants	cluster_15	127,255,0	ERF_DREB_A
+MA2089.1	PK25870.1	GCM domain factors	WRKY	PBM		Cannabis sativa	MA2089	plants	cluster_10	0,0,255	WRKY
+MA2090.1	PK26523.1	Tryptophan cluster factors	GARP_G2-like	PBM		Cannabis sativa	MA2090	plants	cluster_04	127,255,212	HSF_GARP
+MA2091.1	PK27109.1	Basic leucine zipper factors (bZIP)	Group I	PBM		Cannabis sativa	MA2091	plants	cluster_12	165,42,42	BZIP
+MA2092.1	PK27149.1	Basic leucine zipper factors (bZIP)	Group S	PBM		Cannabis sativa	MA2092	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2103.1	AT4G09450	Tryptophan cluster factors	MYB-related	PBM	Q9M0P7	Arabidopsis thaliana	MA2103	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA2104.1	IDD11	C2H2 zinc finger factors	IDD	DAP-seq	Q9LRW7	Arabidopsis thaliana	MA2104	plants	cluster_08	0,0,0	C2H2_DOF
+MA2105.1	GLYMA-13G317000	Basic leucine zipper factors (bZIP)	Group A	ChIP-seq	K7M309	Glycine max	MA2105	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2106.1	Zm00001d024644	Tryptophan cluster factors	MYB-related	ChIP-seq	B4FLJ6	Zea mays	MA2106	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA2342.1	URI	Basic helix-loop-helix factors (bHLH)	bHLH	ChIP-seq	Q9LT23	Arabidopsis thaliana	MA2342	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2343.1	MYB3R3	Tryptophan cluster factors	MYB	ChIP-seq	Q8H1P9	Arabidopsis thaliana	MA2343	plants	cluster_11	138,43,226	MYB
+MA2344.1	REV	Homeo domain factors	HD-ZIP	ChIP-seq	Q9SE43	Arabidopsis thaliana	MA2344	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA2345.1	OS02G0104500	Tryptophan cluster factors	Trihelix	PBM	Q6YPG7	Oryza sativa	MA2345	plants	cluster_10	0,0,255	WRKY
+MA2346.1	OsTCP7	TCP		PBM	Q6H878	Oryza sativa	MA2346	plants	cluster_01	240,248,255	ARF_TCP
+MA2347.1	OS04G0486400	Tryptophan cluster factors	Trihelix	PBM	Q7XUC2	Oryza sativa	MA2347	plants	cluster_18	100,149,237	TRP_Trihelix
+MA2348.1	IDD6	C2H2 zinc finger factors	IDD	DAP-seq	Q8RWX7	Arabidopsis thaliana	MA2348	plants	cluster_08	0,0,0	C2H2_DOF
+MA2349.1	OsCCA1	Tryptophan cluster factors	MYB-related	PBM	A0A0P0XBU0	Oryza sativa	MA2349	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA2350.1	OsFBH1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM	Q6Z3R6	Oryza sativa	MA2350	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2351.1	OsEIL3	Other all-alpha-helical DNA-binding domains	EIL	PBM	Q0J0P1	Oryza sativa	MA2351	plants	cluster_26	0,100,0	EIL_SBP
+MA2352.1	PC-MYB1	Tryptophan cluster factors	MYB	DAP-seq	Q9S7G7	Arabidopsis thaliana	MA2352	plants	cluster_11	138,43,226	MYB
+MA2353.1	PK02532.1	Tryptophan cluster factors	MYB-related	PBM		Cannabis sativa	MA2353	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA2354.1	PK06182.1	Tryptophan cluster factors	MYB	PBM		Cannabis sativa	MA2354	plants	cluster_02	250,235,215	MYB_TRB
+MA2355.1	PK06791.1	C3H(C),C2HC zinc-fingers like factors	SBP	PBM		Cannabis sativa	MA2355	plants	cluster_28	189,183,107	SPL_A
+MA2356.1	PK20555.1	Other C4 zinc finger-type factors	DOF	PBM		Cannabis sativa	MA2356	plants	cluster_03	0,255,255	DOF_CDF
+MA2357.1	PK21687.1	Tryptophan cluster factors	MYB-related	PBM		Cannabis sativa	MA2357	plants	cluster_18	100,149,237	TRP_Trihelix
+MA2358.1	PK22320.1	C3H(C),C2HC zinc-fingers like factors	SBP	PBM		Cannabis sativa	MA2358	plants	cluster_28	189,183,107	SPL_A
+MA2359.1	PK23829.1	Tryptophan cluster factors	MYB-related	PBM		Cannabis sativa	MA2359	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA2360.1	PK28565.1	Tryptophan cluster factors	MYB	PBM		Cannabis sativa	MA2360	plants	cluster_11	138,43,226	MYB
+MA2361.1	PRUPE_ppa000682mg	C3H(C),C2HC zinc-fingers like factors	SBP	PBM			MA2361	plants	cluster_28	189,183,107	SPL_A
+MA2362.1	TEIL	EIL		Transfac	Q9ZWK1		MA2362	plants	cluster_26	0,100,0	EIL_SBP
+MA2363.1	TOE2	AP2/EREBP	AP2	PBM	Q9LVG2	Arabidopsis thaliana	MA2363	plants	cluster_36	72,61,139	SMZ_RAP2-7_TOE2
+MA2364.1	VIT_15s0048g01150	TCP		PBM	F6I360		MA2364	plants	cluster_01	240,248,255	ARF_TCP
+MA2365.1	VIT_17s0000g10420	Tryptophan cluster factors	Trihelix	PBM	D7SH98		MA2365	plants	cluster_18	100,149,237	TRP_Trihelix
+MA2366.1	VOZ2	GCM domain factors	VOZ	PBM	Q9SLB9	Arabidopsis thaliana	MA2366	plants	cluster_50	220,220,220	VOZ2
+MA2367.1	WIP5	C2H2 zinc finger factors	C2H2	DAP-seq	Q8W031	Arabidopsis thaliana	MA2367	plants	cluster_05	240,255,255	Tryptophan_cluster
+MA2368.1	WRKY51	GCM domain factors	WRKY	PBM	Q93WU9	Arabidopsis thaliana	MA2368	plants	cluster_10	0,0,255	WRKY
+MA2369.1	ZHD14	Homeo domain factors	PLINC	DAP-seq	Q9LQW3	Arabidopsis thaliana	MA2369	plants	cluster_04	127,255,212	HSF_GARP
+MA2370.1	MBD2	C2H2 zinc finger factors		PBM	Q8LA53	Arabidopsis thaliana	MA2370	plants	cluster_12	165,42,42	BZIP
+MA2371.1	MYB31	Tryptophan cluster factors	MYB	DAP-seq	Q9CA52	Arabidopsis thaliana	MA2371	plants	cluster_02	250,235,215	MYB_TRB
+MA2372.1	AZF1	C2H2 zinc finger factors		DAP-seq	Q9SSW1	Arabidopsis thaliana	MA2372	plants	cluster_19	255,248,220	AZF
+MA2373.1	AZF2	C2H2 zinc finger factors		PBM	Q9SSW2	Arabidopsis thaliana	MA2373	plants	cluster_19	255,248,220	AZF
+MA2374.1	AHL13	A.T hook factors	AHL	PBM	Q940I0	Arabidopsis thaliana	MA2374	plants	cluster_09	255,235,205	HDZIP_PLINC_AHL
+MA2375.1	BMY2	Basic helix-loop-helix factors (bHLH)	BES/BZR	DAP-seq	Q9FH80	Arabidopsis thaliana	MA2375	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2376.1	CAMTA5	GCM domain factors	CAMTA	DAP-seq	O23463	Arabidopsis thaliana	MA2376	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2377.1	cassava45561.m1	TCP		PBM			MA2377	plants	cluster_01	240,248,255	ARF_TCP
+MA2378.1	CRF3	AP2/EREBP	ERF/DREB	PBM	Q9FK12	Arabidopsis thaliana	MA2378	plants	cluster_30	85,107,47	ERF
+MA2379.1	DOF3.1	Other C4 zinc finger-type factors	DOF	PBM	Q94AR6	Arabidopsis thaliana	MA2379	plants	cluster_03	0,255,255	DOF_CDF
+MA2380.1	DOF4.7	Other C4 zinc finger-type factors	DOF	DAP-seq	Q84K52	Arabidopsis thaliana	MA2380	plants	cluster_03	0,255,255	DOF_CDF
+MA2381.1	e_gw1.170.52.1	Other C4 zinc finger-type factors	DOF	PBM		Physcomitrium patens	MA2381	plants	cluster_03	0,255,255	DOF_CDF
+MA2382.1	e_gw1.209.40.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Physcomitrium patens	MA2382	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2383.1	e_gw1.392.16.1	Other C4 zinc finger-type factors	DOF	PBM		Physcomitrium patens	MA2383	plants	cluster_03	0,255,255	DOF_CDF
+MA2384.1	estExt_Genewise1.C_2060077	Basic leucine zipper factors (bZIP)	bZIP	PBM		Physcomitrium patens	MA2384	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2385.1	estExt_gwp_gw1.C_220046	Fork head/winged helix factors	E2F	PBM		Physcomitrium patens	MA2385	plants	cluster_51	248,248,255	E2F_moss
+MA2386.1	estExt_gwp_gw1.C_550163	AP2/EREBP	ERF/DREB	PBM		Physcomitrium patens	MA2386	plants	cluster_15	127,255,0	ERF_DREB_A
+MA2387.1	NAC094	GCM domain factors	NAC	DAP-seq	Q9FIW5	Arabidopsis thaliana	MA2387	plants	cluster_16	210,105,30	NAC_A
+MA2388.1	GATA1	Other C4 zinc finger-type factors	C4-GATA-related	DAP-seq	Q8LAU9	Arabidopsis thaliana	MA2388	plants	cluster_13	222,184,135	RVE_ARR_GATA
+MA2389.1	GBF1	Basic leucine zipper factors (bZIP)		PBM	P42774	Arabidopsis thaliana	MA2389	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2390.1	GLYMA19G26560	Basic leucine zipper factors (bZIP)		PBM	I1N7U7	Glycine max	MA2390	plants	cluster_01	240,248,255	ARF_TCP
+MA2391.1	Lg3	Homeo domain factors	TALE-type HD	PBM	Q9SYT6	Zea mays	MA2391	plants	cluster_14	95,158,160	BZIP_TGA
+MA2392.1	GRMZM2G135447	Homeo domain factors	TALE-type HD	PBM	B4FHU3	Zea mays	MA2392	plants	cluster_14	95,158,160	BZIP_TGA
+MA2393.1	PHYPA_008731	Basic helix-loop-helix factors (bHLH)		PBM	A0A2K1KF05	Physcomitrium patens	MA2393	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2394.1	PpDof6	Other C4 zinc finger-type factors	DOF	PBM	H1ACT2	Physcomitrium patens	MA2394	plants	cluster_03	0,255,255	DOF_CDF
+MA2395.1	PHYPA_011264	AP2/EREBP	ERF/DREB	PBM	A0A2K1K6H1	Physcomitrium patens	MA2395	plants	cluster_15	127,255,0	ERF_DREB_A
+MA2396.1	IDD1	C2H2 zinc finger factors	IDD	DAP-seq	Q9LVQ7	Arabidopsis thaliana	MA2396	plants	cluster_08	0,0,0	C2H2_DOF
+MA2397.1	ILR3	Basic helix-loop-helix factors (bHLH)		PBM	Q9FH37	Arabidopsis thaliana	MA2397	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2398.1	AS2	Other C4 zinc finger-type factors	LBD	DAP-seq	O04479	Arabidopsis thaliana	MA2398	plants	cluster_37	47,79,79	ERF9_AS2
+MA2399.1	LjSGA_053525.1	TCP		PBM			MA2399	plants	cluster_01	240,248,255	ARF_TCP
+MA2400.1	LjTCP20	TCP		PBM			MA2400	plants	cluster_01	240,248,255	ARF_TCP
+MA2401.1	Os05g0437700	Basic leucine zipper factors (bZIP)		PBM	Q75HX9	Oryza sativa	MA2401	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2402.1	OsERF104	AP2/EREBP	ERF/DREB	PBM	Q0J525	Oryza sativa	MA2402	plants	cluster_30	85,107,47	ERF
+MA2403.1	DVH24_040989	Tryptophan cluster factors	Trihelix	PBM	A0A498ICG5		MA2403	plants	cluster_18	100,149,237	TRP_Trihelix
+MA2404.1	OsTRBF3	Tryptophan cluster factors	MYB-related	PBM	Q0JJZ1	Oryza sativa	MA2404	plants	cluster_02	250,235,215	MYB_TRB
+MA2405.1	OsMSL08	Tryptophan cluster factors	Trihelix	PBM	Q6ZHM5	Oryza sativa	MA2405	plants	cluster_10	0,0,255	WRKY
+MA2406.1	PK03576.1	Basic helix-loop-helix factors (bHLH)	bHLH	PBM		Cannabis sativa	MA2406	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2407.1	PK24978.1	Basic leucine zipper factors (bZIP)	Group A	PBM		Cannabis sativa	MA2407	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2408.1	BAD1	TCP		DAP-seq	B4F7W2	Zea mays	MA2408	plants	cluster_01	240,248,255	ARF_TCP
+MA2409.1	ZmbZIP25	Basic leucine zipper factors (bZIP)	D	DAP-seq		Zea mays	MA2409	plants	cluster_14	95,158,160	BZIP_TGA
+MA2410.1	ZmbZIP54	Basic leucine zipper factors (bZIP)	S	DAP-seq		Zea mays	MA2410	plants	cluster_14	95,158,160	BZIP_TGA
+MA2411.1	ZmbZIP57	Basic leucine zipper factors (bZIP)	S	DAP-seq		Zea mays	MA2411	plants	cluster_14	95,158,160	BZIP_TGA
+MA2412.1	ZmbZIP72	Basic leucine zipper factors (bZIP)	S	DAP-seq		Zea mays	MA2412	plants	cluster_14	95,158,160	BZIP_TGA
+MA2413.1	ZmbZIP96	Basic leucine zipper factors (bZIP)	D	DAP-seq		Zea mays	MA2413	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2414.1	EREB127	AP2/EREBP	ERF/DREB	DAP-seq	K7UY40	Zea mays	MA2414	plants	cluster_15	127,255,0	ERF_DREB_A
+MA2415.1	EREB138	AP2/EREBP	ERF/DREB	DAP-seq	A0A060D2G6	Zea mays	MA2415	plants	cluster_24	184,134,11	ERF_DREB_B
+MA2416.1	EREB29	AP2/EREBP	ERF/DREB	DAP-seq		Zea mays	MA2416	plants	cluster_24	184,134,11	ERF_DREB_B
+MA2417.1	EREB71	AP2/EREBP	ERF/DREB	DAP-seq	B4FZ51	Zea mays	MA2417	plants	cluster_15	127,255,0	ERF_DREB_A
+MA2418.1	IG1	Other C4 zinc finger-type factors	LBD	DAP-seq	Q32SG3	Zea mays	MA2418	plants	cluster_24	184,134,11	ERF_DREB_B
+MA2419.1	UB3	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Zea mays	MA2419	plants	cluster_26	0,100,0	EIL_SBP
+MA2420.1	SBP6	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq	Q9SM14	Zea mays	MA2420	plants	cluster_26	0,100,0	EIL_SBP
+MA2421.1	SBP8	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq	A0A060CV13	Zea mays	MA2421	plants	cluster_26	0,100,0	EIL_SBP
+MA2422.1	OsbZIP42	Basic leucine zipper factors (bZIP)	Group A	DAP-seq	Q0DH66	Oryza sativa	MA2422	plants	cluster_07	255,228,196	BHLH_CAMTA
+MA2423.1	OsbZIP69	Basic leucine zipper factors (bZIP)	Group A	DAP-seq	C7J6C6	Oryza sativa	MA2423	plants	cluster_14	95,158,160	BZIP_TGA
+MA2424.1	OsbZIP77	Basic leucine zipper factors (bZIP)	Group A	DAP-seq	C7J717	Oryza sativa	MA2424	plants	cluster_14	95,158,160	BZIP_TGA
+MA2425.1	SPL11A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2425	plants	cluster_38	47,79,79	SPL_C
+MA2426.1	SPL11B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2426	plants	cluster_38	47,79,79	SPL_C
+MA2427.1	SPL12B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2427	plants	cluster_38	47,79,79	SPL_C
+MA2428.1	SPL13B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2428	plants	cluster_38	47,79,79	SPL_C
+MA2429.1	SPL13D	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2429	plants	cluster_38	47,79,79	SPL_C
+MA2430.1	SPL14B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2430	plants	cluster_38	47,79,79	SPL_C
+MA2431.1	SPL15A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2431	plants	cluster_38	47,79,79	SPL_C
+MA2432.1	SPL15B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2432	plants	cluster_52	255,215,0	SPL15B
+MA2433.1	SPL15D	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2433	plants	cluster_38	47,79,79	SPL_C
+MA2434.1	SPL16A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2434	plants	cluster_38	47,79,79	SPL_C
+MA2435.1	SPL16D	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2435	plants	cluster_38	47,79,79	SPL_C
+MA2436.1	SPL18A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2436	plants	cluster_38	47,79,79	SPL_C
+MA2437.1	SPL19B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2437	plants	cluster_38	47,79,79	SPL_C
+MA2438.1	SPL1D	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2438	plants	cluster_38	47,79,79	SPL_C
+MA2439.1	SPL2A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2439	plants	cluster_38	47,79,79	SPL_C
+MA2440.1	SPL2B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2440	plants	cluster_38	47,79,79	SPL_C
+MA2441.1	SPL3A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2441	plants	cluster_38	47,79,79	SPL_C
+MA2442.1	SPL3B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2442	plants	cluster_38	47,79,79	SPL_C
+MA2443.1	SPL3D	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2443	plants	cluster_38	47,79,79	SPL_C
+MA2444.1	SPL4A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2444	plants	cluster_38	47,79,79	SPL_C
+MA2445.1	SPL4D	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2445	plants	cluster_38	47,79,79	SPL_C
+MA2446.1	SPL5A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2446	plants	cluster_38	47,79,79	SPL_C
+MA2447.1	SPL5B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2447	plants	cluster_33	139,0,0	SPL_B
+MA2448.1	SPL5D	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2448	plants	cluster_38	47,79,79	SPL_C
+MA2449.1	SPL6A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2449	plants	cluster_38	47,79,79	SPL_C
+MA2450.1	SPL7A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2450	plants	cluster_38	47,79,79	SPL_C
+MA2451.1	SPL7B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2451	plants	cluster_38	47,79,79	SPL_C
+MA2452.1	SPL8A	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2452	plants	cluster_33	139,0,0	SPL_B
+MA2453.1	SPL8B	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2453	plants	cluster_33	139,0,0	SPL_B
+MA2454.1	SPL8D1	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2454	plants	cluster_33	139,0,0	SPL_B
+MA2455.1	SPL9D	C3H(C),C2HC zinc-fingers like factors	SBP	DAP-seq		Triticum aestivum	MA2455	plants	cluster_38	47,79,79	SPL_C

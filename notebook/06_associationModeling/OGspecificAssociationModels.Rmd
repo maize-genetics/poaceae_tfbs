@@ -1,0 +1,809 @@
+---
+title: "Run Association models"
+output: html_notebook
+---
+```{r}
+knitr::opts_chunk$set(
+  fig.width = 10,  # Set the desired width
+  fig.height = 6,  # Set the desired height
+  dpi = 1000        # Set the resolution to 300 DPI
+)
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggpubr)
+library(data.table)
+library(rstatix)
+library(parallel)
+library(qqman)
+library(knitr)
+library(doParallel)
+library(ape)
+```
+
+```{r}
+# Load covariates
+setwd("/workdir/coh22/andro_tfbs/")
+metadata <- read.csv('data/Poaceae_metadata_2024.08.21.csv')
+env <- read.table("output/modelData/envData_759Poaceae_20240821.txt") %>%
+  mutate(assemblyID = rownames(.))
+phyloK <- read.table("output/modelData/phyloK_800Poaceae_astral.txt")
+tree <- read.tree("output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20240821.nwk")
+colnames(phyloK) <- rownames(phyloK)
+taxonomy <- read.csv("/workdir/coh22/andro_tfbs/data/Poaceae_taxonomic_groups.csv")
+```
+
+Calculate environmental residuals for ePC1 after controlling for phylogeny
+``` {r}
+library(asreml)
+env_for_model <- mutate(env, assemblyID = as.factor(assemblyID))
+envPC1_phyloK <- asreml(envPC_1 ~ 1, random = ~ vm(assemblyID, phyloK), ai.sing = TRUE, data = env_for_model)
+# Calculate variance explained by phylogeny
+modelSummary <- summary(envPC1_phyloK)
+phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2]) # 89% explained
+
+# Write resids to file
+envPC1_resids <- residuals(envPC1_phyloK)
+names(envPC1_resids) <- env$assemblyID
+write.table(envPC1_resids, file = "/workdir/coh22/andro_tfbs/results/models/envPC1_resids.txt", col.names = F, quote = F)
+```
+
+``` {r}
+# Load unenriched clusters to filter out
+unenriched_clusters <- read.table("/workdir/coh22/andro_tfbs/lists/unenriched_clusters.txt", header = F)
+# Load motif cluster metadata
+cluster.meta <- read.table("/workdir/coh22/andro_tfbs/data/JASPAR2024_SummarizedClusters.txt") %>%
+  dplyr::select(TF = V3, cluster = V2) %>%
+  dplyr::filter(!TF %in% unenriched_clusters$V1)  %>% # Filter out clusters that are not enriched across Poaceae 
+  arrange(TF) # Alphabetize
+
+# Load motifs
+# Prepare to iterate through directory to load motif data
+files <- list.files("/workdir/coh22/andro_tfbs/output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies", full.names = TRUE)
+n_ortho <- sum(file.info(files)$isdir == FALSE)
+mat.list <- list()
+
+# Load motifs
+cl <- makeCluster(detectCores())
+clusterExport(cl, c("files", "n_ortho", "cluster.meta"))
+mat.list <- parLapply(cl, 1:n_ortho, function(i) {
+  # Import libraries in each cluster node
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  
+  motifCounts <- fread(files[[i]]) %>%
+    dplyr::select(c(cluster = V2, ogID = V3, motifCount = V4, assemblyID = V5)) %>%
+    dplyr::left_join(cluster.meta) %>%
+    dplyr::select(-cluster) %>%
+    dplyr::distinct(across(c(assemblyID, TF)), .keep_all = TRUE) %>%
+    pivot_wider(names_from = TF, values_from = motifCount)
+  
+  # Identify any missing TF clusters not present in motifCounts
+  missing_TFs <- setdiff(cluster.meta$TF, colnames(motifCounts))
+  # Add missing TF cluster columns with NA values
+  motifCounts[missing_TFs] <- as.integer(NA)
+  # Set column names to cluster.meta$TF
+  motifCounts <- motifCounts %>%
+    dplyr::select(assemblyID, ogID, all_of(cluster.meta$TF))
+  
+  # Replace NA values with zeros
+  motifCounts <- motifCounts %>%
+    dplyr::mutate(across(where(is.numeric), ~replace_na(., 0)))
+  
+  mat <- motifCounts[,3:ncol(motifCounts)] %>%
+    as.matrix()
+  rownames(mat) <- motifCounts$assemblyID
+  return(mat)
+})
+
+stopCluster(cl)
+names(mat.list) <- gsub(".*/([^/]+)\\.txt", "\\1", files) # Annotate with OG IDs
+
+```
+
+Run orthogroup-specific models with asreml
+``` {r}
+Run_MLMs_OrthoSpecific <- function(Kphylo, EnvTraitMatrix, motifMatList) {
+    # Check if the file exists and remove it before the loop
+    filename <- "/workdir/coh22/andro_tfbs/output/output_log.txt"
+    if (file.exists("/workdir/coh22/andro_tfbs/output/output_log.txt")) {
+        file.remove(filename)
+    }
+    # Custom logging function to append to a file with timestamps
+    log_to_file <- function(text, filename = "/workdir/coh22/andro_tfbs/output/output_log.txt") {
+      timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+      write(paste(timestamp, text), file = filename, append = TRUE)
+    } 
+    ePC_names <- colnames(EnvTraitMatrix)
+
+  nOrtho <- length(motifMatList)
+  cl <- makeCluster(2) # create cluster using 2 cores
+  registerDoParallel(cl)
+  results <- foreach(i = 1:nOrtho, .combine = 'c') %dopar% {
+    library(dplyr)
+    library(asreml)
+    library(data.table)
+    asreml.options(verbose = FALSE)
+    ogID <- names(motifMatList)[i]
+    
+    log_to_file(paste("Running models for", ogID, "..."))
+    motifMatrix <- motifMatList[[i]] # Get motif matrix for ith orthogroup
+    n_traits <- ncol(EnvTraitMatrix)
+    nMotifs <- ncol(motifMatrix) # get number of motifs represented in at least one species for this orthogroup
+    # Find common taxa represented in motif, phyloK, and environment datasets
+    common_rows <- base::intersect(rownames(motifMatrix), rownames(Kphylo)) %>% 
+        base::intersect(rownames(EnvTraitMatrix)) %>%
+        sort()
+
+    # Filter to retain taxa shared across datasets
+    EnvTraits_filtered <- EnvTraitMatrix[common_rows,]
+    motifMat_filtered <- motifMatrix[common_rows,]
+    phyloK_filtered <- Kphylo[common_rows,common_rows]
+    input_matrix <- as.data.frame(cbind(EnvTraits_filtered, motifMat_filtered))
+    input_matrix$assemblyIDs <- factor(common_rows)
+
+    setnames(input_matrix, gsub("-", "_", names(input_matrix))) # Remove hyphens from motif names to enable parsing by model
+    colnames(input_matrix)[1:ncol(EnvTraitMatrix)] <- ePC_names
+    ## Iterate over all motifs in matrix
+    motifModels <- list()
+    for(j in 1:nMotifs){
+    motifID <- colnames(input_matrix)[j+n_traits]
+    # Check if more than 1 unique value
+    if(length(unique(motifMat_filtered[,j])) > 1) {
+        # Run association model for each motif
+        formula_str <- paste(motifID, "~", paste(ePC_names, collapse =" + "), collapse = " ")
+        formula_obj <- as.formula(formula_str)
+    #     model <- asreml(fixed = formula_obj, random = ~ vm(assemblyIDs, phyloK_filtered), ai.sing = TRUE, data = input_matrix)
+    #     # Extract model results
+    #     modelSummary <- summary(model)
+    #     loglik <- modelSummary$loglik
+    #     phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
+    #     modelWald <- wald.asreml(model)
+    #     env_coeffs <- model$coefficients$fixed[2:(1+n_traits)]
+    #     env_pval_log10p = -(pchisq(modelWald[(2:(1+n_traits)),3],1,log.p=T, lower.tail = FALSE) / log(10))
+    # 
+    #     #env_pvals <- modelWald[2:(1+n_traits),4]
+    #     # Set as NA if models ran incorrectly
+    #     env_coeffs <- if(length(env_coeffs) == n_traits) env_coeffs else rep(NA, n_traits)
+    #     env_pvals_log10p <- if(length(env_pval_log10p) == n_traits) env_pval_log10p else rep(NA, n_traits)
+    # } 
+# Error handling for model fitting
+                result <- tryCatch({
+                    model <- asreml(
+                        fixed = formula_obj,
+                        random = ~ vm(assemblyIDs, phyloK_filtered),
+                        ai.sing = TRUE,
+                        data = input_matrix
+                    )
+                    # Extract model results
+                    modelSummary <- summary(model)
+                    loglik <- modelSummary$loglik
+                    phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
+                    modelWald <- wald.asreml(model)
+                    env_coeffs <- model$coefficients$fixed[2:(1 + n_traits)]
+                    env_pval_log10p <- -(pchisq(modelWald[(2:(1 + n_traits)), 3], 1, log.p = TRUE, lower.tail = FALSE) / log(10))
+
+                    env_coeffs <- if (length(env_coeffs) == n_traits) env_coeffs else rep(NA, n_traits)
+                    env_pvals_log10p <- if (length(env_pval_log10p) == n_traits) env_pval_log10p else rep(NA, n_traits)
+
+                    list(ogID, motifID, phylo_explained, env_coeffs, env_pvals_log10p)
+                }, error = function(e) {
+                    log_to_file(paste("Error running model for", motifID, "in", ogID, ":", e$message))
+                    list(ogID, motifID, NA, rep(NA, times = n_traits), rep(NA, times = n_traits)) # Return NA for results
+                })
+                motifModels[[j]] <- result
+            }    
+    else{
+        # Do not run models and assign NA  to results if no variation in motif counts
+        phylo_explained <- NA 
+        env_coeffs <- rep(NA, times = n_traits)
+        env_pvals_log10p <- rep(NA, times = n_traits)
+        }
+    motifModels[[j]] <- list(ogID, motifID, phylo_explained, env_coeffs,  env_pvals_log10p)    
+    }
+    motifModels
+  }
+  stopCluster(cl)
+  return(results)
+}
+
+# Must supply named cols/rows with assembly IDs
+EnvTraitMatrix <- env[,286:295] # first 10 ePCs
+#EnvTraitMatrix <- env[,286:287] # first 2 ePCs
+rownames(EnvTraitMatrix) <- env$assemblyID
+models_phyloK_envPC1.10_poaceae <- Run_MLMs_OrthoSpecific(phyloK, EnvTraitMatrix, mat.list)
+save(models_phyloK_envPC1.10_poaceae, file="/workdir/coh22/andro_tfbs/results/models/models_phyloK_envPC1.10_poaceae.RData")
+```
+
+
+```{r}
+# Load models
+n_pc <- 10
+load("/workdir/coh22/andro_tfbs/results/models/models_phyloK_envPC1.10_poaceae_1_5000.RData")
+load("/workdir/coh22/andro_tfbs/results/models/models_phyloK_envPC1.10_poaceae_5001_7000.RData")
+load("/workdir/coh22/andro_tfbs/results/models/models_phyloK_envPC1.10_poaceae_7001_11000.RData")
+load("/workdir/coh22/andro_tfbs/results/models/models_phyloK_envPC1.10_poaceae_11001_15740.RData")
+
+cat_models <- c(models_phyloK_envPC1.10_poaceae_1_5000, models_phyloK_envPC1.10_poaceae_5001_7000,
+                 models_phyloK_envPC1.10_poaceae_7001_11000,
+                 models_phyloK_envPC1.10_poaceae_11001_15740) %>%
+   lapply(unlist)
+
+# Load models with 2 envPCs
+# load("/workdir/coh22/andro_tfbs/results/models/models_phyloK_envPC1.2_poaceae_1_8000.RData")
+# load("/workdir/coh22/andro_tfbs/results/models/models_phyloK_envPC1.2_poaceae_8001_15740.RData")
+# 
+# cat_models <- c(models_phyloK_envPC1.2_poaceae_1_8000, models_phyloK_envPC1.2_poaceae_8001_15740) %>%
+#    lapply(unlist)
+
+model_output <- mclapply(cat_models, function(x) {
+  x <- t(x)
+  x <- as.data.frame(x)
+  names(x) <- c("OG", "motif", "phylo_explained", paste0("coef_ePC", 1:n_pc), paste0("log10pval_ePC", 1:n_pc))
+  return(x)
+}, mc.cores = detectCores() - 1)
+
+# Identify models in which three or fewer taxa contain the motif (to filter out from results)
+sparse_motifs <- do.call(rbind, lapply(names(mat.list), function(matrix_name) {
+  mat <- mat.list[[matrix_name]]
+  low_nonzero_rows <- which(apply(mat, 2, function(x) sum(x != 0)) < 4)
+  if (length(low_nonzero_rows) > 0) {
+    data.frame(OG = matrix_name, motif = colnames(mat)[low_nonzero_rows], stringsAsFactors = FALSE)
+  } else {
+    NULL
+  }
+}))
+
+results <- rbindlist(model_output, fill = T)# %>%
+head(results)
+results_df <- results %>%
+  pivot_longer(
+    cols = starts_with("coef") | starts_with("log10pval"),
+    names_to = c(".value", "ePC"),
+    names_pattern = "(coef|log10pval)_ePC(\\d+)"
+  ) %>%
+  arrange(OG, motif, ePC) %>%
+  as.data.frame() %>%
+  dplyr::filter(phylo_explained < 0.95) #%>% # Filter out models where motifs are too highly explained by phylogeny
+  dplyr::anti_join(sparse_motifs, by = c("OG", "motif")) # filter out sparse motif-OG combinations
+
+results_df[,c(3,5,6)] <- lapply(results_df[,c(3,5,6)], as.numeric)
+results_df$pval <- 10^(-results_df$log10pval)
+results_df$p.fdr <- p.adjust(results_df$pval, method = "fdr")
+sorted_results <- arrange(results_df, desc(log10pval))
+
+# How many motifs/OGs are significant?
+sig_motif_ogs <- dplyr::filter(results_df, p.fdr < 0.001) %>%
+  dplyr::select(c(OG, motif)) %>%
+  unique()
+
+# Compare p value boxplots
+ggplot(results_df, aes(x = factor(ePC), y = log10pval)) +
+  geom_boxplot() +
+  labs(
+    title = "Distribution of -log10(p) values by ePC",
+    x = "ePC",
+    y = "-log10(p)"
+  ) +
+  theme_minimal()
+```
+
+Function to make QQ plot 
+```{r}
+PlotQQ <- function(df) {
+  # Create observed vs expected p values for plot
+  observed_pvals = sort(df$log10pval, decreasing = T)
+  observed_p.fdr = p.adjust(10^(-observed_pvals), method = "fdr")
+  expected_pvals = qunif(seq(0, 1, length.out = length(observed_pvals) + 2), min = 0, max = 1)  ## Generate expected values. Note that we are using length+2
+  expected_pvals = expected_pvals[expected_pvals != 0 & expected_pvals != 1]  ## Remove the two extra values since they are 0 and 1
+
+  p_df = data.frame(observed = observed_pvals,
+                    expected = -log10(expected_pvals),
+                    color = ifelse(observed_p.fdr < 0.001, "goldenrod1", "#2C7BB6"))  # Assign color based on p.fdr
+  
+  ggplot(p_df, aes(x = expected, y = observed, color = color)) +
+    geom_point(size = 7, alpha = 0.8) +  # Color determined by 'color' column
+    scale_color_identity() +  # Use color values directly
+    geom_abline(intercept = 0, slope = 1, color = '#D7191C', linetype = 'dashed', linewidth = 0.8) +  # Dashed red line
+    labs(
+      x = expression("-log"[10]~"Expected p-value"),
+      y = expression("-log"[10]~"Observed p-value")
+    ) +
+    theme_minimal(base_size = 36) +  # Minimal theme for clean appearance
+    theme(
+      plot.title = element_text(hjust = 0.5, face = "bold"),  # Center and bold title
+      axis.title = element_text(face = "bold"),  # Bold axis titles
+      panel.grid.major = element_line(linewidth = 0.5, color = 'grey80'),  # Light gray grid lines
+      panel.grid.minor = element_blank()  # Remove minor grid lines
+    )
+}
+
+PlotQQ_sampled <- function(results_df, frac = 0.01) {
+  df_sampled <- results_df[sample(nrow(results_df), size = max(10000, round(nrow(results_df) * frac))), ]  # Keep max(10000 or frac)
+  PlotQQ(df_sampled)
+}
+
+PlotQQ_sampled(results_df)
+
+# Save full
+ggsave("/workdir/coh22/andro_tfbs/results/qqplot_envPC1_10_perOG.png", plot = PlotQQ(results_df), width = 10, height = 4, dpi = 300)
+```
+
+Look at top hits
+``` {r}
+maize_gene_desc <- read.table("/workdir/coh22/andro_tfbs/output/B73_DE.out", sep = "\t", header = TRUE, quote="", fill=TRUE) %>%
+  dplyr::select(c(qpid, desc)) %>%
+  mutate(ZmID = sapply(qpid, function(x) strsplit(x, "_")[[1]][1])) %>%
+  group_by(ZmID) %>%
+  dplyr::summarise(desc = paste(unique(desc), collapse = "; ")) %>%
+  mutate(desc = str_replace(desc, "\t", ";"))
+
+OGkey <- read.table("/workdir/coh22/andro_tfbs/output/OGToZm_mapping_v2.txt") %>%
+  dplyr::rename(c(ZmID = V1, OG = V2)) %>%
+  mutate(ZmID = sapply(ZmID, function(x) strsplit(x, "_")[[1]][1])) %>%
+  left_join(maize_gene_desc)
+
+View(left_join(sorted_results[1:1000,], OGkey))
+
+focal_ePC <- dplyr::filter(results_df, ePC == "1")
+PlotQQ(focal_ePC)
+focal_ePC[order(focal_ePC$log10pval, decreasing = T),][1:100,] %>%
+  left_join(OGkey) %>%
+  write.table("/workdir/coh22/andro_tfbs/results/models/envPC1_top_hits_OGspecific.txt", quote = T, row.names = F, sep = "\t")
+
+# How many have pvals <1e-5?
+
+#top_hits <- dplyr::filter(results_df, log10pval > 5) %>%
+#bin_length <- round(nrow(results_df) * 0.001) # top 0.1% of hits
+top_hits <- results_df[order(results_df$log10pval, decreasing = T),][1:443,] %>%
+#top_hits <- focal_ePC[order(focal_ePC$log10pval, decreasing = T),][1:100,] %>%
+  left_join(OGkey)
+View(top_hits)
+```
+
+Plot candidate motifs/OGs on phylogeny
+``` {r}
+source("/workdir/coh22/andro_tfbs/src/PlotTraitsOnTree.R")
+candidate.mat <- as.data.frame(mat.list["OG0018131"])
+tree <- read.tree("/workdir/coh22/andro_tfbs/output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20240821.nwk")
+env <- read.table("/workdir/coh22/andro_tfbs/output/modelData/envData_759Poaceae_20240821.txt") %>%
+  mutate(assemblyID = rownames(.))
+metadata <- read.csv('/workdir/coh22/andro_tfbs/data/Poaceae_metadata_2024.08.21.csv')
+
+plotTraitOnTree(trait = candidate.mat$OG0018131.HSF_GARP, taxa = rownames(candidate.mat), tree = tree, visible_tip_labels = T, shape = "phylogram", colors = c("white", "black"))
+
+# Plot temp adaptation of taxa with motif
+# Load envPC1 residuals after controlling for phyloK
+#envPC1_resids <- read.table("/workdir/coh22/andro_tfbs/results/models/envPC1_resids.txt", header = F)
+#colnames(envPC1_resids) = c("assemblyID", "envPC1_residual")
+
+candidate.counts <- as.data.frame(cbind(candidate.mat$OG0018131.HSF_GARP, rownames(candidate.mat))) %>%
+  setnames(c("motifCount", "assemblyID"))
+#all_rep_taxa <- envPC1_resids[envPC1_resids$assemblyID %in%candidate.counts$assemblyID,] %>%
+all_rep_taxa <- left_join(candidate.counts, env)
+#env[env$assemblyID %in%candidate.counts$assemblyID,]$envPC_1 %>%
+#  merge(candidate.counts)
+
+all_rep_taxa_factorized <- all_rep_taxa %>%
+  mutate(motifCount = as.factor(motifCount))
+
+all_rep_taxa_binarized <- all_rep_taxa %>%
+  mutate(motifCount = ifelse(as.numeric(motifCount) > 2, 1, 0))
+
+# For categorical relationship with motif count
+ggplot(all_rep_taxa_binarized, aes(x = motifCount, y = envPC_1, fill = motifCount, group = motifCount)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "HSF_GARP motif presence upstream of OG0018131", x = "HSF_GARP presence", y = "Environmental PC1")
+
+# For quantitative variation in motif count
+ggplot(all_rep_taxa, aes(x = factor(motifCount), y = envPC_1)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "lightblue") + # Boxplot with transparency
+  geom_jitter(width = 0.2, size = 5, alpha = 0.7, color = "blue") + # Jittered points
+  labs(x = "HSF/GARP Motif Count, OG0018131", y = "Environmental PC1") +
+  theme_minimal(base_size = 36)
+  
+
+# Create the plot
+ggplot(all_rep_taxa, aes(x = motifCount, y = envPC_1)) +
+  geom_point(color = "blue") + # Scatter plot
+  geom_smooth(method = "lm", formula = y ~ x, color = "red", se = FALSE) + # Regression line
+  labs(title = "Motif Count vs Environmental PC 1", x = "Motif Count", y = "Environmental PC 1") +
+  theme_minimal() # Clean theme
+library(ggridges)
+# Calculate the medians
+medians <- aggregate(envPC_1 ~ motifCount, data = all_rep_taxa, median)
+test <- t.test(filter(all_rep_taxa_binarized, motifCount == 0)$envPC_1, filter(all_rep_taxa_binarized, motifCount == 1)$envPC_1, var.equal = TRUE)
+# Create the ridgeline plot with medians
+ggplot(all_rep_taxa, aes(x = envPC1_residual, y = as.factor(motifCount), fill = as.factor(motifCount))) +
+  geom_density_ridges(scale = 1, alpha = 0.7) + # Ridgeline plot
+  geom_point(data = medians, aes(x = envPC1_residual, y = as.factor(motifCount)), color = "red", size = 2) + # Median points
+  labs(x = "Environmental PC 1", y = "HSF/GARP Motif Count: OG0018131") +
+  theme_minimal() + # Clean theme
+  theme(legend.position = "none") # Remove legend
+
+top_taxa <- filter(all_rep_taxa, as.numeric(motifCount) > -1) %>% 
+  left_join(metadata) %>%
+  dplyr::select(c(Species, assemblyID, envPC_1, motifCount))
+```
+
+GO enrichment
+```{r}
+library(topGO)
+# mappingFile = read.table("/workdir/coh22/andro_tfbs/output/OGToZm_mapping_v2.txt") %>% # map to maize
+#   mutate(V1=sapply(V1, function(x) strsplit(x, "_")[[1]][1])) # For maize
+mappingFile = read.table("/workdir/coh22/andro_tfbs/output/OGToAt_mapping_v2.txt") %>%# map to Arabidopsis
+  mutate(V1=sapply(V1, function(x) strsplit(x, "\\.")[[1]][1])) # For Arabidopsis
+
+all_ogs <- unique(mappingFile[mappingFile[,2]%in%names(mat.list),1])
+top_ogs = unique(mappingFile[mappingFile[,2]%in%unique(top_hits$OG),1])
+# 
+# # Downloaded Arabidopsis annotations on 2024.03.04 from https://v2.arabidopsis.org/download_files/GO_and_PO_Annotations/Gene_Ontology_Annotations/ATH_GO_GOSLIM.txt.gz
+# # Read the file (adjust header/sep as needed)
+# #godb <- read.delim("/workdir/coh22/andro_tfbs/output/ATH_GO_GOSLIM.txt",
+#                    header = FALSE, sep = "\t", stringsAsFactors = FALSE, skip = 4)
+#
+# # Aggregate GO terms per gene
+# godb_agg <- godb %>%
+#   dplyr::group_by(V1) %>%
+#   dplyr::summarise(GO_terms = paste(unique(V6), collapse = ",")) %>%
+#   ungroup()
+
+# Write out in the format expected by readMappings
+#write.table(godb_agg, file = "/workdir/coh22/andro_tfbs/output/ATH_GO_GOSLIM_clean.txt", sep = "\t",
+#            col.names = FALSE, row.names = FALSE, quote = FALSE)
+
+# Now read the mappings with topGO
+GODB <- readMappings("/workdir/coh22/andro_tfbs/output/ATH_GO_GOSLIM_clean.txt", IDsep = ",")
+
+#GODB <- readMappings("/workdir/coh22/andro_tfbs/output/Zm00001eb.1.fulldata_goList.txt",IDsep = ",")
+background = intersect(names(GODB),all_ogs)
+# background = names(GODB)
+tmp=factor(as.integer(background%in%top_ogs))
+names(tmp)=background
+
+# Define a function to process each ontology
+algo <- "classic" # Choose topGO algorithm
+#algo <- "weight01" # Choose topGO algorithm
+process_topGO <- function(ontology, allGenes, GODB, top_ogs, mappingFile) {
+  tgd1 <- new("topGOdata", ontology = ontology, allGenes = allGenes, nodeSize = 5, annot = annFUN.gene2GO, gene2GO = GODB)
+  resTopGO <- runTest(tgd1, algorithm = algo, statistic = "Fisher")
+  GO_res_table <- GenTable(tgd1, pval = resTopGO, orderBy = "pval", 
+                           ranksOf = "pval", topNodes = length(resTopGO@score), numChar = 100)
+  GO_res_table$sigGenes <- sapply(GO_res_table[, 1], function(x) {
+    paste(mappingFile[mappingFile[, 1] %in% intersect(top_ogs, genesInTerm(tgd1, x)[[1]]), 2], collapse = ",")
+  })
+  GO_res_table_df <- as.data.frame(GO_res_table)
+  
+  # Filtering and transformation
+  significant_results <- GO_res_table_df %>%
+    mutate(Fisher.FDR = p.adjust(as.numeric(pval), method = "fdr")) %>%
+    #filter(Fisher.FDR < 0.1) %>%
+    mutate(neglog10Fisher = -log10(as.numeric(pval))) %>%
+    arrange(desc(neglog10Fisher))
+  
+  # Add ontology information
+  significant_results <- significant_results %>%
+    mutate(Ontology = ontology)
+  
+  return(significant_results)
+}
+
+# Process each ontology
+significant_BP <- process_topGO("BP", tmp, GODB, top_ogs, mappingFile)
+significant_MF <- process_topGO("MF", tmp, GODB, top_ogs, mappingFile)
+significant_CC <- process_topGO("CC", tmp, GODB, top_ogs, mappingFile)
+
+# Merge results
+merged_results_most_conserved <- bind_rows(significant_BP, significant_MF, significant_CC)
+
+View(merged_results_most_conserved[,c(2,4,5,8,9)])
+
+top_terms <- merged_results_most_conserved[1:10,]
+#top_terms <- significant_MF[1:6,]
+top_terms$Term <- sapply(top_terms$Term, function(x) substr(x, 1, 30)) # Truncate terms to make plotting prettier
+View(top_terms[,c(2,4,8, 9)])
+# Create the bubble plot
+ggplot(top_terms, aes(
+  x = neglog10Fisher, 
+  y = reorder(Term, neglog10Fisher), 
+  size = Significant, 
+  color = neglog10Fisher
+)) +
+  geom_point(alpha = 0.7) +
+  scale_color_gradient(low = "red", high = "blue") +
+  labs(
+    x = "-log10(Fisher)", 
+    y = NULL, # Remove axis title for y to match your example
+    size = "Significant",
+    color = "-log10(Fisher)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 10), # Adjust text size for better visibility
+    axis.title.x = element_text(size = 12),
+    legend.position = "right",
+    panel.grid.major.y = element_line(size = 0.5, color = "grey80"), # Add gridlines for alignment
+    plot.title = element_text(hjust = 0.5, size = 14))
+```
+
+Which motifs are enriched in the top hits?
+``` {r}
+observed <- data.frame(top_hits) %>%
+  dplyr::select(c(OG,motif)) %>%
+  unique() %>%
+  count(motif)
+names(observed)[2] <- "observed"
+n_ortho <- length(unique(results_df$OG))
+top_hits_motif_enrichment <- data.frame(results_df) %>%
+  count(motif) %>%
+  # Calculate expected number of significant hits, controlling for number of models run with each motif
+  mutate(expected = (n / nrow(results_df)) * nrow(top_hits)) %>%
+  left_join(observed) %>%
+  mutate(obs_exp_ratio = observed / expected) %>%
+  dplyr::filter(!is.na(observed))
+
+# Test enrichment using poission distribution:
+top_hits_motif_enrichment <- top_hits_motif_enrichment %>%
+  mutate(p_value = ppois(observed - 1, lambda = expected, lower.tail = FALSE)) %>%
+  mutate(p.fdr = p.adjust(p_value, method = "fdr")) %>%
+  mutate(neglogP = -log10(p_value)) %>%
+  arrange(p.fdr) #%>%
+  filter(p.fdr < 0.05)
+
+# Subset the top 10 motifs with lowest p.fdr values
+top10 <- head(top_hits_motif_enrichment, 10)
+
+# Create the bubble plot
+ggplot(top_hits_motif_enrichment, aes(
+  x = neglogP, 
+  y = reorder(motif, neglogP), 
+  color = neglogP
+)) +
+  geom_point(alpha = 0.7, size = 5) +
+  scale_color_gradient(low = "purple", high = "gold") +
+  labs(
+    x = "-log10(p)", 
+    y = NULL,
+    #size = "Observed Count",
+    color = "-log10(p)",
+    title = "Top 5 enriched motifs across top motif-OG models for all envPCs"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 20),
+    axis.title.x = element_text(size = 20),
+    legend.position = "right",
+    panel.grid.major.y = element_line(size = 0.5, color = "grey80"),
+    plot.title = element_text(hjust = 0.5, size = 24)
+  )
+
+
+# Function to perform Fisher's Exact Test for each motif
+fisher_test_results <- apply(top_hits_motif_enrichment, 1, function(row) {
+  observed <- as.numeric(row["observed"])
+  expected <- as.numeric(row["expected"])
+  other_observed <- as.numeric(row["n"]) - observed
+  other_expected <- as.numeric(row["n"]) - expected
+  
+  # Create a contingency table
+  contingency_table <- matrix(c(observed, other_observed, expected, other_expected),nrow = 2, byrow = TRUE)
+  
+  # Perform Fisher's Exact Test
+  test <- fisher.test(contingency_table)
+  
+  # Return the p-value
+  return(test$p.value)
+})
+
+# Apply hypergeometric test for each motif
+top_hits_motif_enrichment$p_value <- apply(top_hits_motif_enrichment, 1, function(row) {
+  # phyper(q, m, n, k, lower.tail = FALSE) is used to compute the hypergeometric test
+  # where q = observed count - 1, m = expected count, N = total population, and k = total observed
+  phyper(q = as.numeric(row["observed"]) , 
+         m = as.numeric(row["n"]), 
+         n = nrow(results_df) - as.numeric(row["n"]), 
+         k = 1000, 
+         lower.tail = F) # for enrichment
+})
+# Adjust p-values using FDR (Benjamini-Hochberg)
+top_hits_motif_enrichment$adjusted_p_value <- p.adjust(top_hits_motif_enrichment$p_value, method = "fdr")
+# View the results with p-values
+View(top_hits_motif_enrichment)
+```
+
+Investigate whether RAOs from Yeaman 2024 are found in top hits
+``` {r}
+raos <- read.table("/workdir/coh22/andro_tfbs/output/Yeaman2024RAO_OGID.txt")
+names(raos) <- c("At_id", "OG")
+unique_top_ogs <- unique(top_hits$OG)
+unique_top_ogs[unique_top_ogs %in% raos$OG]
+```
+
+## OLD CODE
+```{r}
+Run_MLMs_OrthoSpecific <- function(Kphylo, EnvTrait, motifMatList) {
+  
+  nOrtho <- length(motifMatList)
+  cl <- makeCluster(2) # create cluster using 2 cores
+  registerDoParallel(cl)
+  results <- foreach(i = 1:nOrtho, .combine = 'c') %dopar% {
+    library(dplyr)
+    library(asreml)
+    library(data.table)
+    asreml.options(verbose = FALSE)
+    geneID <- names(motifMatList)[i]
+    # Custom logging function to append to a file with timestamps
+    log_to_file <- function(text, filename = "/workdir/coh22/andro_tfbs/output/output_log.txt") {
+      timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+      write(paste(timestamp, text, "\n"), file = filename, append = TRUE)
+    }  
+    log_to_file(paste("Running models for", geneID, "..."))
+    motifMat <- motifMatList[[i]] # Get motif matrix for ith orthogroup
+    nMotifs <- ncol(motifMat) # get number of motifs represented in at least one species for this orthogroup
+    
+    # Find common taxa represented in motif, phyloK, and environment datasets
+    common_rows <- base::intersect(rownames(motifMat), rownames(Kphylo)) %>% 
+      base::intersect(names(EnvTrait)) %>%
+      sort()
+    
+    # Filter to retain taxa shared across datasets
+    EnvTrait_filtered <- EnvTrait[common_rows]
+    motifMat_filtered <- motifMat[common_rows,]
+    Kphylo_filtered <- Kphylo[common_rows, common_rows]
+    input_mat <- as.data.frame(cbind(EnvTrait_filtered, motifMat_filtered))
+    input_mat$assemblyID <- as.factor(rownames(motifMat_filtered))
+    setnames(input_mat, gsub("-", "_", names(input_mat))) # Remove hyphens from motif names to enable parsing by model
+
+    ## Iterate over all motifs in matrix
+    motifModels <- list()
+    for(j in 1:nMotifs){
+      motifID <- colnames(input_mat)[j+1]
+      # Check if more than 1 unique value
+      if(length(unique(motifMat_filtered[,j])) > 1) {
+          # Run association model for each motif
+          formula_str <- paste("EnvTrait_filtered ~", motifID, collapse = " ")
+          formula_obj <- as.formula(formula_str)
+          model <- asreml(fixed = formula_obj, random = ~ vm(assemblyID, Kphylo_filtered), ai.sing = TRUE, data = input_mat)
+          # Extract model results
+          modelSummary <- summary(model)
+          loglik <- modelSummary$loglik
+          phylo_explained <- modelSummary$varcomp$component[1]
+          modelWald <- wald.asreml(model)
+          motif_coeff <- model$coefficients$fixed[2]
+          motif_pval <- modelWald[2,4]
+          motif_explained <- modelWald[2,2]/sum(modelWald[,2])
+      }
+      else{
+        # Do not run models and assign NA  to results if no variation in motif counts
+        phylo_explained <- NA 
+        motif_coeff <- NA
+        motif_pval <- NA
+        motif_explained <- NA
+      }
+      motifModels[[j]] <- list(geneID, motifID, phylo_explained, motif_coeff, motif_pval, motif_explained)
+    }
+    results <- motifModels
+  }
+  stopCluster(cl)
+  return(results)
+}
+
+# Must supply named cols/rows with assembly IDs
+EnvTrait <- env$envPC_1
+names(EnvTrait) <- env$assemblyID
+model8001_14396 <- Run_MLMs_OrthoSpecific(phyloK, EnvTrait, mat.list[8001:14396])
+save(model8001_14396, file="/workdir/coh22/andro_tfbs/results/models/ePC1_byOrtho_8001_14396.RData")
+```
+
+Now look at model results
+``` {r} 
+# Load models
+model1 <- load("/workdir/coh22/andro_tfbs/results/models/ePC1_byOrtho_1_8000.RData")
+model2 <- load("/workdir/coh22/andro_tfbs/results/models/ePC1_byOrtho_2001_6000.RData")
+model3 <- load("/workdir/coh22/andro_tfbs/results/models/ePC1_byOrtho_6001_10000.RData")
+model4 <- load("/workdir/coh22/andro_tfbs/results/models/ePC1_byOrtho_10001_14404.RData")
+cat_models <- c(model1_2000, model_results, model_6001_10000, model_10001_14404)
+cat_models <- model1_8000
+# Extract p values
+pvalues<- unlist(lapply(cat_models, function(x) x[[5]]))
+# Get indices of the 20 lowest p-values
+lowest_pvalue_indices <- order(pvalues)[1:20]
+# Create a mapping of p-value indices to model indices
+model_indices <- rep(1:length(cat_models), each=length(cat_models[[1]][[5]]))
+# Extract the corresponding model indices
+corresponding_models <- cat_models[lowest_pvalue_indices]
+top_hits <- matrix(unlist(corresponding_models), nrow = 20, ncol = 6, byrow=T) %>%
+  as.data.frame() %>%
+  select(c(OG=V1, motif=V2, pval=V5, coef = V4)) %>%
+  mutate(OG_motif = paste(OG, ":", motif, sep = ""))
+  
+qq(pvalues)
+```
+Bubble plots to illustrate significance and coefficient directionality of top candidates
+``` {r}
+top_hits$pval <- as.numeric(top_hits$pval)
+top_hits <- top_hits[order(top_hits$pval, decreasing = F),]
+
+# Create the bubble plot
+library(ggrepel)
+ggplot(top_hits, aes(x=-log10(pval), y = -log10(pval), levels = OG_motif)) +
+  geom_point(aes(color = coef > 0, size = -log10(pval)), alpha = 0.6) +
+  scale_color_manual(values = c("TRUE" = "red", "FALSE" = "blue")) +
+  geom_text_repel(aes(label = OG_motif), direction = "y", nudge_x = -0.1, hjust = 1, segment.size = 0.2, segment.alpha = 0.5, size = 2) +
+  labs(title = "Top hits for orthogroup-specific model",
+       size = "-log10 p-value") +
+  theme_minimal() +
+  
+  theme(legend.position = "right",
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+```
+
+Plot candidate motifs/OGs on phylogeny
+``` {r}
+source("/workdir/coh22/andro_tfbs/src/PlotTraitsOnTree.R")
+candidate.mat <- as.data.frame(mat.list["OG0004412"])
+
+plotTraitOnTree(trait = candidate.mat$OG0004412.MYB88, taxa = rownames(candidate.mat), tree = tree, visible_tip_labels = T, shape = "fan", colors = c("white", "black"))
+
+# Plot temp adaptation of taxa with motif
+candidate.counts <- as.data.frame(cbind(candidate.mat$OG0013620.SMZ_RAP2.7_TOE2, rownames(candidate.mat))) %>%
+  setnames(c("motifCount", "assemblyID"))
+all_rep_taxa <- env[env$assemblyID %in%candidate.counts$assemblyID,] %>%
+  merge(candidate.counts)
+
+all_rep_taxa_factorized <- all_rep_taxa %>%
+  mutate(motifCount = as.factor(motifCount))
+
+# For categorical relationship with motif count
+ggplot(all_rep_taxa_factorized, aes(x = motifCount, y = envPC_1, fill = motifCount)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "DOF_CDF motif presence upstream of OG0002478", x = "DOF_CDF presence", y = "envPC1")
+
+# For quantitative variation in motif count
+# Create the plot
+ggplot(all_rep_taxa, aes(x = motifCount, y = envPC_1)) +
+  geom_point(color = "blue") + # Scatter plot
+  geom_smooth(method = "lm", formula = y ~ x, color = "red", se = FALSE) + # Regression line
+  labs(title = "Motif Count vs Environmental PC 1", x = "Motif Count", y = "Environmental PC 1") +
+  theme_minimal() # Clean theme
+library(ggridges)
+# Calculate the medians
+medians <- aggregate(envPC_1 ~ motifCount, data = all_rep_taxa, median)
+
+# Create the ridgeline plot with medians
+ggplot(all_rep_taxa, aes(x = envPC_1, y = as.factor(motifCount), fill = as.factor(motifCount))) +
+  geom_density_ridges(scale = 1, alpha = 0.7) + # Ridgeline plot
+  geom_point(data = medians, aes(x = envPC_1, y = as.factor(motifCount)), color = "red", size = 2) + # Median points
+  labs(x = "Environmental PC 1", y = "CDF/DOF Motif Count: OG0002478") +
+  theme_minimal() + # Clean theme
+  theme(legend.position = "none") # Remove legend
+
+top_taxa <- filter(all_rep_taxa, motifCount >1) %>% 
+  left_join(metadata) %>%
+  select(c(Species, assemblyID, envPC_1, motifCount))
+```
+
+
+
+```{r}
+
+
+
+```
+
+
+
+
