@@ -15,7 +15,7 @@ orthofinder -S diamond -I 1.5 -t 30 -a 12 -M msa -f output/aa_poaceaeRepAssembli
 orthofinder -t 20 -fg output/Results_Mar10 -M msa > output/orthoFinder_stdout.log 2> output/orthoFinder_stderr.log
 
 
-# run 07B_OG_comparison.ipynb to do OG filtering
+# run 07B_OGFilter.ipynb to do OG filtering
 # reconstruct ancestral sequence
 mkdir output/poaceaeHelixOGMSA_plusAnc
 cat output/poaceaeHelixerOG_filtered_v2.txt | parallel -j 35 'Rscript src/07_orthogroup/01_phangornAncestralSeqReconstruct_AA.R --input output/OrthoFinder/Results_Jun06/MultipleSequenceAlignments/{}.fa --output output/poaceaeHelixOGMSA_plusAnc/{}'
