@@ -3,6 +3,7 @@
 # get angiosperm 353 loci
 miniprot --gff-only -t 30 data/Angiosperms353_orysaSequences.fasta output/poaceaeHelixerOG_ancSeq_gapRemoved_filtered.fa > output/angiosperm353ToOG.gff
 grep "Rank=1" output/angiosperm353ToOG.gff|grep "mRNA" |awk '{print $1"\t"$9}'|sed 's/;Frameshift=*//g'|sed 's/;StopCodon=*//g'|sed 's/\t/;/g'|cut -d ";" -f 1,6|sed 's/;Target=/\t/g' > output/angiosperm353ToOG_mapping.txt
+# run 08B.ipynb to get MSAs
 
 # angiosperm 353 loci gene tree for astral
 cd output/geneTree_angiosperm353/
