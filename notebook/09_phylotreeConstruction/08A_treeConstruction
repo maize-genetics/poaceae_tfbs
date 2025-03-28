@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# get angiosperm 353 loci
+miniprot --gff-only -t 30 data/Angiosperms353_orysaSequences.fasta output/poaceaeHelixerOG_ancSeq_gapRemoved_filtered.fa > output/angiosperm353ToOG.gff
+grep "Rank=1" output/angiosperm353ToOG.gff|grep "mRNA" |awk '{print $1"\t"$9}'|sed 's/;Frameshift=*//g'|sed 's/;StopCodon=*//g'|sed 's/\t/;/g'|cut -d ";" -f 1,6|sed 's/;Target=/\t/g' > output/angiosperm353ToOG_mapping.txt
+
+# angiosperm 353 loci gene tree for astral
+cd output/geneTree_angiosperm353/
+find /workdir/sh2246/p_phyloGWAS/output/geneTree_angiosperm353/ -name '*.fa' -type f| cut -d / -f 7|sed 's/.fa//g' | parallel -j 35 '/workdir/sh2246/p_panAndOGASR/paml_pipeline/standard-RAxML/raxmlHPC -m GTRGAMMA -p 12345 -s /workdir/sh2246/p_phyloGWAS/output/geneTree_angiosperm353/{}.fa -# 1 -n {}.tree'
+cd /workdir/sh2246/p_phyloGWAS/
+
+# astral tree (no tip branch length; left out)
+printf "%s\n" output/geneTree_angiosperm353/RAxML_bestTree* | xargs cat > output/angiospermGeneTreeForest.nwk
+# while IFS=$'\t' read -r pattern replacement; do sed -i "s/$pattern/$replacement/g" output/geneNeutralTreeForest.nwk; done < data/BNITaxa_translateTable_forTree.txt 
+# sed -i -E 's/Pavag*[GK]*.*:/pvagin:/g' output/geneNeutralTreeForest.nwk
+astral-pro -t 20 -i output/angiospermGeneTreeForest.nwk -o output/PoaceaeTree_angiosperm353_astral.nwk
+
+
+
+
