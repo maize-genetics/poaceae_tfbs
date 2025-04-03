@@ -17,28 +17,29 @@ library(minpack.lm)
 
 ```{r, include=FALSE}
 # Load data
-metadata <- read.csv('/workdir/coh22/andro_tfbs/data/Poaceae_metadata_2024.08.21.csv')
-phyloK <- read.table("/workdir/coh22/andro_tfbs/output/modelData/phyloK_800Poaceae_astral.txt")
-tree <- read.tree("/workdir/coh22/andro_tfbs/output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20240821.nwk")
+rootDir <- "/workdir/coh22/poaceae_tfbs/"
+metadata <- read.csv(paste0(rootDir, "data/Poaceae_metadata_2024.08.21.csv"))
+phyloK <- read.table(paste0(rootDir, "output/modelData/phyloK_800Poaceae_astral.txt"))
+tree <- read.tree(paste0(rootDir, "output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20240821.nwk"))
 colnames(phyloK) <- rownames(phyloK)
-taxonomy <- read.csv("/workdir/coh22/andro_tfbs/data/Poaceae_taxonomic_groups.csv")
-env <- read.table("/workdir/coh22/andro_tfbs/output/modelData/envData_759Poaceae_20240821.txt") %>%
+taxonomy <- read.csv(paste0(rootDir, "data/Poaceae_taxonomic_groups.csv"))
+env <- read.table(paste0(rootDir, "output/modelData/envData_759Poaceae_20240821.txt")) %>%
   mutate(assemblyID = rownames(.))
-env.ogs <- read.table("/workdir/coh22/andro_tfbs/output/turnover_analysis/env_turnover/Yeaman2024RAO_OGID.txt") %>% select(c(at_id = V1, OG = V2))
-gen.dist <- read.table("/workdir/coh22/andro_tfbs/output/angiosperm353_geneticDistance.txt", header = T)
-taxa <- read.table("/workdir/coh22/andro_tfbs/output/angiosperm353_geneticDistance.txt", header = F)[1,]
+#env.ogs <- read.table(paste0(rootDir, "output/turnover_analysis/env_turnover/Yeaman2024RAO_OGID.txt")) %>% select(c(at_id = V1, OG = V2))
+gen.dist <- read.table(paste0(rootDir, "output/angiosperm353_geneticDistance.txt"), header = T)
+taxa <- read.table(paste0(rootDir, "output/angiosperm353_geneticDistance.txt"), header = F)[1,]
 colnames(gen.dist) <- taxa
 
 # Motifs
-source("/workdir/coh22/andro_tfbs/src/load_motif_data.R")  # Adjust the filename as needed
+source(paste0(rootDir, "src/05_motifTurnover/load_motif_data.R"))  # Adjust the filename as needed
 mat.list <- load_motif_data(
-  unenriched_clusters_path = "/workdir/coh22/andro_tfbs/lists/unenriched_clusters.txt",
-  cluster_meta_path = "/workdir/coh22/andro_tfbs/data/JASPAR2024_SummarizedClusters.txt",
-  motifs_dir = "/workdir/coh22/andro_tfbs/output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies"
+  unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
+  cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
+  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies")
 )
 
 # Filter out assemblies with TABASCO score < 3000 to provide more reliable estimate of motif conservation
-taxa.to.filter.out <- read.csv("/workdir/coh22/andro_tfbs/lists/tabasco_under_3000.txt", header = F)
+taxa.to.filter.out <- read.csv(paste0(rootDir, "lists/tabasco_under_3000.txt"), header = F)
 filter_sparse_taxa <- function(mat) {
   mat[!rownames(mat) %in% taxa.to.filter.out$V1, ]
 }
@@ -329,12 +330,12 @@ layered_plot
 
 Investigate OGs with highest and lowest motif conservation
 ``` {r}
-maize_gene_desc <- read.table("/workdir/coh22/andro_tfbs/output/B73_DE.out", sep = "\t", header = T) %>%
+maize_gene_desc <- read.table(paste0(rootDir, "output/B73_DE.out"), sep = "\t", header = T) %>%
   dplyr::select(c(qpid, desc)) %>%
   mutate(ZmID = sapply(qpid, function(x) strsplit(x, "_")[[1]][1])) %>%
   group_by(ZmID) %>%
   dplyr::summarise(desc = paste(unique(desc), collapse = "; "))
-OGkey <- read.table("/workdir/coh22/andro_tfbs/output/OGToZm_mapping_v2.txt") %>%
+OGkey <- read.table(paste0(rootDir, "output/ogs/OGToZm_mapping_v2.txt")) %>%
   dplyr::rename(c(ZmID = V1, OG = V2)) %>%
   mutate(ZmID = sapply(ZmID, function(x) strsplit(x, "_")[[1]][1])) %>%
   left_join(maize_gene_desc)
@@ -400,12 +401,12 @@ ggplot(merged_df_indiv_gene, aes(x = genDist, y = indiv_gene_pct_motifs_conserve
 GO enrichment for most conserved OGs. Run
 ``` {r}
 library(topGO)
-mappingFile = read.table("/workdir/coh22/andro_tfbs/output/OGToZm_mapping_v2.txt") %>%
+mappingFile = read.table(paste0(rootDir, "output/OGToZm_mapping_v2.txt")) %>%
 mutate(V1=sapply(V1, function(x) strsplit(x, "_")[[1]][1]))
 all_ogs <- unique(mappingFile[mappingFile[,2]%in%mean_turnover$OG,1])
 #top_ogs = unique(mappingFile[mappingFile[,2]%in%least_conserved$OG,1])
 top_ogs = unique(mappingFile[mappingFile[,2]%in%most_conserved$OG,1])
-GODB <- readMappings("/workdir/coh22/andro_tfbs/output/Zm00001eb.1.fulldata_goList.txt",IDsep = ",")
+GODB <- readMappings(paste0(rootDir, "output/go_enrichment/Zm00001eb.1.fulldata_goList.txt"),IDsep = ",")
 background = intersect(names(GODB),all_ogs)
 # background = names(GODB)
 tmp=factor(as.integer(background%in%top_ogs))
@@ -480,7 +481,7 @@ ggplot(top_terms, aes(
 Compare turnover of TFs with non-TFs (maize TFs from Grassius: https://grassius.org/download_species_gene_list/Maize/v5) 
 ``` {r}
 library(ggridges)
-tf_ogs <- read.table("/workdir/coh22/andro_tfbs/output/turnover_analysis/tf_turnover/TF_OGs.txt") %>%
+tf_ogs <- read.table(paste0(rootDir, "output/turnover_analysis/tf_turnover/TF_OGs.txt")) %>%
   dplyr::select(OG=V2)
 tf.og.ids <- tf_ogs$OG[tf_ogs$OG %in% names(filtered.mat.list)]
 tf.genes <- filter(mean_turnover, OG %in% tf.og.ids)
@@ -522,7 +523,7 @@ View(tf.genes)
 
 ``` {r}
 # Just for maize vs sorghum syntenic OGs
-syntenic_ogs <- read.table("/workdir/coh22/andro_tfbs/output/turnover_analysis/syntenic_only/ZmSb_syntenicOGs.txt") %>%
+syntenic_ogs <- read.table(paste0(rootDir, "output/turnover_analysis/syntenic_only/ZmSb_syntenicOGs.txt")) %>%
   dplyr::select(OG=V2)
 syntenic_tfs <- intersect(tf_ogs$OG, syntenic_ogs$OG)
 syntenic.bkg <- syntenic_ogs$OG[!syntenic_ogs$OG %in% syntenic_tfs]
@@ -563,7 +564,7 @@ tf_nonTF_syntenic <- ggplot(merged.turnover, aes(x = pct_conserved, fill = og.cl
 tf_nonTF_syntenic
 
 # # Maize vs sorghum with no synteny filter
-# tf_ogs <- read.table("/workdir/coh22/andro_tfbs/output/TF_OGs.txt") %>%
+# tf_ogs <- read.table(paste0(rootDir, "output/TF_OGs.txt")) %>%
 #   dplyr::select(OG=V2)
 # tf.og.ids <- tf_ogs$OG[tf_ogs$OG %in% names(filtered.mat.list)]
 # tf.genes <- na.omit(Zm_vs_Sb_pct_conserved[tf.og.ids]) %>%
@@ -583,6 +584,187 @@ tf_nonTF_syntenic
 #   left_join(maize_gene_desc)
 ```
 
+# Turnover rates by motif
+``` {r}
+# Function to flip df lists s.t. each column is an OG and each list entry is a motif
+reorient_data <- function(df_list, subset_names = NULL, cores = parallel::detectCores()) {
+  require(data.table)
+  require(parallel)
+  
+  # Use all names if no subset is provided
+  if (is.null(subset_names)) {
+    subset_names <- names(df_list)
+  }
+  
+  # Step 1: Convert each gene-specific dataframe to long format in parallel
+  dt_list <- mclapply(subset_names, function(gene) {
+    df <- df_list[[gene]]
+    # Convert rownames (species) into a column
+    dt <- as.data.table(df, keep.rownames = "species")
+    dt[, gene := gene]  # add gene name column
+    # Melt the dataframe so that each row corresponds to one species-motif combination
+    melt(dt, id.vars = c("species", "gene"), variable.name = "motif", value.name = "count")
+  }, mc.cores = cores)
+  
+  # Combine all long-format data.tables into one
+  combined_dt <- rbindlist(dt_list)
+  
+  # Step 2: Split the combined data.table by motif
+  motif_groups <- split(combined_dt, by = "motif")
+  
+  # Step 3: For each motif, cast to wide format (species as rows, gene names as columns),
+  # then set the rownames to species and remove the "species" column.
+  diffs_by_motif <- lapply(motif_groups, function(dt) {
+    wide_dt <- dcast(dt, species ~ gene, value.var = "count")
+    wide_df <- as.data.frame(wide_dt)
+    rownames(wide_df) <- wide_df$species
+    wide_df$species <- NULL
+    return(wide_df)
+  })
+  
+  # Name the list elements with the motif names
+  names(diffs_by_motif) <- names(motif_groups)
+  
+  return(diffs_by_motif)
+}
+
+diffs_by_motif <- reorient_data(diffs)
+orig_df_by_motif <- reorient_data(ogs_with_focal)
+
+calc_pct_conservation_by_motif <- function(orig.motif.matrix, motif.diff.matrix, focal.assembly, taxa) {
+  pct.conserved.vs.focal <- rep(NA, times = length(taxa))
+  names(pct.conserved.vs.focal) <- taxa
+  focal_motifs <- t(as.matrix(orig.motif.matrix[focal.assembly,], nrow = ncol(orig.motif.matrix)))
+  n_focal <- sum(focal_motifs, na.rm = TRUE)
+  n_diverged <- rowSums(motif.diff.matrix, na.rm = TRUE)
+  pct_conserved <- 1 - (n_diverged / n_focal)
+  names(pct_conserved) <- rownames(orig.motif.matrix)
+  # Get matching names between B73_distances and manhattan distances
+  matching_names <- intersect(names(pct.conserved.vs.focal), names(pct_conserved))
+  # Replace only for matching names
+  pct.conserved.vs.focal[matching_names] <- pct_conserved[matching_names]
+  return(pct.conserved.vs.focal)
+}
+
+pct_conserved_by_motif <- mclapply(1:length(orig_df_by_motif), function(i) {
+   orig.mat <- orig_df_by_motif[[i]]
+   diff.mat <- diffs_by_motif[[i]]
+   calc_pct_conservation_by_motif(orig.mat, diff.mat, focal.assembly, taxa)
+ } , mc.cores = detectCores() - 1)
+ names(pct_conserved_by_motif) <- names(orig_df_by_motif)
+```
+
+Fit and plot models for each motif
+``` {r}
+# convert list to proper format for function
+prep_dfs_by_motif <- function(df) {
+  out_df <- as.data.frame(df) %>%
+    merge(focal_gen_dist, by = "row.names") %>%
+    na.omit()
+  colnames(out_df) <- c("assemblyID", "pct_motifs_conserved", "focal_dist")
+  return(out_df)
+} 
+prepped.motifs <- mclapply(pct_conserved_by_motif, prep_dfs_by_motif, mc.cores = detectCores() - 1)
+
+nls.models.by.motif.list <- mclapply(prepped.motifs, fit_nls, mc.cores = detectCores() - 1) 
+sum(is.na(nls.models.by.motif.list)) # No motif models failed to converge
+nls.models.by.motif <- do.call(rbind, nls.models.by.motif.list)  %>%
+  as.data.frame() %>%
+  mutate(motif = names(pct_conserved_by_motif)) %>%
+  na.omit()
+
+# Define x values for the curves. Adjust the range as needed.
+x_vals <- seq(0, 0.25, length.out = 200)
+
+# Create a long-format data frame with one row per (OG, x, y) value.
+curves_long <- nls.models.by.motif %>%
+  rowwise() %>%
+  do(data.frame(
+    motif = .$motif,
+    x  = x_vals,
+    y  = 100 * (pmin(1, pmax(0, .$a_global * exp(-.$b_global * x_vals) + .$c_global)))
+  )) %>%
+  ungroup()
+
+# Build the plot
+stacked_curves <- ggplot(curves_long, aes(x = x, y = y, group = motif)) +
+  geom_line(aes(color = motif)) +  # Separate color for each motif
+  #stat_summary(fun = median, geom = "line", aes(group = 1), color = "darkblue", size = 2) +  # Thick median curve
+  labs(
+    x = "Genetic Distance vs Maize",
+    y = "% Motif instances conserved"
+  ) +
+  ylim(0, 100) +
+  xlim(0,0.25) +
+  theme_bw() +
+  theme(
+    axis.title = element_text(size = 24),
+    axis.text  = element_text(size = 22)
+  )
+stacked_curves
+
+
+
+# Overlay data points
+layered_plot <- stacked_curves +
+  #geom_point(
+  #  data = merged_df,
+  #  mapping = aes(x = focal_dist, y = 100 * pct_motifs_conserved),
+  #  inherit.aes = FALSE,
+  #  alpha = 0.5, color = "orange", size = 3
+  #) +
+  #geom_hline(
+  #  yintercept = mean.cross.gene.pct_shared,
+  #  linetype = "dashed",
+  #  color = "darkgreen"
+  #) +
+  xlim(0, 0.25)
+
+layered_plot
+```
+Compare ChIP-supported motifs with all motifs for glk53 (HSF_GARP cluster)
+``` {r}
+chip_ogs <- read.table(paste0(rootDir, "output/feature_overlap/chip/ZmTF58_glk53/og_overlap_chip_union.txt"))
+# Filter motif count dfs to only those OGs
+subset_ogs <- function(df, ogs_to_retain) {
+  df <- as.data.frame(df) # ensure input is a df, coercing from matrix if necessary
+  dplyr::select(df, any_of(ogs_to_retain))
+}
+
+
+chip_diffs_by_motif <- mclapply(diffs_by_motif, subset_ogs, ogs_to_retain = chip_ogs$V1, mc.cores = detectCores() - 1)
+chip_orig_df_by_motif <- mclapply(orig_df_by_motif, subset_ogs, ogs_to_retain = chip_ogs$V1, mc.cores = detectCores() - 1)
+
+chip_pct_conserved_by_motif <- mclapply(1:length(chip_orig_df_by_motif), function(i) {
+   orig.mat <- chip_orig_df_by_motif[[i]]
+   diff.mat <- chip_diffs_by_motif[[i]]
+   calc_pct_conservation_by_motif(orig.mat, diff.mat, focal.assembly, taxa)
+ } , mc.cores = detectCores() - 1)
+ names(chip_pct_conserved_by_motif) <- names(chip_orig_df_by_motif)
+
+# Plot turnover difference
+chip.prepped.motifs <- mclapply(chip_pct_conserved_by_motif, prep_dfs_by_motif, mc.cores = detectCores() - 1)
+
+all_og_conservation <- prepped.motifs[["HSF_GARP"]]
+chip_conservation <- chip.prepped.motifs[["HSF_GARP"]]
+
+# Set up a high-quality base plot with proper labels and theme
+plot(
+  all_og_conservation$pct_motifs_conserved,
+  chip_conservation$pct_motifs_conserved,
+  xlab = "All OGs: % HSF/GARP motifs Conserved",
+  ylab = "ChIP OGs: % HSF/GARP motifs Conserved",
+  pch = 16,                      # solid circles
+  col = "darkblue",              # nice color
+  cex = 1.2,                     # increase point size
+  las = 1,                       # horizontal axis labels
+  bty = "l"                      # cleaner box style
+)
+
+# Add y = x dashed line
+abline(a = 0, b = 1, lty = 2, col = "gray40", lwd = 2)
+summary(lm(all_og_conservation$pct_motifs_conserved ~ chip_conservation$pct_motifs_conserved))
+```
 Compare turnover of known env adaptation genes with background
 ``` {r}
 env.og.ids <- env.ogs$OG[env.ogs$OG %in% names(filtered.mat.list)]
@@ -620,10 +802,7 @@ ggplot(merged.turnover, aes(x = og.class, y = mean_pct_conserved)) +
   geom_boxplot(aes(color = as.factor(og.class)))
 ```
 
-Compare turnover of different motifs
-``` {r}
 
-```
 OLD CODE
 
 
@@ -676,7 +855,7 @@ prepare_data_frames <- function(mat_list) {
 
 # Usage
 combined_df <- prepare_data_frames(filtered.mat.list)
-taxa.to.filter.out <- read.table("/workdir/coh22/andro_tfbs/lists/fewerThan1000ogs.txt")
+taxa.to.filter.out <- read.table("/workdir/coh22/poaceae_tfbs/lists/fewerThan1000ogs.txt")
 filtered.poaceae.motifs <- filter(combined_df, !assemblyID %in% taxa.to.filter.out$V1)
 filtered.motifs <- filtered.poaceae.motifs
 ```
