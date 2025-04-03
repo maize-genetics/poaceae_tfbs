@@ -11,15 +11,19 @@ genbank_key=$2
 sorted_genbank_key=$(mktemp)
 tail -n +2 "$genbank_key" | awk -F'\t' '{print $6, $14}' | sort -k1,1 > "$sorted_genbank_key"
 
-# Join with bed file
+# Join with bed file and extract the Target ID from the attribute field
 motifs_fixed_contig=$(mktemp)
-join -1 1 -2 1 <(sort -k1,1 $bed_file) $sorted_genbank_key |\
+join -1 1 -2 1 <(sort -k1,1 "$bed_file") "$sorted_genbank_key" |\
 awk 'BEGIN { OFS = "\t" }
 {
-  print $(NF), $2, $3, $5
+  # Extract target ID from column 4 (e.g., from "Target=OG0006243_1_247_Zm-B73-REFERENCE-NAM-5.0")
+  match($4, /Target=([^_]+)/, arr);
+  target = arr[1];
+  # Replace the first column with the extracted Target ID (or append it as needed)
+  print $(NF), $2, $3, target, $5, $6 
 }' > "$motifs_fixed_contig"
 
-cat $motifs_fixed_contig
+cat "$motifs_fixed_contig"
 # Join with motif metadata
 #sorted_motif_key=$(mktemp)
 #awk -F '\t' -v OFS='\t' '
