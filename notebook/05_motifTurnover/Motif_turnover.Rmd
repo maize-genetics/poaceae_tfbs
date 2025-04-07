@@ -724,6 +724,109 @@ layered_plot
 ```
 Compare ChIP-supported motifs with all motifs for glk53 (HSF_GARP cluster)
 ``` {r}
+# Define helper function to subset data frames by OGs to retain
+subset_ogs <- function(df, ogs_to_retain) {
+  df <- as.data.frame(df)  # Coerce matrix to data frame if needed
+  dplyr::select(df, any_of(ogs_to_retain))
+}
+
+# Define the mapping between motif names and corresponding TF names (for ChIP)
+mapping_df <- data.frame(
+  motif = c("ERF_DREB_B", "HSF_GARP", "BHLH_CAMTA", "HDZIP_PLINC_AHL"),
+  tf    = c("ZmTF117_ereb17", "ZmTF58_glk53", "ZmTF87_bhlh47", "ZmTF174_hb34"),
+  stringsAsFactors = FALSE
+)
+
+# Initialize list to store chip conservation data for each motif
+chip_prepped_motifs <- list()
+
+# Loop over each motif–TF pair to process chip OG filtering and conservation
+for(i in 1:nrow(mapping_df)) {
+  motif_name <- mapping_df$motif[i]
+  tf_name <- mapping_df$tf[i]
+  
+  # Construct the path to the chip OGs file for the current TF and read it
+  chip_ogs_file <- paste0(rootDir, "output/feature_overlap/chip/", tf_name, "/og_overlap_chip_union.txt")
+  chip_ogs <- read.table(chip_ogs_file, header = FALSE)
+  
+  # Subset the motif count data frames to retain only OGs with ChIP overlap
+  chip_diffs <- mclapply( diffs_by_motif, subset_ogs,
+                         ogs_to_retain = chip_ogs$V1,
+                         mc.cores = detectCores() - 1)
+  chip_orig  <- mclapply(orig_df_by_motif, subset_ogs,
+                         ogs_to_retain = chip_ogs$V1,
+                         mc.cores = detectCores() - 1)
+  
+  # Calculate percent conservation for ChIP OGs for each corresponding data frame pair
+  chip_pct_conserved <- mclapply(seq_along(chip_orig), function(j) {
+    orig.mat <- chip_orig[[j]]
+    diff.mat <- chip_diffs[[j]]
+    calc_pct_conservation_by_motif(orig.mat, diff.mat, focal.assembly, taxa)
+  }, mc.cores = detectCores() - 1)
+  names(chip_pct_conserved) <- names(chip_orig)
+  
+  # Prepare the chip conservation data frames
+  chip_prepped <- mclapply(chip_pct_conserved, prep_dfs_by_motif, mc.cores = detectCores() - 1)
+  
+  # Store the chip conservation data for the current motif for later plotting
+  chip_prepped_motifs[[motif_name]] <- chip_prepped[[motif_name]]
+}
+
+# Now, build a faceted scatter plot comparing all OGs vs. chip OGs for each motif.
+plot_data_list <- list()
+r2_df <- data.frame(motif = character(), r_squared = numeric(), stringsAsFactors = FALSE)
+
+for(i in 1:nrow(mapping_df)) {
+  motif_name <- mapping_df$motif[i]
+  
+  # Retrieve conservation data for all OGs and for chip OGs
+  all_og_conservation <- prepped.motifs[[motif_name]]
+  chip_conservation  <- chip_prepped_motifs[[motif_name]]
+  
+  # Combine the two into one data frame for plotting
+  df <- data.frame(
+    all_conservation  = all_og_conservation$pct_motifs_conserved,
+    chip_conservation = chip_conservation$pct_motifs_conserved,
+    motif = motif_name
+  )
+  
+  # Fit a linear model and extract the R² value for annotation
+  lm_fit <- lm(all_conservation ~ chip_conservation, data = df)
+  r_squared <- summary(lm_fit)$r.squared
+  r2_df <- rbind(r2_df, data.frame(motif = motif_name, r_squared = r_squared, stringsAsFactors = FALSE))
+  
+  plot_data_list[[i]] <- df
+}
+
+# Combine all motif-specific data frames into one
+plot_data <- do.call(rbind, plot_data_list)
+
+# Create the faceted scatter plot
+p <- ggplot(plot_data, aes(x = all_conservation, y = chip_conservation)) +
+  geom_point(color = "darkblue", size = 2) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray40", size = 1) +
+  facet_wrap(~ motif, scales = "fixed") +
+  labs(
+    x = "All OGs: % motifs Conserved",
+    y = "ChIP OGs: % motifs Conserved",
+    #title = "Motif conservation: All OGs vs. OGs with ChIP overlap"
+  ) +
+  theme_bw() +
+  theme(strip.text = element_text(size = 14),
+        axis.text=element_text(size=20),
+        axis.title=element_text(size=20,face="bold")) +  # Increase facet strip label size
+  geom_text(
+    data = r2_df,
+    aes(x = -Inf, y = Inf, label = paste("R² =", round(r_squared, 2))),
+    hjust = -0.1, vjust = 1.1,  # Adjust these values as needed
+    size = 6
+  )
+
+# Display the plot
+print(p)
+```
+``` {r}
+motif_name <- "HSF_GARP"
 chip_ogs <- read.table(paste0(rootDir, "output/feature_overlap/chip/ZmTF58_glk53/og_overlap_chip_union.txt"))
 # Filter motif count dfs to only those OGs
 subset_ogs <- function(df, ogs_to_retain) {
@@ -745,15 +848,15 @@ chip_pct_conserved_by_motif <- mclapply(1:length(chip_orig_df_by_motif), functio
 # Plot turnover difference
 chip.prepped.motifs <- mclapply(chip_pct_conserved_by_motif, prep_dfs_by_motif, mc.cores = detectCores() - 1)
 
-all_og_conservation <- prepped.motifs[["HSF_GARP"]]
-chip_conservation <- chip.prepped.motifs[["HSF_GARP"]]
+all_og_conservation <- prepped.motifs[[motif_name]]
+chip_conservation <- chip.prepped.motifs[[motif_name]]
 
 # Set up a high-quality base plot with proper labels and theme
 plot(
   all_og_conservation$pct_motifs_conserved,
   chip_conservation$pct_motifs_conserved,
-  xlab = "All OGs: % HSF/GARP motifs Conserved",
-  ylab = "ChIP OGs: % HSF/GARP motifs Conserved",
+  xlab = paste("All OGs: %", motif_name, "motifs Conserved"),
+  ylab = paste("ChIP OGs: %", motif_name, "motifs Conserved"),
   pch = 16,                      # solid circles
   col = "darkblue",              # nice color
   cex = 1.2,                     # increase point size
@@ -765,6 +868,7 @@ plot(
 abline(a = 0, b = 1, lty = 2, col = "gray40", lwd = 2)
 summary(lm(all_og_conservation$pct_motifs_conserved ~ chip_conservation$pct_motifs_conserved))
 ```
+
 Compare turnover of known env adaptation genes with background
 ``` {r}
 env.og.ids <- env.ogs$OG[env.ogs$OG %in% names(filtered.mat.list)]
