@@ -4,29 +4,24 @@ output: html_notebook
 ---
 
 ```{r}
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(ggpubr)
+library(tidyverse)
 library(data.table)
 library(rstatix)
 library(parallel)
 library(qqman)
 library(doParallel)
 library(ape)
-library(stringr)
 ```
 
 ```{r}
 # Load covariates
 setwd("/workdir/coh22/poaceae_tfbs/")
-metadata <- read.csv('data/Poaceae_metadata_2024.08.21.csv')
+metadata <- read.csv('data/Poaceae_metadata_2025.04.07_CH.csv')
 env <- read.table("output/modelData/envData_759Poaceae_20240821.txt") %>%
   mutate(assemblyID = rownames(.))
-phyloK <- read.table("output/modelData/phyloK_800Poaceae_astral.txt")
-tree <- read.tree("output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20240821.nwk")
+phyloK <- read.table("output/modelData/phyloK_728Poaceae_astral_20250407.txt")
+tree <- read.tree("output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20250407.nwk")
 colnames(phyloK) <- rownames(phyloK)
-taxonomy <- read.csv("/workdir/coh22/poaceae_tfbs/data/Poaceae_taxonomic_groups.csv")
 ```
 
 Calculate environmental residuals for ePC1 after controlling for phylogeny
@@ -98,131 +93,6 @@ names(mat.list) <- gsub(".*/([^/]+)\\.txt", "\\1", files) # Annotate with OG IDs
 
 ```
 
-Generate phyloPCs
-```{r}
-library(ade4)
-phyloPCaxes <- dudi.pca(phyloK, scannf = F, nf = 100)$li[1:100]
-colnames(phyloPCaxes) <- paste0("phyloPC", 1:100)
-```
-
-Run orthogroup-specific models with 5 phyloPCs
-``` {r}
-Run_MLMs_OrthoSpecific <- function(Kphylo, phyloPCs, EnvTraitMatrix, motifMatList) {
-    # Check if the file exists and remove it before the loop
-    filename <- "/workdir/coh22/poaceae_tfbs/output/output_log.txt"
-    if (file.exists("/workdir/coh22/poaceae_tfbs/output/output_log.txt")) {
-        file.remove(filename)
-    }
-    # Custom logging function to append to a file with timestamps
-    log_to_file <- function(text, filename = "/workdir/coh22/poaceae_tfbs/output/output_log.txt") {
-      timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-      write(paste(timestamp, text), file = filename, append = TRUE)
-    } 
-    ePC_names <- colnames(EnvTraitMatrix)
-    phyloPC_names <- colnames(phyloPCs) #modified
-  nOrtho <- length(motifMatList)
-  cl <- makeCluster(1) # create cluster using 1 cores
-  registerDoParallel(cl)
-  results <- foreach(i = 1:nOrtho, .combine = 'c') %dopar% {
-    library(dplyr)
-    library(asreml)
-    library(data.table)
-    asreml.options(verbose = FALSE)
-    ogID <- names(motifMatList)[i]
-    
-    log_to_file(paste("Running models for", ogID, "..."))
-    motifMatrix <- motifMatList[[i]] # Get motif matrix for ith orthogroup
-    n_traits <- ncol(EnvTraitMatrix)
-    n_phyloPCs <- ncol(phyloPCs)
-    nMotifs <- ncol(motifMatrix) # get number of motifs represented in at least one species for this orthogroup
-    # Find common taxa represented in motif, phyloK, and environment datasets
-    common_rows <- base::intersect(rownames(motifMatrix), rownames(Kphylo)) %>% 
-        base::intersect(rownames(EnvTraitMatrix)) %>%
-        sort()
-
-    # Filter to retain taxa shared across datasets
-    EnvTraits_filtered <- EnvTraitMatrix[common_rows,]
-    motifMat_filtered <- motifMatrix[common_rows,]
-    phyloK_filtered <- Kphylo[common_rows,common_rows]
-    phyloPCs_filtered <- phyloPCs[common_rows,] # modified for phyloPCs
-    input_matrix <- as.data.frame(cbind(phyloPCs_filtered, EnvTraits_filtered, motifMat_filtered)) # modified for phyloPCs
-    input_matrix$assemblyIDs <- factor(common_rows)
-
-    setnames(input_matrix, gsub("-", "_", names(input_matrix))) # Remove hyphens from motif names to enable parsing by model
-    ## Iterate over all motifs in matrix
-    motifModels <- list()
-    for(j in 1:nMotifs){
-    motifID <- colnames(input_matrix)[j+n_traits + n_phyloPCs] #modified
-    # Check if more than 1 unique value
-    if(length(unique(motifMat_filtered[,j])) > 1) {
-        # Run association model for each motif
-        formula_str <- paste(motifID, "~", 
-                             paste(ePC_names, collapse =" + "),
-                             "+", paste(phyloPC_names, collapse =" + "), # modified
-                             collapse = " ") 
-        formula_obj <- as.formula(formula_str)
-    #     model <- asreml(fixed = formula_obj, random = ~ vm(assemblyIDs, phyloK_filtered), ai.sing = TRUE, data = input_matrix)
-    #     # Extract model results
-    #     modelSummary <- summary(model)
-    #     loglik <- modelSummary$loglik
-    #     phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
-    #     modelWald <- wald.asreml(model)
-    #     env_coeffs <- model$coefficients$fixed[2:(1+n_traits)]
-    #     env_pval_log10p = -(pchisq(modelWald[(2:(1+n_traits)),3],1,log.p=T, lower.tail = FALSE) / log(10))
-    # 
-    #     #env_pvals <- modelWald[2:(1+n_traits),4]
-    #     # Set as NA if models ran incorrectly
-    #     env_coeffs <- if(length(env_coeffs) == n_traits) env_coeffs else rep(NA, n_traits)
-    #     env_pvals_log10p <- if(length(env_pval_log10p) == n_traits) env_pval_log10p else rep(NA, n_traits)
-    # } 
-# Error handling for model fitting
-                result <- tryCatch({
-                    model <- asreml(
-                        fixed = formula_obj,
-                        random = ~ vm(assemblyIDs, phyloK_filtered),
-                        ai.sing = TRUE,
-                        data = input_matrix
-                    )
-                    # Extract model results
-                    modelSummary <- summary(model)
-                    loglik <- modelSummary$loglik
-                    phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
-                    modelWald <- wald.asreml(model)
-                    env_coeffs <- model$coefficients$fixed[2:(1 + n_traits)]
-                    env_pval_log10p <- -(pchisq(modelWald[(2:(1 + n_traits)), 3], 1, log.p = TRUE, lower.tail = FALSE) / log(10))
-
-                    env_coeffs <- if (length(env_coeffs) == n_traits) env_coeffs else rep(NA, n_traits)
-                    env_pvals_log10p <- if (length(env_pval_log10p) == n_traits) env_pval_log10p else rep(NA, n_traits)
-
-                    list(ogID, motifID, phylo_explained, env_coeffs, env_pvals_log10p)
-                }, error = function(e) {
-                    log_to_file(paste("Error running model for", motifID, "in", ogID, ":", e$message))
-                    list(ogID, motifID, NA, rep(NA, times = n_traits), rep(NA, times = n_traits)) # Return NA for results
-                })
-                motifModels[[j]] <- result
-            }    
-    else{
-        # Do not run models and assign NA  to results if no variation in motif counts
-        phylo_explained <- NA 
-        env_coeffs <- rep(NA, times = n_traits)
-        env_pvals_log10p <- rep(NA, times = n_traits)
-        }
-    motifModels[[j]] <- list(ogID, motifID, phylo_explained, env_coeffs,  env_pvals_log10p)    
-    }
-    motifModels
-  }
-  stopCluster(cl)
-  return(results)
-}
-
-# Must supply named cols/rows with assembly IDs
-EnvTraitMatrix <- env[,286:295] # first 10 ePCs
-#EnvTraitMatrix <- env[,286:287] # first 2 ePCs
-rownames(EnvTraitMatrix) <- env$assemblyID
-models_phyloK_envPC1.10_poaceae <- Run_MLMs_OrthoSpecific(phyloK, phyloPCaxes[,1:5], EnvTraitMatrix, mat.list[1:5000])
-save(models_phyloK_envPC1.10_poaceae, file="/workdir/coh22/andro_tfbs/results/models/models_phyloK_envPC1.10_phyloPC1.5_poaceae_1_5000.RData")
-```
-
 
 Run orthogroup-specific models with asreml
 ``` {r}
@@ -240,7 +110,7 @@ Run_MLMs_OrthoSpecific <- function(Kphylo, EnvTraitMatrix, motifMatList) {
     ePC_names <- colnames(EnvTraitMatrix)
 
   nOrtho <- length(motifMatList)
-  cl <- makeCluster(2) # create cluster using 2 cores
+  cl <- makeCluster(2) # create cluster
   registerDoParallel(cl)
   results <- foreach(i = 1:nOrtho, .combine = 'c') %dopar% {
     library(dplyr)
@@ -276,46 +146,32 @@ Run_MLMs_OrthoSpecific <- function(Kphylo, EnvTraitMatrix, motifMatList) {
         # Run association model for each motif
         formula_str <- paste(motifID, "~", paste(ePC_names, collapse =" + "), collapse = " ")
         formula_obj <- as.formula(formula_str)
-    #     model <- asreml(fixed = formula_obj, random = ~ vm(assemblyIDs, phyloK_filtered), ai.sing = TRUE, data = input_matrix)
-    #     # Extract model results
-    #     modelSummary <- summary(model)
-    #     loglik <- modelSummary$loglik
-    #     phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
-    #     modelWald <- wald.asreml(model)
-    #     env_coeffs <- model$coefficients$fixed[2:(1+n_traits)]
-    #     env_pval_log10p = -(pchisq(modelWald[(2:(1+n_traits)),3],1,log.p=T, lower.tail = FALSE) / log(10))
-    # 
-    #     #env_pvals <- modelWald[2:(1+n_traits),4]
-    #     # Set as NA if models ran incorrectly
-    #     env_coeffs <- if(length(env_coeffs) == n_traits) env_coeffs else rep(NA, n_traits)
-    #     env_pvals_log10p <- if(length(env_pval_log10p) == n_traits) env_pval_log10p else rep(NA, n_traits)
-    # } 
-# Error handling for model fitting
-                result <- tryCatch({
-                    model <- asreml(
-                        fixed = formula_obj,
-                        random = ~ vm(assemblyIDs, phyloK_filtered),
-                        ai.sing = TRUE,
-                        data = input_matrix
-                    )
-                    # Extract model results
-                    modelSummary <- summary(model)
-                    loglik <- modelSummary$loglik
-                    phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
-                    modelWald <- wald.asreml(model)
-                    env_coeffs <- model$coefficients$fixed[2:(1 + n_traits)]
-                    env_pval_log10p <- -(pchisq(modelWald[(2:(1 + n_traits)), 3], 1, log.p = TRUE, lower.tail = FALSE) / log(10))
+        # Model fitting
+        result <- tryCatch({
+            model <- asreml(
+                fixed = formula_obj,
+                random = ~ vm(assemblyIDs, phyloK_filtered),
+                ai.sing = TRUE,
+                data = input_matrix
+            )
+            # Extract model results
+            modelSummary <- summary(model)
+            loglik <- modelSummary$loglik
+            phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
+            modelWald <- wald.asreml(model)
+            env_coeffs <- model$coefficients$fixed[2:(1 + n_traits)]
+            env_pval_log10p <- -(pchisq(modelWald[(2:(1 + n_traits)), 3], 1, log.p = TRUE, lower.tail = FALSE) / log(10))
 
-                    env_coeffs <- if (length(env_coeffs) == n_traits) env_coeffs else rep(NA, n_traits)
-                    env_pvals_log10p <- if (length(env_pval_log10p) == n_traits) env_pval_log10p else rep(NA, n_traits)
+            env_coeffs <- if (length(env_coeffs) == n_traits) env_coeffs else rep(NA, n_traits)
+            env_pvals_log10p <- if (length(env_pval_log10p) == n_traits) env_pval_log10p else rep(NA, n_traits)
 
-                    list(ogID, motifID, phylo_explained, env_coeffs, env_pvals_log10p)
-                }, error = function(e) {
-                    log_to_file(paste("Error running model for", motifID, "in", ogID, ":", e$message))
-                    list(ogID, motifID, NA, rep(NA, times = n_traits), rep(NA, times = n_traits)) # Return NA for results
-                })
-                motifModels[[j]] <- result
-            }    
+            list(ogID, motifID, phylo_explained, env_coeffs, env_pvals_log10p)
+        }, error = function(e) {
+            log_to_file(paste("Error running model for", motifID, "in", ogID, ":", e$message))
+            list(ogID, motifID, NA, rep(NA, times = n_traits), rep(NA, times = n_traits)) # Return NA for results
+        })
+        motifModels[[j]] <- result
+    }    
     else{
         # Do not run models and assign NA  to results if no variation in motif counts
         phylo_explained <- NA 
@@ -334,8 +190,8 @@ Run_MLMs_OrthoSpecific <- function(Kphylo, EnvTraitMatrix, motifMatList) {
 EnvTraitMatrix <- env[,286:295] # first 10 ePCs
 #EnvTraitMatrix <- env[,286:287] # first 2 ePCs
 rownames(EnvTraitMatrix) <- env$assemblyID
-models_phyloK_envPC1.10_poaceae <- Run_MLMs_OrthoSpecific(phyloK, EnvTraitMatrix, mat.list)
-save(models_phyloK_envPC1.10_poaceae, file="/workdir/coh22/andro_tfbs/results/models/models_phyloK_envPC1.10_poaceae.RData")
+models_phyloK_envPC1.10_poaceae_1_5000<- Run_MLMs_OrthoSpecific(phyloK, EnvTraitMatrix, mat.list[1:5000])
+save(models_phyloK_envPC1.10_poaceae_1_5000, file="/workdir/coh22/poaceae_tfbs/results/models/models_phyloK_envPC1.10_poaceae_1_5000.RData")
 ```
 
 
@@ -937,10 +793,131 @@ top_taxa <- filter(all_rep_taxa, motifCount >1) %>%
   select(c(Species, assemblyID, envPC_1, motifCount))
 ```
 
-
+Generate phyloPCs
+```{r}
+library(ade4)
+phyloPCaxes <- dudi.pca(phyloK, scannf = F, nf = 100)$li[1:100]
+colnames(phyloPCaxes) <- paste0("phyloPC", 1:100)
+```
 
 ```{r}
+Run orthogroup-specific models with 5 phyloPCs
+``` {r}
+Run_MLMs_OrthoSpecific <- function(Kphylo, phyloPCs, EnvTraitMatrix, motifMatList) {
+    # Check if the file exists and remove it before the loop
+    filename <- "/workdir/coh22/poaceae_tfbs/output/output_log.txt"
+    if (file.exists("/workdir/coh22/poaceae_tfbs/output/output_log.txt")) {
+        file.remove(filename)
+    }
+    # Custom logging function to append to a file with timestamps
+    log_to_file <- function(text, filename = "/workdir/coh22/poaceae_tfbs/output/output_log.txt") {
+      timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+      write(paste(timestamp, text), file = filename, append = TRUE)
+    } 
+    ePC_names <- colnames(EnvTraitMatrix)
+    phyloPC_names <- colnames(phyloPCs) #modified
+  nOrtho <- length(motifMatList)
+  cl <- makeCluster(1) # create cluster using 1 cores
+  registerDoParallel(cl)
+  results <- foreach(i = 1:nOrtho, .combine = 'c') %dopar% {
+    library(dplyr)
+    library(asreml)
+    library(data.table)
+    asreml.options(verbose = FALSE)
+    ogID <- names(motifMatList)[i]
+    
+    log_to_file(paste("Running models for", ogID, "..."))
+    motifMatrix <- motifMatList[[i]] # Get motif matrix for ith orthogroup
+    n_traits <- ncol(EnvTraitMatrix)
+    n_phyloPCs <- ncol(phyloPCs)
+    nMotifs <- ncol(motifMatrix) # get number of motifs represented in at least one species for this orthogroup
+    # Find common taxa represented in motif, phyloK, and environment datasets
+    common_rows <- base::intersect(rownames(motifMatrix), rownames(Kphylo)) %>% 
+        base::intersect(rownames(EnvTraitMatrix)) %>%
+        sort()
 
+    # Filter to retain taxa shared across datasets
+    EnvTraits_filtered <- EnvTraitMatrix[common_rows,]
+    motifMat_filtered <- motifMatrix[common_rows,]
+    phyloK_filtered <- Kphylo[common_rows,common_rows]
+    phyloPCs_filtered <- phyloPCs[common_rows,] # modified for phyloPCs
+    input_matrix <- as.data.frame(cbind(phyloPCs_filtered, EnvTraits_filtered, motifMat_filtered)) # modified for phyloPCs
+    input_matrix$assemblyIDs <- factor(common_rows)
+
+    setnames(input_matrix, gsub("-", "_", names(input_matrix))) # Remove hyphens from motif names to enable parsing by model
+    ## Iterate over all motifs in matrix
+    motifModels <- list()
+    for(j in 1:nMotifs){
+    motifID <- colnames(input_matrix)[j+n_traits + n_phyloPCs] #modified
+    # Check if more than 1 unique value
+    if(length(unique(motifMat_filtered[,j])) > 1) {
+        # Run association model for each motif
+        formula_str <- paste(motifID, "~", 
+                             paste(ePC_names, collapse =" + "),
+                             "+", paste(phyloPC_names, collapse =" + "), # modified
+                             collapse = " ") 
+        formula_obj <- as.formula(formula_str)
+    #     model <- asreml(fixed = formula_obj, random = ~ vm(assemblyIDs, phyloK_filtered), ai.sing = TRUE, data = input_matrix)
+    #     # Extract model results
+    #     modelSummary <- summary(model)
+    #     loglik <- modelSummary$loglik
+    #     phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
+    #     modelWald <- wald.asreml(model)
+    #     env_coeffs <- model$coefficients$fixed[2:(1+n_traits)]
+    #     env_pval_log10p = -(pchisq(modelWald[(2:(1+n_traits)),3],1,log.p=T, lower.tail = FALSE) / log(10))
+    # 
+    #     #env_pvals <- modelWald[2:(1+n_traits),4]
+    #     # Set as NA if models ran incorrectly
+    #     env_coeffs <- if(length(env_coeffs) == n_traits) env_coeffs else rep(NA, n_traits)
+    #     env_pvals_log10p <- if(length(env_pval_log10p) == n_traits) env_pval_log10p else rep(NA, n_traits)
+    # } 
+# Error handling for model fitting
+                result <- tryCatch({
+                    model <- asreml(
+                        fixed = formula_obj,
+                        random = ~ vm(assemblyIDs, phyloK_filtered),
+                        ai.sing = TRUE,
+                        data = input_matrix
+                    )
+                    # Extract model results
+                    modelSummary <- summary(model)
+                    loglik <- modelSummary$loglik
+                    phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
+                    modelWald <- wald.asreml(model)
+                    env_coeffs <- model$coefficients$fixed[2:(1 + n_traits)]
+                    env_pval_log10p <- -(pchisq(modelWald[(2:(1 + n_traits)), 3], 1, log.p = TRUE, lower.tail = FALSE) / log(10))
+
+                    env_coeffs <- if (length(env_coeffs) == n_traits) env_coeffs else rep(NA, n_traits)
+                    env_pvals_log10p <- if (length(env_pval_log10p) == n_traits) env_pval_log10p else rep(NA, n_traits)
+
+                    list(ogID, motifID, phylo_explained, env_coeffs, env_pvals_log10p)
+                }, error = function(e) {
+                    log_to_file(paste("Error running model for", motifID, "in", ogID, ":", e$message))
+                    list(ogID, motifID, NA, rep(NA, times = n_traits), rep(NA, times = n_traits)) # Return NA for results
+                })
+                motifModels[[j]] <- result
+            }    
+    else{
+        # Do not run models and assign NA  to results if no variation in motif counts
+        phylo_explained <- NA 
+        env_coeffs <- rep(NA, times = n_traits)
+        env_pvals_log10p <- rep(NA, times = n_traits)
+        }
+    motifModels[[j]] <- list(ogID, motifID, phylo_explained, env_coeffs,  env_pvals_log10p)    
+    }
+    motifModels
+  }
+  stopCluster(cl)
+  return(results)
+}
+
+# Must supply named cols/rows with assembly IDs
+EnvTraitMatrix <- env[,286:295] # first 10 ePCs
+#EnvTraitMatrix <- env[,286:287] # first 2 ePCs
+rownames(EnvTraitMatrix) <- env$assemblyID
+models_phyloK_envPC1.10_poaceae <- Run_MLMs_OrthoSpecific(phyloK, phyloPCaxes[,1:5], EnvTraitMatrix, mat.list[1:5000])
+save(models_phyloK_envPC1.10_poaceae, file="/workdir/coh22/andro_tfbs/results/models/models_phyloK_envPC1.10_phyloPC1.5_poaceae_1_5000.RData")
+```
 
 
 ```

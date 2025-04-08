@@ -1,5 +1,5 @@
 # # Reads in collapsed motif intervals and outputs counts for each species per OG
-threads="20"
+threads="80"
 OG_dir="output/motifOutput/motifs_by_orthogroup"
 mkdir -p output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG_500upstream_primaryAlignment 
 mkdir -p $OG_dir/summarized_by_assembly
@@ -8,13 +8,14 @@ mkdir -p $OG_dir/filtered_OGs_200assemblies
 
 echo "Step 1: Summarizing motifs across assemblies..."
 # Summarize motifs by orthogroup, parallelizing over assemblies
-parallel -j $threads "bash src/SummarizeMotifsByOrthogroup.sh {} \
-    output/motifOutput/fimo/collapsed_5kbUpstream \
-    output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG \
-    output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG_500upstream_primaryAlignment \
-    500 \
-    {//} \
-    > $OG_dir/summarized_by_assembly/{/.}.txt" :::: lists/assembly_list.txt 
+parallel -j $threads "bash 03_motifScanning/src/SummarizeMotifsByOrthogroup.sh {} \
+   output/motifOutput/fimo/collapsed_5kbUpstream \
+   output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG \
+   output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG_500upstream_primaryAlignment \
+   500 \
+   {//} \
+   > $OG_dir/summarized_by_assembly/{/.}.txt" :::: lists/assembly_list.txt 
+
 echo "Step 2: Merging all motif counts together..."
 # # Join motif counts from all assemblies together
 cat $OG_dir/summarized_by_assembly/*.txt > $OG_dir/mergedMotifCounts_Poaceae800_500upstream_primaryAlignment.txt
@@ -46,5 +47,3 @@ export OG_dir
 
 # Use GNU Parallel to process all files in the unfiltered/ directory
 find "$OG_dir/summarized_by_OG/" -name 'OG*.txt' | parallel -j "$threads" filter_by_assembly_representation {} $OG_dir
-
-find output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG_500upstream_primaryAlignment -type f -print0 | xargs -0 wc -l | awk '$1 < 1000 {print $2}' | xargs -I{} basename {} | sed 's/\.[^.]*$//' > lists/fewerThan1000ogs.txt
