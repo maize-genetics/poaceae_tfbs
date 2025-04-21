@@ -10,36 +10,21 @@ output: html_document
 library(tidyr)
 library(ggplot2)
 
-# Get list of all .count files in the working directory
-files <- list.files(path = "/workdir/coh22/poaceae_tfbs/output/tabasco/", pattern = "\\.count$", full.names = TRUE)
-
-# Read each file into a data frame, attaching the sample name (filename without extension)
-df_list <- lapply(files, function(f) {
-  tmp <- read.table(f, header = TRUE)
-  tmp$Sample <- sub("\\.count$", "", basename(f))
-  tmp
-})
-
-df <- do.call(rbind, df_list) %>%
-  rename(assemblyID = Sample)
-
-# Mark which samples are SRA
-metadata <- read.csv("/workdir/coh22/poaceae_tfbs/data/Poaceae_metadata_2024.08.21.csv")
-df_annotated <- left_join(df, metadata)
-df_annotated$complete_plus_duplicated <- df_annotated$complete + df_annotated$duplicated
-# Convert data to long format for ggplot2
+# Load data
+metadata <- read.table("/workdir/coh22/poaceae_tfbs/data/Poaceae_metadata_filtered_2025.04.16.tsv", sep = "\t", header = T)
+metadata$complete_plus_duplicated <- metadata$complete + metadata$duplicated
+ordered_metadata <- arrange(metadata, complete_plus_duplicated)
 # Convert data to long format for ggplot
-df_long <- pivot_longer(df_annotated, cols = c("complete", "duplicated", "fraged", "missing"),
+df_long <- pivot_longer(ordered_metadata, cols = c("complete", "duplicated", "fraged", "missing"),
                         names_to = "Category", values_to = "Count")
 
 
-# Order samples based on SortingMetric (descending)
-df_long$assemblyID <- factor(df_long$assemblyID, levels = df_annotated %>% 
-                           arrange(complete_plus_duplicated) %>% pull(assemblyID))
+# Order samples based on complete + duplicated score (descending)
+df_long$assemblyID <- factor(df_long$assemblyID, levels = ordered_metadata$assemblyID)
 ```
 Function to make busco-style plot
 ``` {r}
-plot_tabasco <- function(df, text_size = 18) {
+plot_tabasco <- function(df, text_size = 24) {
   library(ggplot2)
   
   ggplot(df, aes(y = assemblyID, x = Count, fill = Category)) +

@@ -26,14 +26,23 @@ library(tidyverse)
 
 ```{r}
 # Load covariates
-metadata <- read.csv('/workdir/coh22/andro_tfbs/data/Poaceae_metadata_2024.08.21.csv')
-env <- read.table("/workdir/coh22/andro_tfbs/output/modelData/envData_759Poaceae_20240821.txt") %>%
+rootDir= "/workdir/coh22/poaceae_tfbs/"
+# Load metadata
+metadata <- read.csv(paste0(rootDir, "data/Poaceae_metadata_2025.04.07_CH.csv"))
+
+# Load environmental data and add assemblyID
+env <- read.table(paste0(rootDir, "output/modelData/envData_759Poaceae_20240821.txt")) %>%
   mutate(assemblyID = rownames(.))
-phyloK <- read.table("/workdir/coh22/andro_tfbs/output/modelData/phyloK_800Poaceae_astral.txt")
-tree <- read.tree("/workdir/coh22/andro_tfbs/output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20240821.nwk")
+
+# Load phylogenetic kernel matrix
+phyloK <- read.table(paste0(rootDir, "output/modelData/phyloK_728Poaceae_astral_20250407.txt"))
 colnames(phyloK) <- rownames(phyloK)
-nucFreqs <- read.csv("/workdir/coh22/andro_tfbs/output/modelData/nucFreqs_shortIntrons.csv")
-taxonomy <- read.csv("/workdir/coh22/andro_tfbs/data/Poaceae_taxonomic_groups.csv")
+
+# Load phylogenetic tree
+tree <- read.tree(paste0(rootDir, "output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20250407.nwk"))
+
+# Load nucleotide frequencies
+nucFreqs <- read.csv(paste0(rootDir, "output/modelData/nucFreqs_shortIntrons.csv"))
 ```
 
 Calculate environmental residuals for ePC1 after controlling for phylogeny
@@ -44,12 +53,12 @@ envPC1_resids <- asreml(envPC_1 ~ 1, random = ~ vm(assemblyID, phyloK), ai.sing 
 ```
 
 ``` {r}
-# Load motifs
-source("/workdir/coh22/andro_tfbs/src/load_motif_data.R")  # Adjust the filename as needed
+# Motifs
+source(paste0(rootDir, "src/05_motifTurnover/load_motif_data.R"))  # Adjust the filename as needed
 mat.list <- load_motif_data(
-  unenriched_clusters_path = "/workdir/coh22/andro_tfbs/lists/unenriched_clusters.txt",
-  cluster_meta_path = "/workdir/coh22/andro_tfbs/data/JASPAR2024_SummarizedClusters.txt",
-  motifs_dir = "/workdir/coh22/andro_tfbs/output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies"
+  unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
+  cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
+  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies")
 )
 
 mats_to_df <- function(mat) {
@@ -150,16 +159,6 @@ for(j in 1:nMotifs){
   motifModels[[j]] <- list(motifID, phylo_explained, env_coeffs, env_pvals_log10p)
 }
 
-#   motifModels[[j]] <- result
-#   phylo_explained <- modelSummary$varcomp$component[1]
-#   modelWald <- wald.asreml(model)
-#   motif_coeff <- model$coefficients$fixed[2]
-#   motif_pval <- modelWald[2,4]
-#   motif_explained <- modelWald[2,2]/sum(modelWald[,2])
-#   mean_occurrence_explained <- modelWald[3,2]/sum(modelWald[,2])
-#   
-#   motifModels[[j]] <- list(motifID, phylo_explained, motif_coeff, motif_pval, motif_explained, mean_occurrence_explained)
-# }
 
 # Extract p values
 model_output <- mclapply(motifModels, function(x) {
@@ -188,7 +187,7 @@ results_df$p.fdr <- p.adjust(results_df$pval, method = "fdr")
 sorted_results <- arrange(results_df, desc(log10pval))
 
 # Must supply named cols/rows with assembly IDs
-write.table(sorted_results, file="/workdir/coh22/andro_tfbs/results/models/model_globalOcc_envPC1.10.csv", sep = ",", quote = F, row.names = F)
+write.table(sorted_results, file="/workdir/coh22/poaceae_tfbs/results/models/model_globalOcc_envPC1.10.csv", sep = ",", quote = F, row.names = F)
 ```
 
 # Plot QQ plot
@@ -202,7 +201,7 @@ PlotQQ <- function(df) {
 
   p_df = data.frame(observed = observed_pvals,
                     expected = -log10(expected_pvals),
-                    color = ifelse(observed_p.fdr < 0.001, "goldenrod1", "#2C7BB6"))  # Assign color based on p.fdr
+                    color = ifelse(observed_p.fdr < 0.01, "goldenrod1", "#2C7BB6"))  # Assign color based on p.fdr
   
   ggplot(p_df, aes(x = expected, y = observed, color = color)) +
     geom_point(size = 7, alpha = 0.8) +  # Color determined by 'color' column

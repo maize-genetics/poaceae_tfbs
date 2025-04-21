@@ -17,8 +17,8 @@ bedtools intersect \
 > output/feature_overlap/maize_ncbi_coords/B73_500up_motifs_ncbiCoords.bed 
  
 # Convert to standard coords
-bash src/Convert_maize_ncbi_format.sh \
-output/feature_overlap/maize_ncbi_coords/B73_500up__motifs_ncbiCoords.bed \
+bash src/04_featureOverlap/Convert_ncbi_format.sh \
+output/feature_overlap/maize_ncbi_coords/B73_500up_motifs_ncbiCoords.bed \
 output/feature_overlap/maize_ref/B73v5_ncbi_key.tsv \
 > output/feature_overlap/maize_ref/B73_500up_motifs.bed
 
@@ -27,13 +27,13 @@ bedtools intersect \
 -a output/feature_overlap/maize_ref/B73_500up_motifs.bed \
 -b output/feature_overlap/moa/MOA_all_peaks.merged.21_NAMs_new0624.bed \
 -u \
-> output/feature_overlap/moa/motifs_moa_overlap.bed # 194,578 / 278,610 (69.8%) of motifs overlap with a MOA-seq peak
+> output/feature_overlap/moa/motifs_moa_overlap.bed # 184078 / 264,024 (69.7%) of motifs overlap with a MOA-seq peak
 
 # WHat % of MOA peaks overlap motifs?
 bedtools intersect \
 -a output/feature_overlap/moa/MOA_all_peaks.merged.21_NAMs_new0624.bed \
 -b output/feature_overlap/maize_ref/B73_500up_motifs.bed -u \
-> output/feature_overlap/moa/moa_vs_motif_overlap.bed #14,555 / 701,701 (2.1%)
+> output/feature_overlap/moa/moa_vs_motif_overlap.bed #14,487 / 701,701 (2.1%)
 # scATAC overlap
 # Download scATAC from Marand et al 2021
 wget https://github.com/plantformatics/maize_single_cell_cis_regulatory_atlas/raw/refs/heads/master/all_ACRs.celltype_calls.overlap.bed.gz \
@@ -60,25 +60,25 @@ bedtools intersect \
 -a output/feature_overlap/maize_ref/B73_500up_motifs.bed \
 -b output/feature_overlap/atac/Marand_scATAC_allCellTypes_B73v5.bed \
 -u \
-> output/feature_overlap/atac/motifs_atac_overlap.bed # 172,932 / 278,610 (62.1%) of maize motifs overlap with a scATAC peak
+> output/feature_overlap/atac/motifs_atac_overlap.bed # 164,544 / 264,024 (62.3%) of maize motifs overlap with a scATAC peak
 
 # WHat % of ATAC peaks overlap motifs?
 bedtools intersect \
 	-a output/feature_overlap/atac/Marand_scATAC_allCellTypes_B73v5.bed \
 	-b output/feature_overlap/maize_ref/B73_500up_motifs.bed -u \
-	> output/feature_overlap/atac/atac_vs_motif_overlap.bed #11,381 / 168009 (6.8%)
+	> output/feature_overlap/atac/atac_vs_motif_overlap.bed #11,365 / 168009 (6.8%)
 # PanAnd CNS overlap
 bedtools intersect \
 -a output/feature_overlap/maize_ref/B73_500up_motifs.bed \
 -b output/feature_overlap/cns/panand_cns.bed \
 -u \
-> output/feature_overlap/cns/motifs_cns_overlap.bed # 74,753 / 278,610 (26.8%) of motifs overlap with a PanAnd CNS
+> output/feature_overlap/cns/motifs_cns_overlap.bed # 71303 / 264,024  (27%) of motifs overlap with a PanAnd CNS
 
 #What % of CNS overlap motifs?
 bedtools intersect \
 -a output/feature_overlap/cns/panand_cns.bed \
 -b output/feature_overlap/maize_ref/B73_500up_motifs.bed -u \
-> output/feature_overlap/cns/cns_vs_motif_overlap.bed #37,788 / 1,664,343 (2.2% of CNS overlap motifs)
+> output/feature_overlap/cns/cns_vs_motif_overlap.bed #36,740 / 1,664,343 (2.2% of CNS overlap motifs)
 # CNS vs ATAC overlap
 bedtools intersect \
 -a output/feature_overlap/cns/panand_cns.bed \
@@ -111,21 +111,21 @@ samtools faidx output/feature_overlap/maize_ref/Zm-B73-REFERENCE-NAM-5.0.fa
 genomeFile="output/feature_overlap/maize_ref/Zm-B73-REFERENCE-NAM-5.0.fa.fai"
 
 # MOA-seq
-bash src/CalculateNullFeatureOverlaps.sh \
+bash src/04_featureOverlap/CalculateNullFeatureOverlaps.sh \
 --null_dir output/feature_overlap/moa/null_overlap/ \
 --genome_file $genomeFile \
 --motif_file output/feature_overlap/maize_ref/B73_500up_motifs.bed \
 --feature_file output/feature_overlap/moa/MOA_all_peaks.merged.21_NAMs_new0624.bed
 
 # scATAC-seq
-bash src/CalculateNullFeatureOverlaps.sh \
+bash src/04_featureOverlap/CalculateNullFeatureOverlaps.sh \
 --null_dir output/feature_overlap/atac/null_overlap/ \
 --genome_file $genomeFile \
 --motif_file output/feature_overlap/maize_ref/B73_500up_motifs.bed \
 --feature_file output/feature_overlap/atac/Marand_scATAC_allCellTypes_B73v5.bed 
 
 # CNS
-bash src/CalculateNullFeatureOverlaps.sh \
+bash src/04_featureOverlap/CalculateNullFeatureOverlaps.sh \
 --null_dir output/feature_overlap/cns/null_overlap/ \
 --genome_file $genomeFile \
 --motif_file output/feature_overlap/maize_ref/B73_500up_motifs.bed \
