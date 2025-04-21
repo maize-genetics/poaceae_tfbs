@@ -1,0 +1,76 @@
+---
+title: "Plot phylogeny"
+author: "Charlie Hale"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+Load data
+``` {r}
+library(tidyverse)
+
+# Load covariates
+rootDir = "/workdir/coh22/poaceae_tfbs/"
+metadata <- read.table(paste0(rootDir, 'data/Poaceae_metadata_filtered_2025.04.16.tsv'), header = T, sep = "\t")
+env <- read.table(paste0(rootDir, "output/modelData/envData_759Poaceae_20240821.txt")) %>%
+  mutate(assemblyID = rownames(.))
+tree <- read.tree(paste0(rootDir,"output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20250407.nwk"))
+```
+
+Plot tree colored by BOP and PACMAD
+``` {r}
+metadata <- metadata %>%
+  mutate(isBOP = case_when(
+    clade == "BOP" ~ 1,
+    clade == "PACMAD" ~ 0,
+    clade == "outgroup" ~ NA_real_
+  ))
+
+tipStates <- sapply(tree$tip.label, function(tip) {
+  idx <- grep(tip, metadata$assemblyID, ignore.case = TRUE)
+  if (length(idx) > 0) {
+    val <- metadata$isBOP[idx[1]]
+    if (is.na(val)) {
+      return("outgroup")
+    } else if (val == 1) {
+      return("BOP")
+    } else if (val == 0) {
+      return("PACMAD")
+    }
+  } else {
+    # Default assignment if no matching metadata entry found
+    return("outgroup")
+  }
+})
+# Name the vector with the tip labels to ensure proper association
+names(tipStates) <- tree$tip.label
+
+# Define a named vector of colors for the states
+stateColors <- c("BOP" = "#7fbf7b",
+                 "PACMAD" = "#af8dc3",
+                 "outgroup" = "grey")
+
+# Perform a stochastic mapping of discrete traits onto the tree.
+# Here, the model "ER" (equal rates) is used and one simulation is generated (nsim=1).
+simmap <- make.simmap(tree, tipStates, model = "ER", nsim = 1)
+
+# Plot the resulting simulation map.
+# - colors: the branch segments are colored according to stateColors
+# - fsize: set to 0 to omit tip labels (you could adjust this if you want labels)
+# - lwd: line width for the branches
+plotSimmap(simmap, colors = stateColors, fsize = 0.0000001, lwd = 3)
+
+```
+
+Plot reconstructed env values (Mean annual temp)
+``` {r}
+source(paste0(rootDir, "src/09_envirotyping/PlotTraitsOnTree.R"))
+
+# Export to large PDF
+pdf("/workdir/coh22/poaceae_tfbs/output/env_phylogeny_without_labels.pdf", width = 8, height = 24)  # Adjust size as needed
+
+# Plot with tip labels and legend
+plotTraitOnTree(trait = env$bio01_Annual_Mean_Temperature_quan50, taxa = env$assemblyID, tree = tree, visible_tip_labels = F, shape = "phylogram", colors = c("blue","lightblue","red"))
+
+dev.off()
+```

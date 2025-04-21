@@ -15,38 +15,38 @@ library(UpSetR)
 
 # Load JASPAR motif metadata
 ``` {r}
-plant_motif_key <- read.table("/workdir/coh22/andro_tfbs/data/JASPAR2024_CORE_plants_nr_PFM_key.txt", header = T, sep = "\t") %>%
+plant_motif_key <- read.table("/workdir/coh22/poaceae_tfbs/data/JASPAR2024_CORE_plants_nr_PFM_key.txt", header = T, sep = "\t") %>%
   dplyr::rename(motif_id = MatrixID)
 plant_motif_list <- dplyr::select(plant_motif_key, motif_id)
 ```
 
 # Load UMR enrichment results
 ``` {r}
-brachy <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/UMR_enrichment_dinucleotide_shuffle/Brachypodium_distachyon_stat_permu_test.txt", 
+brachy <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/UMR_enrichment_dinucleotide_shuffle/Brachypodium_distachyon_stat_permu_test.txt", 
                      header = T) %>%
   add_column(species = "brachy") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
   mutate(p.fdr = p.adjust(p_value, method = "fdr")) 
 
-rice <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/UMR_enrichment_dinucleotide_shuffle/Oryza_sativa_stat_permu_test.txt",
+rice <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/UMR_enrichment_dinucleotide_shuffle/Oryza_sativa_stat_permu_test.txt",
                    header = T) %>%
   add_column(species = "rice") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
   mutate(p.fdr = p.adjust(p_value, method = "fdr"))
 
-maize <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/UMR_enrichment_dinucleotide_shuffle/Zea_mays_stat_permu_test.txt",
+maize <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/UMR_enrichment_dinucleotide_shuffle/Zea_mays_stat_permu_test.txt",
                     header = T) %>%
   add_column(species = "maize") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
   mutate(p.fdr = p.adjust(p_value, method = "fdr"))
 
-barley <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/UMR_enrichment_dinucleotide_shuffle/Hordeum_vulgare_stat_permu_test.txt",
+barley <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/UMR_enrichment_dinucleotide_shuffle/Hordeum_vulgare_stat_permu_test.txt",
                      header = T) %>%
   add_column(species = "barley") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
   mutate(p.fdr = p.adjust(p_value, method = "fdr"))
 
-sorghum <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/UMR_enrichment_dinucleotide_shuffle/Sorghum_bicolor_stat_permu_test.txt",
+sorghum <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/UMR_enrichment_dinucleotide_shuffle/Sorghum_bicolor_stat_permu_test.txt",
                       header = T) %>%
   add_column(species = "sorghum") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
@@ -82,7 +82,7 @@ df_list <- list(maize, brachy, sorghum, rice, barley)
 combined_df <- bind_rows(df_list)
 
 wide_df <- combined_df %>%
-  select(motif_id, species, fold_change) %>%
+  dplyr::select(motif_id, species, fold_change) %>%
   pivot_wider(names_from = species, values_from = fold_change)
 
 cor_matrix <- cor(wide_df[, -1], use = "pairwise.complete.obs")
@@ -131,7 +131,7 @@ length(unique(c(rice_enriched$motif_id, sorghum_enriched$motif_id, brachy_enrich
 intersection <- Reduce(intersect, list(rice_enriched$motif_id, sorghum_enriched$motif_id, brachy_enriched$motif_id, maize_enriched$motif_id, barley_enriched$motif_id))
 
 write.table(intersection, 
-            "/workdir/coh22/andro_tfbs/output/umr_enrichment/umr_enriched_plant_motifs_JASPAR2024.txt",
+            "/workdir/coh22/poaceae_tfbs/output/umr_enrichment/umr_enriched_plant_motifs_JASPAR2024.txt",
             row.names = F, col.names = F, quote = F)
 
 enriched.motifs <- dplyr::filter(plant_motif_key, motif_id %in% intersection)
@@ -139,50 +139,50 @@ enriched.clusters <- unique(enriched.motifs$ClusterDesc)
 all.clusters <- unique(plant_motif_key$ClusterDesc)
 unenriched.clusters <- setdiff(all.clusters, enriched.clusters)
 
-write.table(unenriched.clusters, "/workdir/coh22/andro_tfbs/lists/unenriched_clusters.txt",
+write.table(unenriched.clusters, "/workdir/coh22/poaceae_tfbs/lists/unenriched_clusters.txt",
             quote = F, col.names = F, row.names = F)
 ```
 
-Compare with ACR enrichment
+## Compare with ACR enrichment
 # Load ACR enrichment results
 ``` {r}
-brachy_acr <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/atac/Brachypodium_7days_leaf_ACRs.txt", 
+brachy_acr <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/atac/Brachypodium_7days_leaf_ACRs.txt", 
                      header = T) %>%
   add_column(species = "brachy") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
   mutate(p.fdr = p.adjust(p_value, method = "fdr")) 
 
-rice_acr <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/atac/Rice_7days_leaf_ACRs.txt",
+rice_acr <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/atac/Rice_7days_leaf_ACRs.txt",
                    header = T) %>%
   add_column(species = "rice") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
   mutate(p.fdr = p.adjust(p_value, method = "fdr"))
 
-maize_acr <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/atac/Maize_7days_leaf_ACRs.txt",
+maize_acr <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/atac/Maize_7days_leaf_ACRs.txt",
                     header = T) %>%
   add_column(species = "maize") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
   mutate(p.fdr = p.adjust(p_value, method = "fdr"))
 
-barley_acr <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/atac/Barley_7days_leaf_ACRs.txt",
+barley_acr <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/atac/Barley_7days_leaf_ACRs.txt",
                      header = T) %>%
   add_column(species = "barley") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
   mutate(p.fdr = p.adjust(p_value, method = "fdr"))
 
-sorghum_acr <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/atac/Sorghum_7days_leaf_ACRs.txt",
+sorghum_acr <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/atac/Sorghum_7days_leaf_ACRs.txt",
                       header = T) %>%
   add_column(species = "sorghum") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
   mutate(p.fdr = p.adjust(p_value, method = "fdr"))
 
-setaria_acr <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/atac/Setaria_7days_leaf_ACRs.txt",
+setaria_acr <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/atac/Setaria_7days_leaf_ACRs.txt",
                       header = T) %>%
   add_column(species = "setaria") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
   mutate(p.fdr = p.adjust(p_value, method = "fdr"))
 
-arabidopsis_acr <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/atac/Arabidopsis_7days_leaf_ACRs.txt",
+arabidopsis_acr <- read.table("/workdir/coh22/poaceae_tfbs/output/umr_enrichment/atac/Arabidopsis_7days_leaf_ACRs.txt",
                       header = T) %>%
   add_column(species = "arabidopsis") %>%
   filter(motif_id %in% plant_motif_list$motif_id) %>%
@@ -264,7 +264,7 @@ pct_arabidopsis_specific <- length(arabidopsis_enriched$motif_id[!arabidopsis_en
 
 ``` {r}
 #write.table(grass_intersection, 
-#            "/workdir/coh22/andro_tfbs/output/umr_enrichment/acr_enriched_plant_motifs_JASPAR2024.txt",
+#            "/workdir/coh22/poaceae_tfbs/output/umr_enrichment/acr_enriched_plant_motifs_JASPAR2024.txt",
 #            row.names = F, col.names = F, quote = F)
 
 enriched.motifs <- dplyr::filter(plant_motif_key, motif_id %in% intersection)
@@ -272,15 +272,6 @@ enriched.clusters <- unique(enriched.motifs$ClusterDesc)
 all.clusters <- unique(plant_motif_key$ClusterDesc) # Fewer clusters are represented in ACRs than in UMRs (31 vs 35)
 unenriched.clusters <- setdiff(all.clusters, enriched.clusters) 
 
-#write.table(unenriched.clusters, "/workdir/coh22/andro_tfbs/lists/acr_unenriched_clusters.txt",
-            quote = F, col.names = F, row.names = F)
-```
-
-``` {r}
-rice_old <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/genomic_background/fimo_Osativa_323_v7.0_UMR_enrichment.tsv" , header = T) %>%
-  mutate(motif_id = str_remove(motif_id, ".tsv"))
-barley_old <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/genomic_background/fimo_Hordeum_vulgare_UMR_enrichment.tsv" , header = T) %>%
-  mutate(motif_id = str_remove(motif_id, ".tsv"))
-maize_old <- read.table("/workdir/coh22/andro_tfbs/output/umr_enrichment/genomic_background/fimo_Zea_mays_v4_UMR_enrichment.tsv" , header = T) %>%
-  mutate(motif_id = str_remove(motif_id, ".tsv"))
+#write.table(unenriched.clusters, "/workdir/coh22/poaceae_tfbs/lists/acr_unenriched_clusters.txt",
+#            quote = F, col.names = F, row.names = F)
 ```

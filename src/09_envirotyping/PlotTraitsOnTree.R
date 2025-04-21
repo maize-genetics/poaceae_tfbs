@@ -44,7 +44,7 @@ plotTraitOnTree <- function(trait, taxa, tree, visible_tip_labels = FALSE,
   options(repr.plot.width=plot.dim[1], repr.plot.height=plot.dim[2])
   plot <- contMap(tree.pruned,trait.vec, plot = FALSE)
   plot <-setMap(plot, colors)
-  plot(plot, fsize = font.size,outline=TRUE, type = shape, title = plot.title,
+  plot(plot, fsize = font.size,outline=F, type = shape, title = plot.title,
        leg.txt=legend.title, legend = legend)
   }
 

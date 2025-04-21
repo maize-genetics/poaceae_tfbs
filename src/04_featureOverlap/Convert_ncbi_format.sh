@@ -5,7 +5,7 @@
 # Parse command line arguments
 bed_file=$1
 genbank_key=$2
-#motif_key=$3
+motif_key=$3
 
 # Prepare key file for joining
 sorted_genbank_key=$(mktemp)
@@ -19,23 +19,18 @@ awk 'BEGIN { OFS = "\t" }
   # Extract target ID from column 4 (e.g., from "Target=OG0006243_1_247_Zm-B73-REFERENCE-NAM-5.0")
   match($4, /Target=([^_]+)/, arr);
   target = arr[1];
+  if (target == "") target = ".";
   # Replace the first column with the extracted Target ID (or append it as needed)
   print $(NF), $2, $3, target, $5, $6 
 }' > "$motifs_fixed_contig"
 
-cat "$motifs_fixed_contig"
+#cat "$motifs_fixed_contig"
 # Join with motif metadata
-#sorted_motif_key=$(mktemp)
-#awk -F '\t' -v OFS='\t' '
-#NR > 1 && $0 !~ /^#/ && $0 != "" {
-#  print $10, $11, $12
-#}' $motif_key | sort -k 1,1 | uniq > "$sorted_motif_key"
-
-#join -t $'\t' -1 4 -2 1 <(sort -k4,4 $motifs_fixed_contig) $sorted_motif_key | \
-#awk -F '\t' -v OFS='\t' '
-#{
-#  print $2, $3, $4, $6, "0", "+", $3, $4, $5
-#}' | sort -k1,1 -k2,2n | cat # sort bed file and output to console
+join -t $'\t' -1 5 -2 2 <(sort -k5,5 $motifs_fixed_contig) $motif_key | \
+awk -F '\t' -v OFS='\t' '
+{
+ print $2, $3, $4, $8, "0", "+", $3, $4, $7
+}' | sort -k1,1 -k2,2n | cat # sort bed file and output to console
 
 # Clean up temp files
 rm $sorted_motif_key $motifs_fixed_contig $sorted_genbank_key
