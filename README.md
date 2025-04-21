@@ -1,2 +1,2 @@
 # poaceae_tfbs
-Evolution of TF binding sites across 600+ grass species
+Evolution of cis-regulatory motifs across 589 grass species
