@@ -2,6 +2,6 @@ Here're the notebooks for envirotyping of the studied species:
 
 In 09A, we process the metadata to obtain current and historical species names of the studied taxa.
 
-We queried the occurrence records based on the list of species names on BIEN and GBIF using 09B.
+As documented in 09B, we queried the occurrence records based on the list of species names on BIEN and GBIF and extracted the environmental data of each occurrence coordinate.
 
-Extraction of environmental data of each occurrence coordinate, and summarization (PCA) for  each species were documented in 09C.
+The summarization of environmental characteristics (PCA) for  each species were documented in 09C.
