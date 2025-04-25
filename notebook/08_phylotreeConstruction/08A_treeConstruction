@@ -10,7 +10,7 @@ cd output/geneTree_angiosperm353/
 find /workdir/sh2246/p_phyloGWAS/output/geneTree_angiosperm353/ -name '*.fa' -type f| cut -d / -f 7|sed 's/.fa//g' | parallel -j 35 '/workdir/sh2246/p_panAndOGASR/paml_pipeline/standard-RAxML/raxmlHPC -m GTRGAMMA -p 12345 -s /workdir/sh2246/p_phyloGWAS/output/geneTree_angiosperm353/{}.fa -# 1 -n {}.tree'
 cd /workdir/sh2246/p_phyloGWAS/
 
-# astral tree (no tip branch length; left out)
+# astral tree
 printf "%s\n" output/geneTree_angiosperm353/RAxML_bestTree* | xargs cat > output/angiospermGeneTreeForest.nwk
 # while IFS=$'\t' read -r pattern replacement; do sed -i "s/$pattern/$replacement/g" output/geneNeutralTreeForest.nwk; done < data/BNITaxa_translateTable_forTree.txt 
 # sed -i -E 's/Pavag*[GK]*.*:/pvagin:/g' output/geneNeutralTreeForest.nwk
