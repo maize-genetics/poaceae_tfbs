@@ -17,7 +17,7 @@ bedtools intersect \
 > output/feature_overlap/maize_ncbi_coords/B73_500up_motifs_ncbiCoords.bed 
  
 # Convert to standard coords
-bash src/04_featureOverlap/Convert_ncbi_format.sh \
+bash src/06_featureOverlap/Convert_ncbi_format.sh \
 output/feature_overlap/maize_ncbi_coords/B73_500up_motifs_ncbiCoords.bed \
 output/feature_overlap/maize_ref/B73v5_ncbi_key.tsv \
 > output/feature_overlap/maize_ref/B73_500up_motifs.bed
@@ -111,21 +111,21 @@ samtools faidx output/feature_overlap/maize_ref/Zm-B73-REFERENCE-NAM-5.0.fa
 genomeFile="output/feature_overlap/maize_ref/Zm-B73-REFERENCE-NAM-5.0.fa.fai"
 
 # MOA-seq
-bash src/04_featureOverlap/CalculateNullFeatureOverlaps.sh \
+bash src/06_featureOverlap/CalculateNullFeatureOverlaps.sh \
 --null_dir output/feature_overlap/moa/null_overlap/ \
 --genome_file $genomeFile \
 --motif_file output/feature_overlap/maize_ref/B73_500up_motifs.bed \
 --feature_file output/feature_overlap/moa/MOA_all_peaks.merged.21_NAMs_new0624.bed
 
 # scATAC-seq
-bash src/04_featureOverlap/CalculateNullFeatureOverlaps.sh \
+bash src/06_featureOverlap/CalculateNullFeatureOverlaps.sh \
 --null_dir output/feature_overlap/atac/null_overlap/ \
 --genome_file $genomeFile \
 --motif_file output/feature_overlap/maize_ref/B73_500up_motifs.bed \
 --feature_file output/feature_overlap/atac/Marand_scATAC_allCellTypes_B73v5.bed 
 
 # CNS
-bash src/04_featureOverlap/CalculateNullFeatureOverlaps.sh \
+bash src/06_featureOverlap/CalculateNullFeatureOverlaps.sh \
 --null_dir output/feature_overlap/cns/null_overlap/ \
 --genome_file $genomeFile \
 --motif_file output/feature_overlap/maize_ref/B73_500up_motifs.bed \

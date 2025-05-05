@@ -18,7 +18,7 @@ library(dplyr)
 
 # Load motifs
 ``` {r}
-source("/workdir/coh22/poaceae_tfbs/src/05_motifTurnover/load_motif_data.R")  # Adjust the filename as needed
+source("/workdir/coh22/poaceae_tfbs/src/07_motifTurnover/load_motif_data.R") 
 mat.list <- load_motif_data(
   unenriched_clusters_path = "/workdir/coh22/poaceae_tfbs/lists/unenriched_clusters.txt",
   cluster_meta_path = "/workdir/coh22/poaceae_tfbs/data/JASPAR2024_SummarizedClusters.txt",
@@ -103,21 +103,19 @@ results <- data.frame(
 )
 library(ggrepel)
 
-# Create the plot
+# Plot occurrence rate vs coef of variation for each motif cluster
 p <- ggplot(results, aes(x = Median, y = Coefficient_of_Variation, label = Motif_cluster)) +
-  geom_point(color = "darkgreen", size = 7) +  # Use consistent color and size
-  geom_text_repel(size = 6, box.padding = 0.5, max.overlaps = 12) +  # Improve label spacing
-  ylim(0, 0.15) +  # Set appropriate y-axis limits
-  theme_minimal(base_size = 24) +  # Adjust base font size for readability
+  geom_point(color = "darkgreen", size = 7) +  
+  geom_text_repel(size = 6, box.padding = 0.5, max.overlaps = 12) +  # Space out labels
+  ylim(0, 0.15) + 
+  theme_minimal(base_size = 24) + 
   labs(
-    #title = "Motif Cluster Abundance and Variability",
     x = "Median Occurrence Rate (per 500bp upstream region)",
     y = "Coefficient of Variation"
   ) +
   theme(
-    #plot.title = element_text(hjust = 0.5, face = "bold", size = 16),  # Center and bold title
-    axis.title = element_text(face = "bold"),  # Bold axis labels
-    axis.text = element_text(size = 24)  # Increase axis text size
+    axis.title = element_text(face = "bold"),  
+    axis.text = element_text(size = 24) 
   )
 p
 

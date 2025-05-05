@@ -16,11 +16,11 @@ library(ape)
 ```{r}
 # Load covariates
 rootDir <- "/workdir/coh22/poaceae_tfbs/"
-metadata <- read.table(paste0(rootDir, "data/Poaceae_metadata_filtered_2025.04.16.tsv"), sep = "\t")
+metadata <- read.table(paste0(rootDir, "data/Poaceae_metadata_filtered_2025.04.16.tsv"), sep = "\t", header = T)
 env <- read.table(paste0(rootDir, "output/modelData/envData_759Poaceae_20240821.txt")) %>%
   mutate(assemblyID = rownames(.))
-phyloK <- read.table(paste0(rootDir, "output/modelData/phyloK_728Poaceae_astral_20250407.txt"))
-tree <- read.tree(paste0(rootDir, "output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20250407.nwk"))
+phyloK <- read.table(paste0(rootDir, "output/modelData/phyloK_728Poaceae_astral_20250416.txt"))
+tree <- read.tree(paste0(rootDir, "output/modelData/PoaceaeTree_angiosperm353_astral3_filtered_20250416.nwk"))
 colnames(phyloK) <- rownames(phyloK)
 ```
 
@@ -40,57 +40,13 @@ write.table(envPC1_resids, file = "/workdir/coh22/andro_tfbs/results/models/envP
 ```
 
 ``` {r}
-# Load unenriched clusters to filter out
-unenriched_clusters <- read.table("/workdir/coh22/poaceae_tfbs/lists/unenriched_clusters.txt", header = F)
-# Load motif cluster metadata
-cluster.meta <- read.table("/workdir/coh22/poaceae_tfbs/data/JASPAR2024_SummarizedClusters.txt") %>%
-  dplyr::select(TF = V3, cluster = V2) %>%
-  dplyr::filter(!TF %in% unenriched_clusters$V1)  %>% # Filter out clusters that are not enriched across Poaceae 
-  arrange(TF) # Alphabetize
-
-# Load motifs
-# Prepare to iterate through directory to load motif data
-files <- list.files("/workdir/coh22/poaceae_tfbs/output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies", full.names = TRUE)
-n_ortho <- sum(file.info(files)$isdir == FALSE)
-mat.list <- list()
-
-# Load motifs
-cl <- makeCluster(detectCores())
-clusterExport(cl, c("files", "n_ortho", "cluster.meta"))
-mat.list <- parLapply(cl, 1:n_ortho, function(i) {
-  # Import libraries in each cluster node
-  library(data.table)
-  library(dplyr)
-  library(tidyr)
-  
-  motifCounts <- fread(files[[i]]) %>%
-    dplyr::select(c(cluster = V2, ogID = V3, motifCount = V4, assemblyID = V5)) %>%
-    dplyr::left_join(cluster.meta) %>%
-    dplyr::select(-cluster) %>%
-    dplyr::distinct(across(c(assemblyID, TF)), .keep_all = TRUE) %>%
-    pivot_wider(names_from = TF, values_from = motifCount)
-  
-  # Identify any missing TF clusters not present in motifCounts
-  missing_TFs <- setdiff(cluster.meta$TF, colnames(motifCounts))
-  # Add missing TF cluster columns with NA values
-  motifCounts[missing_TFs] <- as.integer(NA)
-  # Set column names to cluster.meta$TF
-  motifCounts <- motifCounts %>%
-    dplyr::select(assemblyID, ogID, all_of(cluster.meta$TF))
-  
-  # Replace NA values with zeros
-  motifCounts <- motifCounts %>%
-    dplyr::mutate(across(where(is.numeric), ~replace_na(., 0)))
-  
-  mat <- motifCounts[,3:ncol(motifCounts)] %>%
-    as.matrix()
-  rownames(mat) <- motifCounts$assemblyID
-  return(mat)
-})
-
-stopCluster(cl)
-names(mat.list) <- gsub(".*/([^/]+)\\.txt", "\\1", files) # Annotate with OG IDs
-
+# Load motif counts
+source(paste0(rootDir, "src/07_motifTurnover/load_motif_data.R"))  # Adjust the filename as needed
+mat.list <- load_motif_data(
+  unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
+  cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
+  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies")
+)
 ```
 
 
@@ -110,7 +66,7 @@ Run_MLMs_OrthoSpecific <- function(Kphylo, EnvTraitMatrix, motifMatList) {
     ePC_names <- colnames(EnvTraitMatrix)
 
   nOrtho <- length(motifMatList)
-  cl <- makeCluster(2) # create cluster
+  cl <- makeCluster(1) # create cluster
   registerDoParallel(cl)
   results <- foreach(i = 1:nOrtho, .combine = 'c') %dopar% {
     library(dplyr)
@@ -188,10 +144,9 @@ Run_MLMs_OrthoSpecific <- function(Kphylo, EnvTraitMatrix, motifMatList) {
 
 # Must supply named cols/rows with assembly IDs
 EnvTraitMatrix <- env[,286:295] # first 10 ePCs
-#EnvTraitMatrix <- env[,286:287] # first 2 ePCs
 rownames(EnvTraitMatrix) <- env$assemblyID
-models_phyloK_envPC1.10_poaceae_1_5000<- Run_MLMs_OrthoSpecific(phyloK, EnvTraitMatrix, mat.list[1:5000])
-save(models_phyloK_envPC1.10_poaceae_1_5000, file="/workdir/coh22/poaceae_tfbs/results/models/models_phyloK_envPC1.10_poaceae_1_5000.RData")
+models_phyloK_envPC1.10_poaceae<- Run_MLMs_OrthoSpecific(phyloK, EnvTraitMatrix, mat.list)
+save(models_phyloK_envPC1.10_poaceae, file="/workdir/coh22/poaceae_tfbs/results/models/models_phyloK_envPC1.10_poaceae_astralV3.RData")
 ```
 
 
@@ -348,15 +303,6 @@ candidate.counts <- as.data.frame(cbind(candidate.mat$OG0018131.HSF_GARP, rownam
 
 all_rep_taxa <- left_join(candidate.counts, env)
 
-all_rep_taxa_binarized <- all_rep_taxa %>%
-  mutate(motifCount = ifelse(as.numeric(motifCount) > 1, 1, 0))
-
-# For categorical relationship with motif count
-ggplot(all_rep_taxa_binarized, aes(x = motifCount, y = envPC_1, fill = motifCount, group = motifCount)) +
-  geom_boxplot() +
-  theme_minimal() +
-  labs(title = "HSF_GARP motif presence upstream of OG0018131", x = "HSF_GARP presence", y = "Environmental PC1")
-
 # For quantitative variation in motif count
 ggplot(all_rep_taxa, aes(x = factor(motifCount), y = envPC_1)) +
   geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "lightblue") + # Boxplot with transparency
@@ -453,17 +399,6 @@ ggplot(top_terms, aes(
 write.csv(merged_results[,c(2,3,4,5,6,8,10)], "/workdir/coh22/poaceae_tfbs/results/models/GO_topAssociationModelHits.csv", quote = F, row.names = F)
 ```
 
-
-Investigate whether RAOs from Yeaman 2024 are found in top hits
-``` {r}
-raos <- read.table("/workdir/coh22/andro_tfbs/output/turnover_analysis/env_turnover/Yeaman2024RAO_OGID.txt")
-names(raos) <- c("At_id", "OG")
-unique_top_ogs <- unique(top_hits$OG)
-# Which OGs are there?
-dplyr::filter(top_hits, OG %in% unique_top_ogs[unique_top_ogs %in% raos$OG])
-prop_rao_total <- nrow(raos) / n_ortho
-prop_rao_top <- length(unique_top_ogs[unique_top_ogs %in% raos$OG]) / length(unique_top_ogs)
-```
 
 
 

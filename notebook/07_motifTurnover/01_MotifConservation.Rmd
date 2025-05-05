@@ -1,5 +1,5 @@
 ---
-title: "TurnoverAnalysis"
+title: "Analysis of motif instance conservation relative to maize"
 author: "Charlie Hale"
 date: "`r Sys.Date()`"
 output: html_document
@@ -24,7 +24,7 @@ taxa <- read.table(paste0(rootDir, "output/angiosperm353_geneticDistance.txt"), 
 colnames(gen.dist) <- taxa
 
 # Motifs
-source(paste0(rootDir, "src/05_motifTurnover/load_motif_data.R"))  # Adjust the filename as needed
+source(paste0(rootDir, "src/07_motifTurnover/load_motif_data.R"))  # Adjust the filename as needed
 mat.list <- load_motif_data(
   unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
   cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
@@ -36,12 +36,15 @@ Calculate % motifs in focal assembly retained in comparison assembly
 focal.assembly <- "Zm-B73-REFERENCE-NAM-5.0"
 #focal.assembly <- "Sorghum_bicolor_NCBIv3"
 #focal.assembly <- "IRGSP-1.0"
+
+# Filter list of OGs to those represented in focal assembly
 ogs_with_focal <- lapply(mat.list, function(mat) {
   if (focal.assembly %in% rownames(mat)) return(mat)
   NULL
 })
-ogs_with_focal <- Filter(Negate(is.null), ogs_with_focal)
+ogs_with_focal <- Filter(Negate(is.null), ogs_with_focal) 
 
+# Function to calcualte the difference in motif counts between focal assembly and each other assembly
 calculate_motif_difference_vs_focal <- function(motif.matrix, focal.assembly) {
   focal_motifs <- t(as.matrix(motif.matrix[focal.assembly,], nrow = 35))
   # Calculate difference in motif count between focal assembly and comparison assembly
@@ -51,6 +54,7 @@ calculate_motif_difference_vs_focal <- function(motif.matrix, focal.assembly) {
   return(motif_diff)
 }
 
+# Function to calculate pct motif conservation by OG. Output is a list of n_orthogroup matrices, each with one col per assembly.
 calc_pct_conservation_by_gene <- function(orig.motif.matrix, motif.diff.matrix, focal.assembly, taxa) {
   pct.conserved.vs.focal <- rep(NA, times = length(taxa))
   names(pct.conserved.vs.focal) <- taxa
@@ -59,13 +63,14 @@ calc_pct_conservation_by_gene <- function(orig.motif.matrix, motif.diff.matrix, 
   n_diverged <- rowSums(motif.diff.matrix)
   pct_conserved <- 1 - (n_diverged / n_focal)
   names(pct_conserved) <- rownames(orig.motif.matrix)
-  # Get matching names between B73_distances and manhattan distances
+  # Get matching names
   matching_names <- intersect(names(pct.conserved.vs.focal), names(pct_conserved))
   # Replace only for matching names
   pct.conserved.vs.focal[matching_names] <- pct_conserved[matching_names]
   return(pct.conserved.vs.focal)
 }
 
+# Function to calculate pct motif conservation relative to maize for each assembly, summarized across all OGs. Output is a vector n_taxa long with % conservation values
 calc_pct_conservation_focal_vs_comparison <- function(orig.mat.list, diff.mat.list, focal.assembly, target.assembly) {
   # Get indices of dataframes containing the target column
   ogs_containing_target <- which(sapply(orig.mat.list, function(df) target.assembly %in% rownames(df)))
@@ -96,7 +101,8 @@ pct_conserved <- sapply(t(taxa)[,"1"], function(target.assembly) {
 })
 names(pct_conserved) <- t(taxa)[,"1"]
 
- pct_conserved_by_gene <- mclapply(1:length(ogs_with_focal), function(i) {
+# Calculate pct conserved, broken up by orthogroup
+pct_conserved_by_gene <- mclapply(1:length(ogs_with_focal), function(i) {
    orig.mat <- ogs_with_focal[[i]]
    diff.mat <- diffs[[i]]
    calc_pct_conservation_by_gene(orig.mat, diff.mat, focal.assembly, taxa)
@@ -107,21 +113,23 @@ names(pct_conserved) <- t(taxa)[,"1"]
 Calculate motif distances between 100,000 random pairs of genes in focal taxon (as a null for cross-species comparisons)
 
 ```{r}
-# Just within focal assembly
 set.seed(1) # for reproducibility
+# Create a df containing all motif counts for all OGs in focal assembly
 focal.assembly.motifs <- lapply(ogs_with_focal, function(df) df[rownames(df) == focal.assembly, ])
 focal.assembly.motifs <- Filter(Negate(is.null), focal.assembly.motifs)
 focal.assembly.motifs  <- do.call(rbind, focal.assembly.motifs )
-num_pairs <- 100000
+num_pairs <- 100000 # How many gene pairs to sample?
 
+#Sample num_pairs random pairs of genes in focal assembly
 og.row.indices <- data.frame(
   focal_og = sample(1:nrow(focal.assembly.motifs), num_pairs, replace = TRUE),
   comparison = sample(1:nrow(focal.assembly.motifs), num_pairs, replace = TRUE)
 )
 
+# Calculate motif conservation between random pairs of genes
 null.pct.shared <- mapply(function(i, j) {
   motif_diff <- focal.assembly.motifs[i,] - focal.assembly.motifs[j,]
-  motif_diff[motif_diff < 0] <- 0 # ignore instances where comparison has more motifs than focal
+  motif_diff[motif_diff < 0] <- 0
   n_focal <- sum(focal.assembly.motifs[i,])
   n_diverged <- sum(motif_diff)
   pct_conserved <- 1 - sum(motif_diff) / (sum(focal.assembly.motifs[i,]))
@@ -129,7 +137,7 @@ null.pct.shared <- mapply(function(i, j) {
 
 ```
 
-# Function to plot negative exponential decay fit with asymptote
+# Function to plot negative exponential decay fit with asymptote, in the form: pct_motifs_conserved ~ a * exp(-b * genetic_distance) + c 
 ``` {r}
 fit_nls <- function(mat) {
   tryCatch({
@@ -138,7 +146,7 @@ fit_nls <- function(mat) {
                    start = list(a = 0.5, b = 25, c = 0.5),
                    lower = c(a = 0, b = 0, c = 0),
                    upper = c(a = 1, b = Inf, c = 1),
-                   control = nls.lm.control(maxiter = 1000))
+                   control = nls.lm.control(maxiter = 1000)) # Perform up to 1000 iterations
     params_global <- coef(model)
     a_global <- params_global["a"]
     b_global <- params_global["b"]
@@ -151,11 +159,11 @@ fit_nls <- function(mat) {
 }
 ```
 
-Fit and plot global model with negative exponential fit
+Fit and plot global model (avg % conservation across OGs for each assembly) with negative exponential fit
 ``` {r}
-# Mean conservation across maize genes
+# Mean motif conservation across "null" set of random focal assembly genes
 mean.cross.gene.pct_shared <- mean(null.pct.shared, na.rm = T) 
-# Calculate mean motif distance for each assembly
+
 # Prep df with genetic distance and motif conservation
 focal_gen_dist <- dplyr::select(gen.dist, focal_dist = all_of(focal.assembly))
 rownames(focal_gen_dist) <- colnames(gen.dist)
@@ -165,9 +173,9 @@ merged_df <- merge(motif.conserved.vs.focal, focal_gen_dist, by = "row.names") %
   na.omit()
 rownames(merged_df) <-merged_df$Row.names
 
-nls_model_global <- fit_nls(merged_df) # Fit global model
+nls_model_global <- fit_nls(merged_df) # Fit model
 
-# Plot the scatterplot with the fitted curve
+# Plot scatterplot with fitted curve
 ggplot(merged_df, aes(x = focal_dist, y = pct_motifs_conserved)) +
   geom_point(alpha = 0.7, color = "orange", size = 3) +
   stat_function(
@@ -178,7 +186,7 @@ ggplot(merged_df, aes(x = focal_dist, y = pct_motifs_conserved)) +
     alpha = 0.5
   ) +
   labs(
-    x = "Genetic Distance vs Maize (Angiosperm353 loci)",
+    x = "Genetic Distance vs Maize (Angiosperms353 loci)",
     y = "Mean proportion of Maize motifs conserved",
   ) +
     geom_hline(
@@ -196,9 +204,9 @@ ggplot(merged_df, aes(x = focal_dist, y = pct_motifs_conserved)) +
 ```
 
 
-Fit and plot models for each orthogroup
+Fit and plot neg. exponential curves for each orthogroup
 ``` {r}
-# convert list to proper format for function
+# Prep dfs to be able to fit neg. exp. models
 prep_dfs_by_og <- function(vec) {
   out_df <- as.data.frame(vec) %>%
     merge(focal_gen_dist, by = "row.names") %>%
@@ -208,20 +216,23 @@ prep_dfs_by_og <- function(vec) {
 } 
 prepped.ogs <- mclapply(pct_conserved_by_gene, prep_dfs_by_og, mc.cores = detectCores() - 1)
 
+# Fit neg. exponential models across each OG
 nls.models.by.gene.list <- mclapply(prepped.ogs, fit_nls, mc.cores = detectCores() - 1) 
 sum(is.na(nls.models.by.gene.list)) # 65 OGs failed to converge
+
+# Consolidate results into a single df
 nls.models.by.gene <- do.call(rbind, nls.models.by.gene.list)  %>%
   as.data.frame() %>%
   mutate(OG = names(pct_conserved_by_gene)) %>%
   na.omit()
 ```
 
-Plot distribution of asymptote values
+Plot distribution of asymptote values from neg. exponential models
 ``` {r}
-# Calculate the median value, omitting NAs if any
+# Calculate the median value, omitting NAs
 med_c <- median(nls.models.by.gene$c_global, na.rm = TRUE)
 
-# Create a publication-quality histogram with a median line
+# Plot histogram with a median line
 asymp_dist <- ggplot(nls.models.by.gene, aes(x = c_global)) +
   geom_histogram(binwidth = 0.05, fill = "skyblue", color = "black") +
   geom_vline(xintercept = med_c, linetype = "dashed", color = "red", size = 1) +
@@ -243,10 +254,10 @@ asymp_dist
 
 Plot curves for all OGs on top of each other
 ``` {r}
-# Define x values for the curves. Adjust the range as needed.
+# Define x values for the curves based on the min and max values of genetic distance
 x_vals <- seq(0, 0.25, length.out = 200)
 
-# Create a long-format data frame with one row per (OG, x, y) value.
+# Create a long-format data frame with one row per OG
 curves_long <- nls.models.by.gene %>%
   rowwise() %>%
   do(data.frame(
@@ -256,10 +267,10 @@ curves_long <- nls.models.by.gene %>%
   )) %>%
   ungroup()
 
-# Build the plot
+# Plot all decay curves together
 stacked_curves <- ggplot(curves_long, aes(x = x, y = y, group = OG)) +
   geom_line(alpha = 0.01, color = "#1E90FF") +  # Light blue individual curves
-  stat_summary(fun = median, geom = "line", aes(group = 1), color = "darkblue", size = 2) +  # Thick median curve
+  stat_summary(fun = median, geom = "line", aes(group = 1), color = "darkblue", size = 2) +  # Emphasize the median curve
   labs(
     x = "Genetic Distance vs Maize",
     y = "% TF Motifs Conserved"
@@ -271,7 +282,7 @@ stacked_curves <- ggplot(curves_long, aes(x = x, y = y, group = OG)) +
     axis.text  = element_text(size = 22)
   )
 
-# Overlay data points
+# Overlay overall cosnervation values for each assembly
 layered_plot <- stacked_curves +
   geom_point(
     data = merged_df,
@@ -293,6 +304,7 @@ layered_plot
 
 Investigate OGs with highest and lowest motif conservation
 ``` {r}
+# Annotate OGs with gene descriptions from maizeGDB
 maize_gene_desc <- read.table(paste0(rootDir, "output/go_enrichment/B73_DE.out"), sep = "\t", header = T) %>%
   dplyr::select(c(qpid, desc)) %>%
   mutate(ZmID = sapply(qpid, function(x) strsplit(x, "_")[[1]][1])) %>%
@@ -304,16 +316,20 @@ OGkey <- read.table(paste0(rootDir, "output/ogs/OGToZm_mapping_v2.txt")) %>%
   left_join(maize_gene_desc)
 rownames(OGkey) <- OGkey$OG
 
+# Combine per-gene conservation values into a single df
 combined_results <- do.call(cbind, pct_conserved_by_gene) 
-mean_turnover <- apply(combined_results, 2, function(x) mean(x, na.rm = TRUE)) %>%
+
+# Calculate the mean conservation values for each OG (average across all assemblies)
+mean_cons <- apply(combined_results, 2, function(x) mean(x, na.rm = TRUE)) %>%
   as.data.frame() %>%
   set_names("mean_pct_conserved") %>%
   mutate(OG = rownames(.)) %>%
   left_join(OGkey)
 
-bin_length <- round(nrow(mean_turnover) * 0.25)
-most_conserved <- mean_turnover[order(mean_turnover$mean_pct_conserved, decreasing = T),][1:bin_length,]
-least_conserved <- mean_turnover[order(mean_turnover$mean_pct_conserved, decreasing = F),][1:bin_length,]
+# Subset OGs with highest and lowest motif conservation
+bin_length <- round(nrow(mean_cons) * 0.25) # Choose a percentile (we used 25%)
+most_conserved <- mean_cons[order(mean_cons$mean_pct_conserved, decreasing = T),][1:bin_length,]
+least_conserved <- mean_cons[order(mean_cons$mean_pct_conserved, decreasing = F),][1:bin_length,]
 ```
 
 Visualize some of these
@@ -344,7 +360,7 @@ ggplot(merged_df_indiv_gene, aes(x = genDist, y = indiv_gene_pct_motifs_conserve
      alpha = 0.5
    ) +
   labs(
-    x = "Genetic Distance vs Maize (Angiosperm353 loci)",
+    x = "Genetic Distance vs Maize (Angiosperms353 loci)",
     y = "Percentage of Maize motifs conserved",
   ) +
     geom_hline(
@@ -365,17 +381,23 @@ ggplot(merged_df_indiv_gene, aes(x = genDist, y = indiv_gene_pct_motifs_conserve
 # GO enrichments for high and low conservation OGs
 ``` {r}
 library(topGO)
+# Join maize gene IDs with OGs
 mappingFile = read.table(paste0(rootDir, "output/ogs/OGToZm_mapping_v2.txt")) %>%
 mutate(V1=sapply(V1, function(x) strsplit(x, "_")[[1]][1]))
-all_ogs <- unique(mappingFile[mappingFile[,2]%in%mean_turnover$OG,1])
+
+# For background genes, use OGs in analysis that were not in the focal quartile
+all_ogs <- unique(mappingFile[mappingFile[,2]%in%mean_cons$OG,1]) 
 #top_ogs = unique(mappingFile[mappingFile[,2]%in%least_conserved$OG,1])
 top_ogs = unique(mappingFile[mappingFile[,2]%in%most_conserved$OG,1])
 GODB <- readMappings(paste0(rootDir, "output/go_enrichment/Zm00001eb.1.fulldata_goList.txt"),IDsep = ",")
-background = intersect(names(GODB),all_ogs)
-# background = names(GODB)
+background = intersect(names(GODB),all_ogs) 
 tmp=factor(as.integer(background%in%top_ogs))
 names(tmp)=background
-algo <- "weight01" # Choose topGO algorithm
+
+# Choose topGO algorithm. "weight01" is a heirarchical algorithm for which multiple test correction is not recommended
+algo <- "weight01" 
+
+# Function to run GO enrichment analysis
 process_topGO <- function(ontology, allGenes, GODB, top_ogs, mappingFile) {
   tgd1 <- new("topGOdata", ontology = ontology, allGenes = allGenes, nodeSize = 5, annot = annFUN.gene2GO, gene2GO = GODB)
   resTopGO <- runTest(tgd1, algorithm = algo, statistic = "Fisher")
@@ -388,7 +410,7 @@ process_topGO <- function(ontology, allGenes, GODB, top_ogs, mappingFile) {
   
   # Filtering and transformation
   significant_results <- GO_res_table_df %>%
-    #mutate(Fisher.FDR = p.adjust(as.numeric(pval), method = "fdr")) %>%
+    #mutate(Fisher.FDR = p.adjust(as.numeric(pval), method = "fdr")) %>% # Multiple test correction not recommended for weight01 algorithm
     filter(pval < 0.05) %>%
     mutate(neglog10Fisher = -log10(as.numeric(pval))) %>%
     arrange(desc(neglog10Fisher))
@@ -410,10 +432,9 @@ significant_CC <- process_topGO("CC", tmp, GODB, top_ogs, mappingFile)
 merged_results_most_conserved <- bind_rows(significant_BP, significant_MF, significant_CC) %>%
   arrange(desc(neglog10Fisher))
 
-#View(merged_results_most_conserved[,c(2,4,5,8,9)])
 View(merged_results_most_conserved[,c(2,3,4,5,6,8,10)])
-top_terms <- merged_results_most_conserved[1:10,]
-#top_terms <- significant_MF[1:6,]
+
+top_terms <- merged_results_most_conserved[1:10,] # 10 most significant terms for ploting
 top_terms$Term <- sapply(top_terms$Term, function(x) substr(x, 1, 30)) # Truncate terms to make plotting prettier
 # Create the bubble plot
 ggplot(top_terms, aes(
@@ -425,7 +446,7 @@ ggplot(top_terms, aes(
   geom_point(alpha = 0.7) +
   scale_x_continuous(limits = c(2, 4)) +
   scale_color_gradient(low = "red", high = "blue", limits = c(0.8, 4)) +
-  scale_size(range = c(5, 20)) +  # Only this line affects bubble size
+  scale_size(range = c(5, 20)) + 
   labs(
     title = "GO enrichment for 25% least conserved genes",
     x = "-log10(p)", 
@@ -433,7 +454,7 @@ ggplot(top_terms, aes(
     size = "Significant",
     color = "Enrichment"
   ) +
-  theme_minimal() +  # Keeps your clean white background
+  theme_minimal() + 
   theme(
     axis.text.y = element_text(size = 14),
     axis.title.x = element_text(size = 16),
@@ -443,94 +464,9 @@ ggplot(top_terms, aes(
     panel.grid.major.y = element_line(size = 0.5, color = "grey80"),
     plot.title = element_text(hjust = 0.5, size = 14))
 
-# Write results to table
+# Write all sig results to table
 write.csv(merged_results_most_conserved[,c(2,3,4,5,6,8,10)], "/workdir/coh22/poaceae_tfbs/results/GO_high_conservation.csv", quote = F, row.names = F)
 #write.csv(merged_results_least_conserved[,c(2,3,4,5,6,8,10)], "/workdir/coh22/poaceae_tfbs/results/GO_low_conservation.csv", quote = F, row.names = F)
-```
-
-OLD
-GO enrichment for most conserved OGs. Run
-
-``` {r}
-library(topGO)
-mappingFile = read.table(paste0(rootDir, "output/ogs/OGToZm_mapping_v2.txt")) %>%
-mutate(V1=sapply(V1, function(x) strsplit(x, "_")[[1]][1]))
-all_ogs <- unique(mappingFile[mappingFile[,2]%in%mean_turnover$OG,1])
-#top_ogs = unique(mappingFile[mappingFile[,2]%in%least_conserved$OG,1])
-top_ogs = unique(mappingFile[mappingFile[,2]%in%most_conserved$OG,1])
-GODB <- readMappings(paste0(rootDir, "output/go_enrichment/Zm00001eb.1.fulldata_goList.txt"),IDsep = ",")
-background = intersect(names(GODB),all_ogs)
-# background = names(GODB)
-tmp=factor(as.integer(background%in%top_ogs))
-names(tmp)=background
-# Define a function to process each ontology
-process_topGO <- function(ontology, allGenes, GODB, top_ogs, mappingFile) {
-  tgd1 <- new("topGOdata", ontology = ontology, allGenes = allGenes, nodeSize = 5, annot = annFUN.gene2GO, gene2GO = GODB)
-  resTopGO.classic <- runTest(tgd1, algorithm = "classic", statistic = "Fisher")
-  GO_res_table <- GenTable(tgd1, Fisher.classic = resTopGO.classic, orderBy = "Fisher.classic", 
-                           ranksOf = "Fisher.classic", topNodes = length(resTopGO.classic@score), numChar = 100)
-  GO_res_table$sigGenes <- sapply(GO_res_table[, 1], function(x) {
-    paste(mappingFile[mappingFile[, 1] %in% intersect(top_ogs, genesInTerm(tgd1, x)[[1]]), 2], collapse = ",")
-  })
-  GO_res_table_df <- as.data.frame(GO_res_table)
-  
-  # Filtering and transformation
-  significant_results <- GO_res_table_df %>%
-    mutate(Fisher.FDR = p.adjust(as.numeric(Fisher.classic), method = "fdr")) %>%
-    filter(Fisher.FDR < 0.05) %>%
-    mutate(neglog10Fisher = -log10(as.numeric(Fisher.FDR))) %>%
-    arrange(desc(neglog10Fisher))
-  
-  # Add ontology information
-  significant_results <- significant_results %>%
-    mutate(Ontology = ontology)
-  
-  return(significant_results)
-}
-
-# Process each ontology
-significant_BP <- process_topGO("BP", tmp, GODB, top_ogs, mappingFile)
-significant_MF <- process_topGO("MF", tmp, GODB, top_ogs, mappingFile)
-significant_CC <- process_topGO("CC", tmp, GODB, top_ogs, mappingFile)
-
-# Merge results
-merged_results_most_conserved <- bind_rows(significant_BP, significant_MF, significant_CC) %>% arrange(Fisher.FDR)
-
-View(merged_results_most_conserved[,c(2,4,5,8,9)])
-
-top_terms <- merged_results_most_conserved[1:10,]
-#top_terms <- significant_MF[1:6,]
-top_terms$Term <- sapply(top_terms$Term, function(x) substr(x, 1, 30)) # Truncate terms to make plotting prettier
-View(top_terms[,c(2,4,8,9)])
-# Create the bubble plot
-go_plot <- ggplot(top_terms, aes(
-  x = neglog10Fisher, 
-  y = reorder(Term, neglog10Fisher), 
-  size = Significant, 
-  color = neglog10Fisher
-)) +
-  geom_point(alpha = 0.7) +
-  scale_x_continuous(limits = c(3, 7)) +
-  scale_color_gradient(low = "red", high = "blue", limits = c(3, 7)) +
-  scale_size(range = c(5, 20)) +  # Only this line affects bubble size
-  labs(
-    title = "GO enrichment for 25% most conserved genes",
-    x = "-log10(FDR-corrected Fisher's exact test)", 
-    y = NULL,
-    size = "Significant",
-    color = "-log10(Fisher)"
-  ) +
-  theme_minimal() +  # Keeps your clean white background
-  theme(
-    axis.text.y = element_text(size = 14),
-    axis.title.x = element_text(size = 16),
-    axis.text.x = element_text(size = 16),
-    legend.position = "right",
-    legend.text = element_text(size = 14),
-    panel.grid.major.y = element_line(size = 0.5, color = "grey80"),
-    plot.title = element_text(hjust = 0.5, size = 14)
-  )
-go_plot
 ```
 
 Compare turnover of TFs with non-TFs (maize TFs from Grassius: https://grassius.org/download_species_gene_list/Maize/v5) 
@@ -539,11 +475,12 @@ library(ggridges)
 tf_ogs <- read.table(paste0(rootDir, "output/turnover_analysis/tf_turnover/TF_OGs.txt")) %>%
   dplyr::select(OG=V2)
 tf.og.ids <- tf_ogs$OG[tf_ogs$OG %in% names(mat.list)]
-tf.genes <- filter(mean_turnover, OG %in% tf.og.ids)
+tf.genes <- filter(mean_cons, OG %in% tf.og.ids)
 tf.genes$og.class <- "TF"
-background.genes <- filter(mean_turnover, !OG %in% tf.og.ids)
+background.genes <- filter(mean_cons, !OG %in% tf.og.ids)
 background.genes$og.class <- "non-TF"
 merged.turnover <- rbind(background.genes,tf.genes)
+
 # Perform t test for difference in means
 test <- t.test(filter(merged.turnover, og.class == "non-TF")$mean_pct_conserved, filter(merged.turnover, og.class == "TF")$mean_pct_conserved, var.equal = TRUE)
 
@@ -553,19 +490,19 @@ ks.test <- ks.test(tf.genes$mean_pct_conserved, background.genes$mean_pct_conser
 # Ridgeline plot
 means <- aggregate(mean_pct_conserved ~ og.class, data = merged.turnover, mean)
 
-# Plot density with mean lines
+# Plot density comparison with mean lines
 tf_nonTF <- ggplot(merged.turnover, aes(x = mean_pct_conserved, fill = og.class)) +
-  geom_density(alpha = 0.3) +  # Transparency for overlap
-  scale_fill_manual(values = c("purple", "lightgreen")) +  # Custom colors
+  geom_density(alpha = 0.3) + 
+  scale_fill_manual(values = c("purple", "lightgreen")) +  
   geom_vline(data = means, aes(xintercept = mean_pct_conserved, color = og.class),
-             linetype = "dotted", size = 2) +  # Add dotted mean lines
-  scale_color_manual(values = c("mediumpurple4", "darkgreen"), guide = "none") +  # Match colors
+             linetype = "dotted", size = 2) +  # dotted mean lines
+  scale_color_manual(values = c("mediumpurple4", "darkgreen"), guide = "none") + 
   labs(
     x = "Mean % motif conservation",
     y = "Density",
     fill = "Gene class"
   ) +
-  theme_minimal(base_size = 22) +  # Clean theme
+  theme_minimal(base_size = 22) + 
   theme(
     legend.position = "top",
     plot.title = element_text(hjust = 0.5, face = "bold")
@@ -576,8 +513,9 @@ View(tf.genes)
 
 ``` 
 
+# TF vs non-TF conservation comparison for maize vs sorghum syntenic OGs
+ # This is just comparating the maize vs sorghum conservation values, not the mean conservation across all assemblies like in the previous analysis
 ``` {r}
-# Just for maize vs sorghum syntenic OGs
 syntenic_ogs <- read.table(paste0(rootDir, "output/turnover_analysis/syntenic_only/ZmSb_syntenicOGs.txt")) %>%
   dplyr::select(OG=V2)
 syntenic_tfs <- intersect(tf_ogs$OG, syntenic_ogs$OG)
@@ -617,26 +555,6 @@ tf_nonTF_syntenic <- ggplot(merged.turnover, aes(x = pct_conserved, fill = og.cl
     plot.title = element_text(hjust = 0.5, face = "bold")
   )
 tf_nonTF_syntenic
-
-# # Maize vs sorghum with no synteny filter
-# tf_ogs <- read.table(paste0(rootDir, "output/TF_OGs.txt")) %>%
-#   dplyr::select(OG=V2)
-# tf.og.ids <- tf_ogs$OG[tf_ogs$OG %in% names(mat.list)]
-# tf.genes <- na.omit(Zm_vs_Sb_pct_conserved[tf.og.ids]) %>%
-#   as.data.frame() %>%
-#   setnames(new="pct_conserved")
-# tf.genes$og.class <- "TF"
-# background.genes <- na.omit(Zm_vs_Sb_pct_conserved[!names(Zm_vs_Sb_pct_conserved) %in% tf.og.ids]) %>%
-#   as.data.frame() %>%
-#   setnames(new="pct_conserved")
-# background.genes$og.class <- "non-TF"
-# merged.turnover <- rbind(background.genes,tf.genes)
-# 
-# # What are the TFs with high conservation?
-# tf.genes$V2 <- rownames(tf.genes)
-# annotated_tfs <- left_join(tf.genes, mappingFile) %>%
-#   setnames(new = c("pct_conserved", "og.class", "OG", "ZmID")) %>%
-#   left_join(maize_gene_desc)
 ```
 
 # Compare conservation of motifs vs coding sequences of target genes
@@ -650,24 +568,25 @@ mean.cds.conservation <- cds.conservation %>%
   group_by(OG) %>%
   dplyr::summarize(mean_cds_conservation = mean(cds_conservation, na.rm = TRUE))
 
-motif_vs_cds_cons <- left_join(mean_turnover, mean.cds.conservation) %>%
+motif_vs_cds_cons <- left_join(mean_cons, mean.cds.conservation) %>%
   dplyr::rename(mean_motif_conservation = mean_pct_conserved) %>%
-  dplyr::filter(mean_cds_conservation > 0.7)
+  dplyr::filter(mean_cds_conservation > 0.7) # Remove outlier OGs with low mean CDS conservation
 plot(motif_vs_cds_cons$mean_cds_conservation, motif_vs_cds_cons$mean_motif_conservation)
 
 # Look at linear relationship between motif conservation and cds conservation
+# r-squared is just 0.03, though cds conservation is a highly significant predictor
 motif_vs_cds_model <- lm(motif_vs_cds_cons$mean_motif_conservation~ motif_vs_cds_cons$mean_cds_conservation)
 
-# Plot
+# scatterplot for cds vs motif conservation
 ggplot(motif_vs_cds_cons, aes(x = mean_cds_conservation, y = mean_motif_conservation)) +
-  geom_point(size = 1, alpha = 0.1) +                     # scatter plot points
-  geom_smooth(method = "lm", se = T, color = "skyblue") + # optional regression line
+  geom_point(size = 1, alpha = 0.1) +                     
+  geom_smooth(method = "lm", se = T, color = "skyblue") + 
   labs(
     title = "Motif vs CDS Conservation across Orthogroups",
     x = "Mean CDS Conservation vs Maize",
     y = "Mean Motif Conservation vs Maize"
   ) +
-  theme_minimal(base_size = 14) +                        # clean theme
+  theme_minimal(base_size = 14) +                  
   theme(
     plot.title = element_text(hjust = 0.5, face = "bold"),
     axis.title = element_text(face = "bold"),
@@ -675,7 +594,7 @@ ggplot(motif_vs_cds_cons, aes(x = mean_cds_conservation, y = mean_motif_conserva
   )
 ```
 
-# Turnover rates by motif
+# Conservation rates by motif
 ``` {r}
 # Function to flip df lists s.t. each column is an OG and each list entry is a motif
 reorient_data <- function(df_list, subset_names = NULL, cores = parallel::detectCores()) {
@@ -687,23 +606,23 @@ reorient_data <- function(df_list, subset_names = NULL, cores = parallel::detect
     subset_names <- names(df_list)
   }
   
-  # Step 1: Convert each gene-specific dataframe to long format in parallel
+  #  Convert each gene-specific dataframe to long format in parallel
   dt_list <- mclapply(subset_names, function(gene) {
     df <- df_list[[gene]]
-    # Convert rownames (species) into a column
-    dt <- as.data.table(df, keep.rownames = "species")
+    # Convert rownames (assemblyID) into a column
+    dt <- as.data.table(df, keep.rownames = "species") # "species" should actually be "assembly" here, but I kept this notation for continuity
     dt[, gene := gene]  # add gene name column
-    # Melt the dataframe so that each row corresponds to one species-motif combination
+    # Melt the dataframe so that each row corresponds to one assembly-motif combination
     melt(dt, id.vars = c("species", "gene"), variable.name = "motif", value.name = "count")
   }, mc.cores = cores)
   
-  # Combine all long-format data.tables into one
+  # Combine all long-format data.tables into one big one
   combined_dt <- rbindlist(dt_list)
   
-  # Step 2: Split the combined data.table by motif
+  # Split the combined data.table by motif
   motif_groups <- split(combined_dt, by = "motif")
   
-  # Step 3: For each motif, cast to wide format (species as rows, gene names as columns),
+  # For each motif, cast to wide format (assemblyIDs/species as rows, gene names as columns),
   # then set the rownames to species and remove the "species" column.
   diffs_by_motif <- lapply(motif_groups, function(dt) {
     wide_dt <- dcast(dt, species ~ gene, value.var = "count")
@@ -722,6 +641,7 @@ reorient_data <- function(df_list, subset_names = NULL, cores = parallel::detect
 diffs_by_motif <- reorient_data(diffs)
 orig_df_by_motif <- reorient_data(ogs_with_focal)
 
+# Function to calculate pct conservation for each motif across all OGs
 calc_pct_conservation_by_motif <- function(orig.motif.matrix, motif.diff.matrix, focal.assembly, taxa) {
   pct.conserved.vs.focal <- rep(NA, times = length(taxa))
   names(pct.conserved.vs.focal) <- taxa
@@ -763,10 +683,10 @@ nls.models.by.motif <- do.call(rbind, nls.models.by.motif.list)  %>%
   mutate(motif = names(pct_conserved_by_motif)) %>%
   na.omit()
 
-# Define x values for the curves. Adjust the range as needed.
+# Define x values for the curves based on the range of genetic distance
 x_vals <- seq(0, 0.25, length.out = 200)
 
-# Create a long-format data frame with one row per (OG, x, y) value.
+# Create a long-format data frame with one row per OG
 curves_long <- nls.models.by.motif %>%
   rowwise() %>%
   do(data.frame(
@@ -776,7 +696,7 @@ curves_long <- nls.models.by.motif %>%
   )) %>%
   ungroup()
 
-# Build the plot
+# Plot conservation curves for each motif
 stacked_curves <- ggplot(curves_long, aes(x = x, y = y, group = motif)) +
   geom_line(aes(color = motif)) +  # Separate color for each motif
   #stat_summary(fun = median, geom = "line", aes(group = 1), color = "darkblue", size = 2) +  # Thick median curve
@@ -793,44 +713,29 @@ stacked_curves <- ggplot(curves_long, aes(x = x, y = y, group = motif)) +
   )
 stacked_curves
 
-
-
-# Overlay data points
-layered_plot <- stacked_curves +
-  #geom_point(
-  #  data = merged_df,
-  #  mapping = aes(x = focal_dist, y = 100 * pct_motifs_conserved),
-  #  inherit.aes = FALSE,
-  #  alpha = 0.5, color = "orange", size = 3
-  #) +
-  #geom_hline(
-  #  yintercept = mean.cross.gene.pct_shared,
-  #  linetype = "dashed",
-  #  color = "darkgreen"
-  #) +
-  xlim(0, 0.25)
-
-layered_plot
 ```
+
 Compare motif conservation at ChIP-supported OGs with all OGs
+Here I define "ChIP-supported" as an OG for which the 500bp upstream region intersectects a ChIP-seq peak for the corresponding TF.
+We then compare conservation of motif instances for the motif cluster that contains the TF of interest.
 ``` {r}
-# Define helper function to subset data frames by OGs to retain
+# Function to subset only OGs with ChIP support
 subset_ogs <- function(df, ogs_to_retain) {
   df <- as.data.frame(df)  # Coerce matrix to data frame if needed
   dplyr::select(df, any_of(ogs_to_retain))
 }
 
-# Define the mapping between motif names and corresponding TF names (for ChIP)
+# Define the mapping between motif cluster names and corresponding TF names from ChIP dataset
 mapping_df <- data.frame(
   motif = c("ERF_DREB_B", "HSF_GARP", "BHLH_CAMTA", "HDZIP_PLINC_AHL"),
   tf    = c("ZmTF117_ereb17", "ZmTF58_glk53", "ZmTF87_bhlh47", "ZmTF174_hb34"),
   stringsAsFactors = FALSE
 )
 
-# Initialize list to store chip conservation data for each motif
+# Initialize list to store cosnervation data for each ChIP-motif pair
 chip_prepped_motifs <- list()
 
-# Loop over each motif–TF pair to process chip OG filtering and conservation
+# Loop over each motif–TF pair to calculate conservation of that motif at ChIP-supported OGs
 for(i in 1:nrow(mapping_df)) {
   motif_name <- mapping_df$motif[i]
   tf_name <- mapping_df$tf[i]
@@ -847,7 +752,7 @@ for(i in 1:nrow(mapping_df)) {
                          ogs_to_retain = chip_ogs$V1,
                          mc.cores = detectCores() - 1)
   
-  # Calculate percent conservation for ChIP OGs for each corresponding data frame pair
+  # Calculate pct conservation at the ChIP OGs
   chip_pct_conserved <- mclapply(seq_along(chip_orig), function(j) {
     orig.mat <- chip_orig[[j]]
     diff.mat <- chip_diffs[[j]]
@@ -855,21 +760,20 @@ for(i in 1:nrow(mapping_df)) {
   }, mc.cores = detectCores() - 1)
   names(chip_pct_conserved) <- names(chip_orig)
   
-  # Prepare the chip conservation data frames
   chip_prepped <- mclapply(chip_pct_conserved, prep_dfs_by_motif, mc.cores = detectCores() - 1)
   
-  # Store the chip conservation data for the current motif for later plotting
+  # Store as a list entry
   chip_prepped_motifs[[motif_name]] <- chip_prepped[[motif_name]]
 }
 
-# Now, build a faceted scatter plot comparing all OGs vs. chip OGs for each motif.
+# Cuild a faceted scatter plot comparing conservation at all OGs vs. chip OGs for each motif.
 plot_data_list <- list()
 r2_df <- data.frame(motif = character(), r_squared = numeric(), stringsAsFactors = FALSE)
 
 for(i in 1:nrow(mapping_df)) {
   motif_name <- mapping_df$motif[i]
   
-  # Retrieve conservation data for all OGs and for chip OGs
+  # Pull conservation data for 1) all OGs and 2) chip OGs for the motif of interest
   all_og_conservation <- prepped.motifs[[motif_name]]
   chip_conservation  <- chip_prepped_motifs[[motif_name]]
   
@@ -880,7 +784,7 @@ for(i in 1:nrow(mapping_df)) {
     motif = motif_name
   )
   
-  # Fit a linear model and extract the R² value for annotation
+  # Fit a linear model and extract the r-squared value for annotation
   lm_fit <- lm(all_conservation ~ chip_conservation, data = df)
   r_squared <- summary(lm_fit)$r.squared
   r2_df <- rbind(r2_df, data.frame(motif = motif_name, r_squared = r_squared, stringsAsFactors = FALSE))
@@ -888,13 +792,13 @@ for(i in 1:nrow(mapping_df)) {
   plot_data_list[[i]] <- df
 }
 
-# Combine all motif-specific data frames into one
+# Combine into a single df for faceted plotting
 plot_data <- do.call(rbind, plot_data_list)
 
-# Create the faceted scatter plot
+# Create a faceted scatterplot for each motif/ChIP combo
 p <- ggplot(plot_data, aes(x = all_conservation, y = chip_conservation)) +
   geom_point(color = "darkblue", size = 2) +
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray40", size = 1) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray40", size = 1) + # plot y = x line
   facet_wrap(~ motif, scales = "fixed") +
   labs(
     x = "All OGs: % motifs Conserved",
@@ -912,6 +816,5 @@ p <- ggplot(plot_data, aes(x = all_conservation, y = chip_conservation)) +
     size = 6
   )
 
-# Display the plot
-print(p)
+p
 ```

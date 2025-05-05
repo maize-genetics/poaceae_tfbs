@@ -6,8 +6,9 @@
 # Set number of threads
 nthreads=100
 input_fasta_dir="output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG_5kbUpstream"
-#input_fasta_dir="output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG_500upstream_primaryAlignment"
-#wget https://jaspar.elixir.no/download/data/2024/CORE/JASPAR2024_CORE_plants_non-redundant_pfms_meme.txt -O data/JASPAR2024_meme.txt
+
+# Download PWMs from JASPAR
+wget https://jaspar.elixir.no/download/data/2024/CORE/JASPAR2024_CORE_plants_non-redundant_pfms_meme.txt -O data/JASPAR2024_meme.txt
 
 ### FILTER MOTIF LIST to retain motifs with conserved UMR enrichment
 # Define input files
@@ -29,7 +30,7 @@ echo "" >> $filtered_meme_file
 # Read the motif list into an array
 mapfile -t motifs < $motif_list
 
-# Function to check if a motif ID is in the list
+# Check if a given motif ID is in the list
 is_motif_in_list() {
   local motif_id="$1"
   for id in "${motifs[@]}"; do
@@ -77,8 +78,6 @@ realpath $input_fasta_dir/*.fa > lists/motif_scan_input.txt
 # Create output directories
 mkdir -p output/motifOutput/fimo/uncollapsed_5kbUpstream
 mkdir -p output/motifOutput/fimo/collapsed_5kbUpstream
-#mkdir -p output/motifOutput/fimo/uncollapsed_500Upstream
-#mkdir -p output/motifOutput/fimo/collapsed_500Upstream
 mkdir -p output/motifOutput/fimo/tmp
 
 # Get start time
@@ -93,7 +92,7 @@ fi
 
 echo "Starting motif scanning process" > $log_file
 
-# Run parallel command and log output, including errors
+# Run motif scanning in parallel and log output, including errors
 parallel -j $nthreads "
   {
     process_start=\$(date +%s);
@@ -113,7 +112,7 @@ parallel -j $nthreads "
     fi
     
     echo Collapsing motifs in {/.}... >> $log_file 2>&1;
-    bash src/CollapseMotifsByCluster.sh \
+    bash src/04_motifScanning/CollapseMotifsByCluster.sh \
     output/motifOutput/fimo/uncollapsed_5kbUpstream/{/.}.tsv \
     data/JASPAR2024_CORE_plants_nr_PFM_key.txt \
     output/motifOutput/fimo/collapsed_5kbUpstream > output/motifOutput/fimo/collapsed_5kbUpstream/{/.}.bed
