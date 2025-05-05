@@ -32,5 +32,5 @@ done < lists/kraken_list.txt
 
 # Generate HTML page with krona results from multiple samples
 cd output/kraken/krona/
-python3 ../../../src/BuildKronaHTMLpage.py SRA
-cd ../../..
+python3 ../../../src/01_shortReadAssembly/BuildKronaHTMLpage.py SRA
+cd ../../../..

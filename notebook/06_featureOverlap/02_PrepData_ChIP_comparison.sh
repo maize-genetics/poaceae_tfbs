@@ -4,13 +4,11 @@
 #!/bin/bash
 
 # Set useful paths
-full_fimo_file="output/motifOutput/fimo/uncollapsed_5kbUpstream/Zm-B73-REFERENCE-NAM-5.0.tsv"
-intermed_dir="output/feature_overlap/chip/intermed_files"
 maize_upstream_regions="output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG_500upstream_primaryAlignment/Zm-B73-REFERENCE-NAM-5.0.bed"
 chip_peak_dir="output/feature_overlap/chip/tf_peaks"
 
 # Looking at TFs found both in ChIP-seq (Tu et al 2020) and in JASPAR motif dataset
-# Define a list of TFs and their parameters:
+# Define a list of TF names, their corresponding JASPAR motifs, and ChIP peak files
 # Format: "TF_folder motif_id chip_rep1 chip_rep2"
 tfs=(
   "ZmTF117_ereb17 MA1818.1 SRR8525082_region.bed SRR8525083_region.bed"
@@ -20,58 +18,20 @@ tfs=(
   "ZmTF174_hb34  MA1824.2 SRR8525010_region.bed SRR8525007_region.bed"
 )
 
-###########################
-## 1. PREP MOTIFS
-###########################
-for tf in "${tfs[@]}"; do
-  read tf_name motif chip1 chip2 <<< "$tf"
-  grep "$motif" "$full_fimo_file" > "$intermed_dir/${tf_name}_motifs.tsv"
-done
-
-for file in "$intermed_dir"/*_motifs.tsv; do
-  tf_name=$(basename "$file" _motifs.tsv)
-  mkdir -p "output/feature_overlap/chip/${tf_name}"
-  
-  # Convert FIMO output to BED format
-  bash src/04_featureOverlap/FIMOtoBED.sh "$file" > "$intermed_dir/${tf_name}_motifs_tmp1.bed"
-  
-  # Filter to motifs within 500 bp upstream of primary alignments
-  bedtools intersect \
-    -a "$intermed_dir/${tf_name}_motifs_tmp1.bed" \
-    -b "$maize_upstream_regions" \
-    -wa -wb -f 1 \
-    > "$intermed_dir/${tf_name}_motifs_tmp2.bed"
-  
-  # Convert to standard chromosome format using NCBI key
-  bash src/06_associationModeling/Convert_ncbi_format.sh \
-    "$intermed_dir/${tf_name}_motifs_tmp2.bed" \
-    output/feature_overlap/maize_ref/B73v5_ncbi_key.tsv \
-    > "output/feature_overlap/chip/${tf_name}/${tf_name}_motifs.bed"
-  
-  # Remove temporary files
-  rm "$intermed_dir/${tf_name}_motifs_tmp"*.bed 
-done
-
-###########################
-## 2. PREP UPSTREAM REGIONS
-###########################
-bash src/06_associationModeling/Convert_ncbi_format.sh \
+# Convert upstream region bed file to standard coords 
+bash src/06_featureOverlap/Convert_ncbi_format.sh \
   "$maize_upstream_regions" \
   output/feature_overlap/maize_ref/B73v5_ncbi_key.tsv \
   > output/feature_overlap/B73v5_500up_standardCoords.bed
 
-###########################
-## 3. PREP CHIP DATA
-###########################
+# Rename ChIP peak files for simplified parsing
 for tf in "${tfs[@]}"; do
   read tf_name motif chip1 chip2 <<< "$tf"
   cp "$chip_peak_dir/$chip1" "output/feature_overlap/chip/${tf_name}/${tf_name}_rep1_chip.bed"
   cp "$chip_peak_dir/$chip2" "output/feature_overlap/chip/${tf_name}/${tf_name}_rep2_chip.bed"
 done
 
-###########################
-## 4. IDENTIFY OGs with ChIP overlap
-###########################
+# Identify OGs with ChIP overlap (intersecting ChIP peak union)
 for tf in "${tfs[@]}"; do
   read tf_name motif chip1 chip2 <<< "$tf"
   echo "Processing ChIP peaks for $tf_name"

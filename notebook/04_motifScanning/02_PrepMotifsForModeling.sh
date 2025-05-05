@@ -8,7 +8,7 @@ mkdir -p $OG_dir/filtered_OGs_200assemblies
 
 echo "Step 1: Summarizing motifs across assemblies..."
 # Summarize motifs by orthogroup, parallelizing over assemblies
-parallel -j $threads "bash 03_motifScanning/src/SummarizeMotifsByOrthogroup.sh {} \
+parallel -j $threads "bash src/04_motifScanning/SummarizeMotifsByOrthogroup.sh {} \
    output/motifOutput/fimo/collapsed_5kbUpstream \
    output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG \
    output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG_500upstream_primaryAlignment \
@@ -29,9 +29,9 @@ parallel -j "$threads" --no-notice "grep -E '{}($| )' $OG_dir/mergedMotifCounts_
 find $OG_dir/summarized_by_OG/ -type f -size 0 -delete
 
 echo "Step 4: Filtering out poorly-represented OGs..."
-# Retain OGs with at least 200 taxa represented
 
-# Define the function to process each file
+## Retain OGs with at least 200 taxa represented
+# Define a function to filter out OGs with fewer than 200 taxa represented
 filter_by_assembly_representation() {
     file=$1
     OG_dir=$2
@@ -41,9 +41,9 @@ filter_by_assembly_representation() {
     fi
 }
 
-# Export function and variable for parallel
+# Export function and variable for use by parallel
 export -f filter_by_assembly_representation
 export OG_dir
 
-# Use GNU Parallel to process all files in the unfiltered/ directory
+# Process all files in the summarized_by_OG directory
 find "$OG_dir/summarized_by_OG/" -name 'OG*.txt' | parallel -j "$threads" filter_by_assembly_representation {} $OG_dir
