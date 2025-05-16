@@ -19,8 +19,8 @@ rootDir <- "/workdir/coh22/poaceae_tfbs/"
 metadata <- read.table(paste0(rootDir, "data/Poaceae_metadata_filtered_2025.04.16.tsv"), sep = "\t", header = T)
 env <- read.table(paste0(rootDir, "output/modelData/envData_759Poaceae_20240821.txt")) %>%
   mutate(assemblyID = rownames(.))
-phyloK <- read.table(paste0(rootDir, "output/modelData/phyloK_728Poaceae_astral_20250416.txt"))
-tree <- read.tree(paste0(rootDir, "output/modelData/PoaceaeTree_angiosperm353_astral3_filtered_20250416.nwk"))
+phyloK <- read.table(paste0(rootDir, "output/modelData/phyloK_728Poaceae_astral_20250407.txt"))
+tree <- read.tree(paste0(rootDir, "output/modelData/PoaceaeTree_angiosperm353_astral3_filtered_20250407.nwk"))
 colnames(phyloK) <- rownames(phyloK)
 ```
 
@@ -146,17 +146,19 @@ Run_MLMs_OrthoSpecific <- function(Kphylo, EnvTraitMatrix, motifMatList) {
 EnvTraitMatrix <- env[,286:295] # first 10 ePCs
 rownames(EnvTraitMatrix) <- env$assemblyID
 models_phyloK_envPC1.10_poaceae<- Run_MLMs_OrthoSpecific(phyloK, EnvTraitMatrix, mat.list)
-save(models_phyloK_envPC1.10_poaceae, file="/workdir/coh22/poaceae_tfbs/results/models/models_phyloK_envPC1.10_poaceae_astralV3.RData")
+save(models_phyloK_envPC1.10_poaceae, file="/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_astralV3.RData")
 ```
 
 
 ```{r}
 # Load models
 n_pc <- 10
-load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_1_5000.RData")
-load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_5001_15555.RData")
+load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_astralV3.RData")
+#load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_1_5000.RData")
+#load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_5001_15555.RData")
 
-cat_models <- c(models_phyloK_envPC1.10_poaceae_1_5000, models_phyloK_envPC1.10_poaceae_5001_15555) %>%
+cat_models <- models_phyloK_envPC1.10_poaceae %>%
+#cat_models <- c(models_phyloK_envPC1.10_poaceae_1_5000, models_phyloK_envPC1.10_poaceae_5001_15555) %>%
    lapply(unlist)
 
 model_output <- mclapply(cat_models, function(x) {
@@ -279,7 +281,7 @@ focal_ePC[order(focal_ePC$log10pval, decreasing = T),][1:100,] %>%
 
 #top_hits <- dplyr::filter(results_df, log10pval > 5) %>%
 #bin_length <- round(nrow(results_df) * 0.001) # top 0.1% of hits
-top_hits <- results_df[order(results_df$log10pval, decreasing = T),][1:1025,] %>%
+top_hits <- results_df[order(results_df$log10pval, decreasing = T),][1:nrow(sig_motif_ogs),] %>%
 #top_hits <- focal_ePC[order(focal_ePC$log10pval, decreasing = T),][1:100,] %>%
   left_join(OGkey)
 
@@ -290,7 +292,7 @@ write.csv(top_hits, "/workdir/coh22/poaceae_tfbs/results/models/top_hits_OGspeci
 
 Plot candidate motifs/OGs on phylogeny
 ``` {r}
-source("/workdir/coh22/poaceae_tfbs/src/09_envirotyping/PlotTraitsOnTree.R")
+source("/workdir/coh22/poaceae_tfbs/src/08_envirotyping/PlotTraitsOnTree.R")
 candidate.mat <- as.data.frame(mat.list["OG0018131"])
 
 env <- read.table("/workdir/coh22/poaceae_tfbs/output/modelData/envData_759Poaceae_20240821.txt") %>%

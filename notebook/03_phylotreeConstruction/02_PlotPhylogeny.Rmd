@@ -64,7 +64,7 @@ plotSimmap(simmap, colors = stateColors, fsize = 0.0000001, lwd = 3)
 
 Plot reconstructed env values (Mean annual temp)
 ``` {r}
-source(paste0(rootDir, "src/09_envirotyping/PlotTraitsOnTree.R"))
+source(paste0(rootDir, "src/08_envirotyping/PlotTraitsOnTree.R"))
 
 # Export to large PDF
 pdf("/workdir/coh22/poaceae_tfbs/output/env_phylogeny_without_labels.pdf", width = 8, height = 24)  # Adjust size as needed

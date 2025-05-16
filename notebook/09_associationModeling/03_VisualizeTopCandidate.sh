@@ -19,7 +19,7 @@ altMotifs="output/motifOutput/fimo/collapsed_5kbUpstream/MorexV3_pseudomolecules
 refMotifs="output/motifOutput/fimo/collapsed_5kbUpstream/ZS97RS3.bed"
 # Downloaded maize fasta and gff from MaizeGDB (B73 v5 with "chrX" notation)
 # Whole genome alignment to maize
-bash src/run_anchorwave.sh \
+bash src/09_associationModeling/run_anchorwave.sh \
     --reffa $refFasta \
     --refgff $refGFF \
     --altfa $altFasta \
@@ -42,11 +42,11 @@ samtools index output/candidate_visualization/$refName-$altName.bam
 
 ## Lift over motifs
 # Generate chain file for liftover
-g++ -o MAFInvert -fopenmp src/MAFInvert.cpp
+g++ -o MAFInvert -fopenmp src/09_associationModeling/MAFInvert.cpp
 ./MAFInvert -t $threads output/candidate_visualization/$refName-$altName.maf > output/candidate_visualization/$altName-$refName.maf
 rm MAFInvert # Remove compiled script
 
-g++ -o MAFtoChain -fopenmp src/MAFtoChain.cpp
+g++ -o MAFtoChain -fopenmp src/09_associationModeling/MAFtoChain.cpp
 ./MAFtoChain -t $threads output/candidate_visualization/$altName-$refName.maf  > output/candidate_visualization/$altName-$refName.chain
 rm MAFtoChain # Remove compiled script
 
@@ -68,7 +68,7 @@ awk 'NR==FNR { colColor[$2]=$1; colCode[$2]=$3; next } \
 rm  output/candidate_visualization/$altName-motifs-$refName-Liftover_tmp.bed
 
 # Convert ref motifs to proper format for visualization
-bash src/Convert_ncbi_format.sh \
+bash src/06_featureOverlap/Convert_ncbi_format.sh \
     $refMotifs \
     output/candidate_visualization/Os_Zs97_key.txt.tsv \
     > output/candidate_visualization/${refName}_motifs5kb_tmp.bed
@@ -80,7 +80,6 @@ awk 'NR==FNR { colColor[$2]=$1; colCode[$2]=$3; next } \
     output/candidate_visualization/${refName}_motifs5kb.bed
 
 rm  output/candidate_visualization/${refName}_motifs5kb_tmp.bed
- ### OLD
 
 
 

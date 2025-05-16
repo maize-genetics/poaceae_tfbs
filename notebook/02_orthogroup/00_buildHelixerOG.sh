@@ -18,7 +18,7 @@ orthofinder -t 20 -fg output/Results_Mar10 -M msa > output/orthoFinder_stdout.lo
 # run 07B_OGFilter.ipynb to do OG filtering
 # reconstruct ancestral sequence
 mkdir output/poaceaeHelixOGMSA_plusAnc
-cat output/poaceaeHelixerOG_filtered_v2.txt | parallel -j 35 'Rscript src/07_orthogroup/01_phangornAncestralSeqReconstruct_AA.R --input output/OrthoFinder/Results_Jun06/MultipleSequenceAlignments/{}.fa --output output/poaceaeHelixOGMSA_plusAnc/{}'
+cat output/poaceaeHelixerOG_filtered_v2.txt | parallel -j 35 'Rscript src/02_orthogroup/01_phangornAncestralSeqReconstruct_AA.R --input output/OrthoFinder/Results_Jun06/MultipleSequenceAlignments/{}.fa --output output/poaceaeHelixOGMSA_plusAnc/{}'
 
 # extract the ancestral sequence
 mkdir output/poaceaeHelixOG_ancSeq/

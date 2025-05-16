@@ -1,5 +1,5 @@
 #!/bin/bash
-# Processes motif bed files, subsetting to include only motif within a desired upstream distance
+# Processes motif bed files, subsetting to include only motifs within a desired upstream distance
 assemblyPath=$1
 motifDir=$2
 unfilt_interval_dir=$3
@@ -12,10 +12,10 @@ echo $assemblyID
 
 temp_dir=$(mktemp -d)
 # Extract upstream coordinates
-bash src/ExtractUpstreamCoords.sh $assemblyID $distance_upstream $genomeFileDir $unfilt_interval_dir $temp_dir T T
+bash src/04_motifScanning/ExtractUpstreamCoords.sh $assemblyID $distance_upstream $genomeFileDir $unfilt_interval_dir $temp_dir T T
 
-# Filter out intervals containing more than 10% N
-bash src/FilterRegionsContainingNs.sh $temp_dir/$assemblyID.bed $assemblyPath $filt_interval_dir/$assemblyID.bed 5 $assemblyID
+# Filter out intervals containing more than 5% N
+bash src/04_motifScanning/FilterRegionsContainingNs.sh $temp_dir/$assemblyID.bed $assemblyPath $filt_interval_dir/$assemblyID.bed 5 $assemblyID
 
 # Intersect motifs with upstream intervals, retaining only motifs completely contained within intervals
 bedtools intersect -a "$motifDir/$assemblyID.bed" -b "$filt_interval_dir/$assemblyID.bed" -wa -wb -f 1 | \

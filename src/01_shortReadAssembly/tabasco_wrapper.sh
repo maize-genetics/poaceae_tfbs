@@ -13,7 +13,7 @@ TRANSCRIPT_FILE=$2
 THRESHOLD=$3
 OUTPUT_DIR=$4
 
-perl src/00_shortReadAssembly/tabasco_pipeline.pl \
+perl src/01_shortReadAssembly/tabasco_pipeline.pl \
     $FASTA_FILE \
     $TRANSCRIPT_FILE \
     $THRESHOLD \
