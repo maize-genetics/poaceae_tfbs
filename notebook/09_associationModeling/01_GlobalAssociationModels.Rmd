@@ -1,0 +1,215 @@
+---
+title: "Run global association models"
+output: html_notebook
+---
+```{r, echo = F}
+knitr::opts_chunk$set(
+  fig.width = 10,  # Set the desired width
+  fig.height = 6,  # Set the desired height
+  dpi = 1000        # Set the resolution to 300 DPI
+)
+```
+
+```{r, echo = F}
+library(ggpubr)
+library(data.table)
+library(rstatix)
+library(parallel)
+library(qqman)
+library(knitr)
+library(doParallel)
+library(ape)
+library(pheatmap)
+library(ggridges)
+library(tidyverse)
+```
+
+```{r}
+# Load covariates
+rootDir= "/workdir/coh22/poaceae_tfbs/"
+# Load metadata
+metadata <- read.csv(paste0(rootDir, "data/Poaceae_metadata_2025.04.07_CH.csv"))
+
+# Load environmental data and add assemblyID
+env <- read.table(paste0(rootDir, "output/modelData/envData_759Poaceae_20240821.txt")) %>%
+  mutate(assemblyID = rownames(.))
+
+# Load phylogenetic kernel matrix
+phyloK <- read.table(paste0(rootDir, "output/modelData/phyloK_728Poaceae_astral_20250407.txt"))
+colnames(phyloK) <- rownames(phyloK)
+
+# Load phylogenetic tree
+tree <- read.tree(paste0(rootDir, "output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20250407.nwk"))
+
+# Load nucleotide frequencies
+nucFreqs <- read.csv(paste0(rootDir, "output/modelData/nucFreqs_shortIntrons.csv"))
+```
+
+``` {r}
+# Motifs
+source(paste0(rootDir, "src/07_motifTurnover/load_motif_data.R"))  # Adjust the filename as needed
+mat.list <- load_motif_data(
+  unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
+  cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
+  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies")
+)
+
+mats_to_df <- function(mat) {
+  mat <- as.data.frame(mat)
+  mat$assemblyID <- rownames(mat)
+  return(mat)
+}
+
+df.list <- lapply(mat.list, mats_to_df)
+# Combine into a single df
+combined_df <- rbindlist(df.list, use.names = TRUE, fill = TRUE)
+```
+
+``` {r}
+## Calculate motif occurrence rates for each assembly
+all.motifs.by.taxa <- split(combined_df, combined_df$assemblyID)
+og.counts <- lapply(all.motifs.by.taxa, nrow)
+
+calculateMotifOccurrenceRates <- function(mat, og.count) {
+  # Sum motifs across all orthogroups
+  sums <- colSums(mat[,1:(ncol(mat) - 1)], na.rm = TRUE) # for candidate list
+  # Divide by number of orthogroups represented in the assembly
+  occurrence.rates <- sums / og.count
+  # join with assemblyID
+  results <- c(mat$assemblyID[1], occurrence.rates)
+  results
+  names(results)[1] <- "assemblyID"
+  return(results)
+}
+
+all.motif.occurrence.list <- mapply(calculateMotifOccurrenceRates,  all.motifs.by.taxa, og.counts)
+all.motif.occurrence.rates <- as.data.frame(t(all.motif.occurrence.list)) 
+all.motif.occurrence.rates[,-1] <- sapply(all.motif.occurrence.rates[,-1], as.numeric)
+# Calculate overall motif density for each assembly
+motif.densities <- rowSums(all.motif.occurrence.rates[,2:ncol(all.motif.occurrence.rates)]) %>%
+  as.data.frame()
+motif.densities$assemblyID <- all.motif.occurrence.rates$assemblyID
+names(motif.densities)[1] <- "global.motif.density"
+rownames(motif.densities) <- motif.densities$assemblyID
+```
+
+``` {r}
+library(dplyr)
+library(asreml)
+library(data.table)
+library(ade4)
+library(factoextra)
+
+# Extract environmental PCs
+EnvTraitMatrix <- env[,286:295] # first 10 ePCs
+rownames(EnvTraitMatrix) <- env$assemblyID
+# Generate nucFreq PCs as covariates
+nucPC <- dudi.pca(nucFreqs[,-21], scannf = FALSE, nf = 20)
+fviz_eig(nucPC) # See how much variance is explained by each PC axis - first explains 70%, first five explain nearly all
+nucPCaxes <- nucPC$li[1:5]
+rownames(nucPCaxes) <- nucFreqs$assemblyID
+colnames(nucPCaxes) <- paste0("nucPC", 1:5)
+nucPCaxes$assemblyID <- nucFreqs$assemblyID
+
+# Find common taxa represented in motif, phyloK, and environment datasets
+common_rows <- base::intersect(rownames(all.motif.occurrence.rates), rownames(phyloK)) %>%
+  base::intersect(rownames(EnvTraitMatrix)) %>%
+  base::intersect(nucPCaxes$assemblyID)   %>%
+  sort()
+
+# Filter to retain taxa shared across datasets
+EnvTrait_filtered <- EnvTraitMatrix[common_rows,]
+all.motif.occurrence.rates.filtered <- all.motif.occurrence.rates[common_rows,]
+nucFreqs_filtered <- nucPCaxes[common_rows,]
+Kphylo_filtered <- phyloK[common_rows, common_rows]
+motif.densities_filtered <- motif.densities[common_rows,]
+
+input_mat <- as.data.frame(cbind(EnvTrait_filtered, all.motif.occurrence.rates.filtered)) %>%
+  left_join(nucFreqs_filtered) %>%
+  left_join(motif.densities)
+input_mat$assemblyID <- as.factor(rownames(all.motif.occurrence.rates.filtered))
+setnames(input_mat, gsub("-", "_", names(input_mat))) # Remove hyphens from motif names to enable parsing by model
+
+## Iterate over all motifs in matrix
+motifModels <- list()
+nMotifs <- ncol(all.motif.occurrence.rates.filtered) - 1
+n_traits <- ncol(EnvTraitMatrix)
+ePC_names <- colnames(EnvTraitMatrix)
+
+for(j in 1:nMotifs){
+  motifID <- colnames(input_mat)[j+1+n_traits]
+  # Run association model for each motif
+  formula_str <- paste(motifID, "~", paste(paste(ePC_names, collapse =" + "), collapse = " "), "+ global.motif.density + nucPC1 + nucPC2 + nucPC3 + nucPC4 + nucPC5", collapse = "")
+  formula_obj <- as.formula(formula_str)
+  model <- asreml(fixed = formula_obj, random = ~ vm(assemblyID, Kphylo_filtered), ai.sing = TRUE, data = input_mat)
+  # Extract model results
+  modelSummary <- summary(model)
+  loglik <- modelSummary$loglik
+  phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
+  modelWald <- wald.asreml(model)
+  env_coeffs <- model$coefficients$fixed[2:(1 + n_traits)]
+  env_pvals_log10p <- -(pchisq(modelWald[(2:(1 + n_traits)), 3], 1, log.p = TRUE, lower.tail = FALSE) / log(10))
+  motifModels[[j]] <- list(motifID, phylo_explained, env_coeffs, env_pvals_log10p)
+}
+
+
+# Extract p values
+model_output <- mclapply(motifModels, function(x) {
+  x <- unlist(x)
+  x <- t(x)
+  x <- as.data.frame(x)
+  names(x) <- c("motif", "phylo_explained", paste0("coef_ePC", 1:n_traits), paste0("log10pval_ePC", 1:n_traits))
+  return(x)
+}, mc.cores = detectCores() - 1)
+
+results <- rbindlist(model_output, fill = T)# %>%
+head(results)
+results_df <- results %>%
+  pivot_longer(
+    cols = starts_with("coef") | starts_with("log10pval"),
+    names_to = c(".value", "ePC"),
+    names_pattern = "(coef|log10pval)_ePC(\\d+)"
+  ) %>%
+  arrange(motif, ePC) %>%
+  as.data.frame() %>%
+  dplyr::filter(phylo_explained < 0.95)
+
+results_df[,c(2,4,5)] <- lapply(results_df[,c(2,4,5)], as.numeric)
+results_df$pval <- 10^(-results_df$log10pval)
+results_df$p.fdr <- p.adjust(results_df$pval, method = "fdr")
+sorted_results <- arrange(results_df, desc(log10pval))
+
+# Must supply named cols/rows with assembly IDs
+write.table(sorted_results, file="/workdir/coh22/poaceae_tfbs/results/models/model_globalOcc_envPC1.10.csv", sep = ",", quote = F, row.names = F)
+```
+
+# Plot QQ plot
+``` {r}
+PlotQQ <- function(df) {
+  # Create observed vs expected p values for plot
+  observed_pvals = sort(df$log10pval, decreasing = T)
+  observed_p.fdr = p.adjust(10^(-observed_pvals), method = "fdr")
+  expected_pvals = qunif(seq(0, 1, length.out = length(observed_pvals) + 2), min = 0, max = 1)  # Generate expected values. Note that we are using length+2
+  expected_pvals = expected_pvals[expected_pvals != 0 & expected_pvals != 1]  # Remove the two extra values since they are 0 and 1
+
+  p_df = data.frame(observed = observed_pvals,
+                    expected = -log10(expected_pvals),
+                    color = ifelse(observed_p.fdr < 0.01, "goldenrod1", "#2C7BB6"))  # Assign color based on p.fdr
+  
+  ggplot(p_df, aes(x = expected, y = observed, color = color)) +
+    geom_point(size = 7, alpha = 0.8) +  # Color determined by 'color' column
+    scale_color_identity() +  # Use color values directly
+    geom_abline(intercept = 0, slope = 1, color = '#D7191C', linetype = 'dashed', linewidth = 0.8) +  # Dashed red line representing y = x
+    labs(
+      x = expression("-log"[10]~"Expected p-value"),
+      y = expression("-log"[10]~"Observed p-value")
+    ) +
+    theme_minimal(base_size = 36) + 
+    theme(
+      axis.title = element_text(face = "bold"), 
+      panel.grid.major = element_line(linewidth = 0.5, color = 'grey80'),  # Light gray grid lines
+      panel.grid.minor = element_blank() 
+    )
+}
+PlotQQ(sorted_results)
+```

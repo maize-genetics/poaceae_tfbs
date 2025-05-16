@@ -1,5 +1,7 @@
-# Usage: bash script.sh <rawReadDir> <outputFile>
-# Define the parent directory and output file
+## This prepares a list file containing raw read paths used for Megahit assembly. Needed for input into assembly script.
+# Charlie Hale, March 2024
+# Usage: bash GeneratePathList.sh <rawReadDir> <outputFile>
+# Accept the parent directory and output file as arguments
 parent_dir=$1
 output_file=$2
 
