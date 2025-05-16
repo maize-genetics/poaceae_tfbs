@@ -1,5 +1,6 @@
 # poaceae_tfbs
 Evolution of cis-regulatory motifs across 589 grass species. Preprint here: https://www.biorxiv.org/content/10.1101/2025.04.23.650228v2
+Questions? Contact Charlie Hale (chale295 AT gmail DOT com)
 
 This repo contains code to reproduce all analyses in the manuscript. Here's what each subdirectory contains:
 
