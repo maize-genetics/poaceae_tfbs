@@ -1,0 +1,59 @@
+# Fetches genome assembly and bed files necessary to run motif enrichment analysis.
+# Charlie Hale, 2025.07.09
+
+#!/bin/bash
+mkdir -p output/motif_enrichment/{fastas,umrs_crisp2020,acrs_lu2019}/{fimo,beds}
+fasta_dir="data/genomes/motif_enrichment"
+mkdir -p $fasta_dir
+
+# Download genome FASTA files for each species
+function download_decmp() {
+  local url="$1"
+  local out_path="$2"
+  downloaded=0
+
+  if [ ! -f "$out_path" ]; then
+    echo "Downloading $url"
+    curl "$url" | gzip --stdout --decompress > "$out_path"
+    downloaded=1
+  else
+    echo "$out_path already exists, skipping"
+  fi
+}
+
+if [ ! -f $fasta_dir/Zea_mays.fa ]; then
+  curl "https://download.maizegdb.org/Zm-B73-REFERENCE-GRAMENE-4.0/Zm-B73-REFERENCE-GRAMENE-4.0.fa.gz" | gzip -cd | sed 's/^>Chr/>/' > $fasta_dir/Zea_mays.fa
+fi
+download_decmp "ftp://ftp.ensemblgenomes.org/pub/plants/release-42/fasta/hordeum_vulgare/dna/Hordeum_vulgare.IBSC_v2.dna.toplevel.fa.gz" "$fasta_dir/Hordeum_vulgare.fa"
+
+#TODO: code to download other genomes from JGI
+# S. bicolor v3.1.1
+# O. sativa v7.0
+# B. distachyon v3.1
+# H vulgare L. (ensembl v42)
+# Arabidopsis thaliana (TAIR10)
+# Setaria viridis (v1.0)
+
+# Download UMR intervals from supplementary data of Crisp et al 2020 (https://doi.org/10.1073/pnas.2010250117) 
+if [ ! -f output/motif_enrichment/umrs_crisp2020/beds/Zea_mays.bed ]; then
+  wget https://www.pnas.org/doi/suppl/10.1073/pnas.2010250117/suppl_file/pnas.2010250117.sd03.csv -O - | tail -n+2 | tr ',' $'\t' | cut -f1-3 > output/motif_enrichment/umrs_crisp2020/beds/Zea_mays.bed
+fi
+if [ ! -f output/motif_enrichment/umrs_crisp2020/beds/Brachypodium_distachyon.bed ]; then
+  wget https://www.pnas.org/doi/suppl/10.1073/pnas.2010250117/suppl_file/pnas.2010250117.sd10.csv -O - | tail -n+2 | tr ',' $'\t' | cut -f1-3 > output/motif_enrichment/umrs_crisp2020/beds/Brachypodium_distachyon.bed
+fi
+if [ ! -f output/motif_enrichment/umrs_crisp2020/beds/Hordeum_vulgare.bed ]; then
+  wget https://www.pnas.org/doi/suppl/10.1073/pnas.2010250117/suppl_file/pnas.2010250117.sd07.csv -O - | tail -n+2 | tr ',' $'\t' | cut -f1-3 > output/motif_enrichment/umrs_crisp2020/beds/Hordeum_vulgare.bed
+fi
+if [ ! -f output/motif_enrichment/umrs_crisp2020/beds/Oryza_sativa.bed ]; then
+  wget https://www.pnas.org/doi/suppl/10.1073/pnas.2010250117/suppl_file/pnas.2010250117.sd09.csv -O - | tail -n+2 | tr ',' $'\t' | cut -f1-3 > output/motif_enrichment/umrs_crisp2020/beds/Oryza_sativa.bed
+fi
+if [ ! -f output/motif_enrichment/umrs_crisp2020/beds/Sorghum_bicolor.bed ]; then
+  wget https://www.pnas.org/doi/suppl/10.1073/pnas.2010250117/suppl_file/pnas.2010250117.sd08.csv -O - | tail -n+2 | tr ',' $'\t' | cut -f1-3 > output/motif_enrichment/umrs_crisp2020/beds/Sorghum_bicolor.bed
+fi
+
+
+# Download ACR bed files from Lu et al 2019
+wget "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE128434&format=file&file=GSE128434%5FBED%5Ffiles%2Etar%2Egz" \
+  -O output/motif_enrichment/acrs_lu2019/beds/acrs_lu2019_beds.tar.gz
+tar -xzvf output/motif_enrichment/acrs_lu2019/beds/acrs_lu2019_beds.tar.gz -C output/motif_enrichment/acrs_lu2019/beds/
+gunzip output/motif_enrichment/acrs_lu2019/beds/*.gz
