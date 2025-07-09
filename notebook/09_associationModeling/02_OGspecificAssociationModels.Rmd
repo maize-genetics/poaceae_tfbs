@@ -20,7 +20,7 @@ metadata <- read.table(paste0(rootDir, "data/Poaceae_metadata_filtered_2025.04.1
 env <- read.table(paste0(rootDir, "output/modelData/envData_759Poaceae_20240821.txt")) %>%
   mutate(assemblyID = rownames(.))
 phyloK <- read.table(paste0(rootDir, "output/modelData/phyloK_728Poaceae_astral_20250407.txt"))
-tree <- read.tree(paste0(rootDir, "output/modelData/PoaceaeTree_angiosperm353_astral3_filtered_20250407.nwk"))
+tree <- read.tree(paste0(rootDir, "output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20250407.nwk"))
 colnames(phyloK) <- rownames(phyloK)
 ```
 
@@ -153,12 +153,12 @@ save(models_phyloK_envPC1.10_poaceae, file="/workdir/coh22/poaceae_tfbs/output/m
 ```{r}
 # Load models
 n_pc <- 10
-load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_astralV3.RData")
-#load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_1_5000.RData")
-#load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_5001_15555.RData")
+#load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_astralV3.RData")
+load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_1_5000.RData")
+load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_5001_15555.RData")
 
-cat_models <- models_phyloK_envPC1.10_poaceae %>%
-#cat_models <- c(models_phyloK_envPC1.10_poaceae_1_5000, models_phyloK_envPC1.10_poaceae_5001_15555) %>%
+#cat_models <- models_phyloK_envPC1.10_poaceae %>%
+cat_models <- c(models_phyloK_envPC1.10_poaceae_1_5000, models_phyloK_envPC1.10_poaceae_5001_15555) %>%
    lapply(unlist)
 
 model_output <- mclapply(cat_models, function(x) {
@@ -211,6 +211,17 @@ ggplot(results_df, aes(x = factor(ePC), y = log10pval)) +
     y = "-log10(p)"
   ) +
   theme_minimal()
+
+percentiles <- cut(results_df$pval, breaks = seq(0, 1, by = 0.001), include.lowest = TRUE, right = FALSE)
+
+# Tabulate and plot
+barplot(table(percentiles), main = "P-Value Distribution (OG-specific motif occurrence)", xlab = "Per mille", ylab = "Count")
+
+chisq_vals <- qchisq(1 - results_df$pval, df = 1)
+
+# Calculate lambda
+lambda_gc <- median(chisq_vals) / qchisq(0.5, df = 1)
+
 ```
 
 Function to make QQ plot 
@@ -347,6 +358,7 @@ process_topGO <- function(ontology, allGenes, GODB, top_ogs, mappingFile) {
   # Filtering and transformation
   significant_results <- GO_res_table_df %>%
     #mutate(Fisher.FDR = p.adjust(as.numeric(pval), method = "fdr")) %>%
+    mutate(pval = as.numeric(as.character(pval))) %>%   # make sure it’s numeric
     filter(pval < 0.05) %>%
     mutate(neglog10Fisher = -log10(as.numeric(pval))) %>%
     arrange(desc(neglog10Fisher))

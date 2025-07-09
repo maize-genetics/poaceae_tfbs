@@ -103,7 +103,7 @@ parallel -j $nthreads "
       --skip-matched-sequence \
       --text \
       --o output/motifOutput/fimo/tmp/{/.} \
-      --max-stored-scores 10000000 \
+      --max-stored-scores 1000000000000 \
       $filtered_meme_file \
       {} > output/motifOutput/fimo/uncollapsed_5kbUpstream/{/.}.tsv;
     if [ \$? -ne 0 ]; then

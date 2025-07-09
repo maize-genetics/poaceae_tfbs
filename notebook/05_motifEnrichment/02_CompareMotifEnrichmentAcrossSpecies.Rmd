@@ -15,8 +15,11 @@ library(UpSetR)
 
 # Load JASPAR motif metadata
 ``` {r}
+grass_taxa <- c("Zea mays", "Hordeum vulgare", "Triticum aestivum", "Oryza sativa Japonica Group", "Oryza sativa Indica Group", "Oryza sativa") # to subset motifs that were characterized in grasses
 plant_motif_key <- read.table("/workdir/coh22/poaceae_tfbs/data/JASPAR2024_CORE_plants_nr_PFM_key.txt", header = T, sep = "\t") %>%
-  dplyr::rename(motif_id = MatrixID)
+  dplyr::rename(motif_id = MatrixID) #%>%
+  #dplyr::filter(!SpeciesName %in% grass_taxa)
+  # retain only motifs characterized in grasses
 plant_motif_list <- dplyr::select(plant_motif_key, motif_id)
 ```
 
@@ -83,7 +86,10 @@ combined_df <- bind_rows(df_list)
 
 wide_df <- combined_df %>%
   dplyr::select(motif_id, species, fold_change) %>%
-  pivot_wider(names_from = species, values_from = fold_change)
+  pivot_wider(names_from = species, values_from = fold_change) %>%
+  as.data.frame()
+rownames(wide_df) <- wide_df$motif_id
+wide_df <- dplyr::select(wide_df, -motif_id)
 
 cor_matrix <- cor(wide_df[, -1], use = "pairwise.complete.obs")
 
@@ -101,6 +107,7 @@ sorghum_enriched <- filter_sig_enriched(sorghum)
 rice_enriched <- filter_sig_enriched(rice)
 maize_enriched <- filter_sig_enriched(maize)
 barley_enriched <- filter_sig_enriched(barley)
+
 ```
 
 # Upset plot of enriched motifs across species
@@ -126,8 +133,7 @@ upset(upset_data, order.by = "freq", nsets = 4, keep.order = T, text.scale = 2.5
 ```
 
 ``` {r}
-orig_intersection <- Reduce(intersect, list(rice_enriched$motif_id, sorghum_enriched$motif_id, brachy_enriched$motif_id))
-length(unique(c(rice_enriched$motif_id, sorghum_enriched$motif_id, brachy_enriched$motif_id, maize_enriched$motif_id, barley_enriched$motif_id)))
+superset_enriched <- unique(c(rice_enriched$motif_id, sorghum_enriched$motif_id, brachy_enriched$motif_id, maize_enriched$motif_id, barley_enriched$motif_id))
 intersection <- Reduce(intersect, list(rice_enriched$motif_id, sorghum_enriched$motif_id, brachy_enriched$motif_id, maize_enriched$motif_id, barley_enriched$motif_id))
 
 write.table(intersection, 
@@ -141,6 +147,71 @@ unenriched.clusters <- setdiff(all.clusters, enriched.clusters)
 
 write.table(unenriched.clusters, "/workdir/coh22/poaceae_tfbs/lists/unenriched_clusters.txt",
             quote = F, col.names = F, row.names = F)
+
+```
+
+Look into motifs that are enriched in at least one species, but not all
+``` {r}
+unshared.enrich.ids <- superset_enriched[!superset_enriched %in% intersection] # get this set
+# Which motifs are these?
+unshared.enrich <- dplyr::filter(plant_motif_key, motif_id %in% unshared.enrich.ids)
+unshared.enrich.names <- unshared.enrich$Name
+# See how similar enrichment values are for these across species
+unshared.enrich.vals <- wide_df[unshared.enrich.ids,]
+rownames(unshared.enrich.vals) <- unshared.enrich.names
+log_matrix <- log2(unshared.enrich.vals)
+
+# Plot with fixed log10 scale
+pheatmap(t(log_matrix),
+         cluster_rows = T,
+         cluster_cols = T,
+         show_rownames = T,
+         scale = "none",
+         color = colorRampPalette(c("blue", "white", "red"))(100),
+        breaks = seq(-1, 1, length.out = 101), 
+        xlab = "Motif name",
+        ylab = "UMR enrichment (log2)",
+        main = "Motifs with lineage-specific UMR enrichment (log2 FC values)")
+```
+# Look into significantly depleted motifs
+``` {r}
+filter_sig_depleted <- function(df) {
+  dplyr::filter(df, fold_change < 1, p.fdr < 0.01)
+}
+
+brachy_depleted <- filter_sig_depleted(brachy)
+sorghum_depleted <- filter_sig_depleted(sorghum)
+rice_depleted <- filter_sig_depleted(rice)
+maize_depleted <- filter_sig_depleted(maize)
+barley_depleted <- filter_sig_depleted(barley)
+
+depleted.intersection <- Reduce(intersect, list(rice_depleted$motif_id, sorghum_depleted$motif_id, brachy_depleted$motif_id, maize_depleted$motif_id, barley_depleted$motif_id))
+
+depleted.motifs <- dplyr::filter(plant_motif_key, motif_id %in% depleted.intersection) %>%
+  left_join(wide_df) %>%
+  dplyr::filter(SpeciesName %in% grass_taxa)
+```
+
+``` {r}
+# Data with ordered factor
+df <- data.frame(
+  Group = rep(c("Ground truth functional grass motifs", "Non-grass motifs"), each = 3),
+  Category = factor(rep(c("Enriched", "Depleted", "Neither/Mixed"), times = 2),
+                    levels = c("Neither/Mixed", "Depleted", "Enriched")),
+  Percent = c(76, 12, 12, 49.8, 25.3, 24.9)
+)
+
+# Plot
+ggplot(df, aes(x = Group, y = Percent, fill = Category)) +
+  geom_bar(stat = "identity", width = 0.6) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1), expand = c(0, 0)) +
+  labs(x = NULL, y = "Percentage") +
+  scale_fill_manual(values = c("Enriched" = "#4E79A7", 
+                               "Depleted" = "#E15759", 
+                               "Neither/Mixed" = "#BAB0AC")) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "right",
+        panel.grid.major.x = element_blank())
 ```
 
 ## Compare with ACR enrichment

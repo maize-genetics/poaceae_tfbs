@@ -387,8 +387,8 @@ mutate(V1=sapply(V1, function(x) strsplit(x, "_")[[1]][1]))
 
 # For background genes, use OGs in analysis that were not in the focal quartile
 all_ogs <- unique(mappingFile[mappingFile[,2]%in%mean_cons$OG,1]) 
-#top_ogs = unique(mappingFile[mappingFile[,2]%in%least_conserved$OG,1])
-top_ogs = unique(mappingFile[mappingFile[,2]%in%most_conserved$OG,1])
+top_ogs = unique(mappingFile[mappingFile[,2]%in%least_conserved$OG,1])
+#top_ogs = unique(mappingFile[mappingFile[,2]%in%most_conserved$OG,1])
 GODB <- readMappings(paste0(rootDir, "output/go_enrichment/Zm00001eb.1.fulldata_goList.txt"),IDsep = ",")
 background = intersect(names(GODB),all_ogs) 
 tmp=factor(as.integer(background%in%top_ogs))
@@ -411,6 +411,7 @@ process_topGO <- function(ontology, allGenes, GODB, top_ogs, mappingFile) {
   # Filtering and transformation
   significant_results <- GO_res_table_df %>%
     #mutate(Fisher.FDR = p.adjust(as.numeric(pval), method = "fdr")) %>% # Multiple test correction not recommended for weight01 algorithm
+    mutate(pval = as.numeric(as.character(pval))) %>%   # make sure it’s numeric
     filter(pval < 0.05) %>%
     mutate(neglog10Fisher = -log10(as.numeric(pval))) %>%
     arrange(desc(neglog10Fisher))

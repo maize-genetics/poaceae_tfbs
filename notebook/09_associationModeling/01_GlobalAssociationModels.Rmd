@@ -28,7 +28,7 @@ library(tidyverse)
 # Load covariates
 rootDir= "/workdir/coh22/poaceae_tfbs/"
 # Load metadata
-metadata <- read.csv(paste0(rootDir, "data/Poaceae_metadata_2025.04.07_CH.csv"))
+metadata <- read.csv(paste0(rootDir, "data/Poaceae_metadata_filtered_2025.04.16.tsv"))
 
 # Load environmental data and add assemblyID
 env <- read.table(paste0(rootDir, "output/modelData/envData_759Poaceae_20240821.txt")) %>%
@@ -185,6 +185,8 @@ write.table(sorted_results, file="/workdir/coh22/poaceae_tfbs/results/models/mod
 
 # Plot QQ plot
 ``` {r}
+sorted_results <- read.table("/workdir/coh22/poaceae_tfbs/results/models_astralV2/model_globalOcc_envPC1.10.csv",header = TRUE, sep = ",")
+
 PlotQQ <- function(df) {
   # Create observed vs expected p values for plot
   observed_pvals = sort(df$log10pval, decreasing = T)
@@ -212,4 +214,18 @@ PlotQQ <- function(df) {
     )
 }
 PlotQQ(sorted_results)
+```
+Quantify inflation
+``` {r}
+# Cut into percentiles
+percentiles <- cut(sorted_results$pval, breaks = seq(0, 1, by = 0.01), include.lowest = TRUE, right = FALSE)
+
+# Tabulate and plot
+barplot(table(percentiles), main = "P-Value Distribution by Percentile (Global motif occurrence)", xlab = "Percentile", ylab = "Count")
+
+chisq_vals <- qchisq(1 - sorted_results$pval, df = 1)
+
+# Calculate lambda
+lambda_gc <- median(chisq_vals) / qchisq(0.5, df = 1)
+
 ```
