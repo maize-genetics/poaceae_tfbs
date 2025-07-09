@@ -24,4 +24,7 @@ This repo contains code to reproduce all analyses in the manuscript. Here's what
 
 09_associationModeling: Runs motif-environment association models across species, calculate GO enrichments for top orthogroups, then plots top candidates.
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2e38735 (2025.07.09b)
