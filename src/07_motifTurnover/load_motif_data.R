@@ -19,7 +19,6 @@ load_motif_data <- function(unenriched_clusters_path, cluster_meta_path, motifs_
   n_ortho <- sum(file.info(files)$isdir == FALSE)
   
   # Parallel processing
-  # Parallel processing
 cl <- makeCluster(detectCores())
 clusterExport(cl, varlist = c("files", "n_ortho", "cluster.meta"), envir = environment())
   
@@ -27,8 +26,7 @@ clusterExport(cl, varlist = c("files", "n_ortho", "cluster.meta"), envir = envir
     library(data.table)
     library(dplyr)
     library(tidyr)
-    
-    motifCounts <- fread(files[[i]]) %>%
+    motifCounts <- fread(files[[i]], sep = " ") %>%
       dplyr::select(c(cluster = V2, ogID = V3, motifCount = V4, assemblyID = V5)) %>%
       dplyr::left_join(cluster.meta) %>%
       dplyr::select(-cluster) %>%

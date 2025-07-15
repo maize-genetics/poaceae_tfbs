@@ -58,7 +58,7 @@ for file in "$workDir/$fileID"/*.bed; do
   bedtools groupby -g 1,7 -c 2,3,4,5,6 -o min,max,collapse,first,max > "${file%.bed}_clustered_grouped.bed" # Take max score for each overlapping interval
 done
 cat $workDir/$fileID/*_clustered_grouped.bed |
-awk -F '\t' -v OFS='\t' '{print $1, $3, $4, $5, $6, $7}' > "$collapsed_motifs"
+awk -F '\t' -v OFS='\t' '{ if ($7 > 0) print $1, $3, $4, $5, $6, $7 }' > "$collapsed_motifs" # Filter out negative scores
 cat $collapsed_motifs
 
 # Clean up temporary files

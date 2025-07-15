@@ -28,7 +28,7 @@ source(paste0(rootDir, "src/07_motifTurnover/load_motif_data.R"))  # Adjust the 
 mat.list <- load_motif_data(
   unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
   cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
-  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies")
+  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG")
 )
 ```
 Calculate % motifs in focal assembly retained in comparison assembly
@@ -218,7 +218,7 @@ prepped.ogs <- mclapply(pct_conserved_by_gene, prep_dfs_by_og, mc.cores = detect
 
 # Fit neg. exponential models across each OG
 nls.models.by.gene.list <- mclapply(prepped.ogs, fit_nls, mc.cores = detectCores() - 1) 
-sum(is.na(nls.models.by.gene.list)) # 65 OGs failed to converge
+sum(is.na(nls.models.by.gene.list)) # 77 OGs failed to converge
 
 # Consolidate results into a single df
 nls.models.by.gene <- do.call(rbind, nls.models.by.gene.list)  %>%
@@ -273,7 +273,7 @@ stacked_curves <- ggplot(curves_long, aes(x = x, y = y, group = OG)) +
   stat_summary(fun = median, geom = "line", aes(group = 1), color = "darkblue", size = 2) +  # Emphasize the median curve
   labs(
     x = "Genetic Distance vs Maize",
-    y = "% TF Motifs Conserved"
+    y = "% TF Motifs Retained or Regained"
   ) +
   ylim(0, 100) +
   theme_bw() +
@@ -294,7 +294,7 @@ layered_plot <- stacked_curves +
     yintercept = mean.cross.gene.pct_shared * 100,
     linetype = "dashed",
     color = "darkgreen",
-    linewidth = 2
+    linewidth = 1
   ) +
   xlim(0, 0.25)
 
@@ -305,11 +305,13 @@ layered_plot
 Investigate OGs with highest and lowest motif conservation
 ``` {r}
 # Annotate OGs with gene descriptions from maizeGDB
-maize_gene_desc <- read.table(paste0(rootDir, "output/go_enrichment/B73_DE.out"), sep = "\t", header = T) %>%
+maize_gene_desc <- read.table(paste0(rootDir, "output/go_enrichment/B73_DE.out"), sep = "\t", header = TRUE, quote="", fill=TRUE) %>%
   dplyr::select(c(qpid, desc)) %>%
   mutate(ZmID = sapply(qpid, function(x) strsplit(x, "_")[[1]][1])) %>%
   group_by(ZmID) %>%
-  dplyr::summarise(desc = paste(unique(desc), collapse = "; "))
+  dplyr::summarise(desc = paste(unique(desc), collapse = "; ")) %>%
+  mutate(desc = str_replace(desc, "\t", ";"))
+
 OGkey <- read.table(paste0(rootDir, "output/ogs/OGToZm_mapping_v2.txt")) %>%
   dplyr::rename(c(ZmID = V1, OG = V2)) %>%
   mutate(ZmID = sapply(ZmID, function(x) strsplit(x, "_")[[1]][1])) %>%
@@ -326,6 +328,13 @@ mean_cons <- apply(combined_results, 2, function(x) mean(x, na.rm = TRUE)) %>%
   mutate(OG = rownames(.)) %>%
   left_join(OGkey)
 
+asymp_shared <- nls.models.by.gene %>%
+  dplyr::select(c(OG, asymp_shared = c_global)) %>%
+  left_join(OGkey) %>%
+  dplyr::filter(asymp_shared > 0.01)
+most_conserved <- asymp_shared[order(asymp_shared$asymp_shared, decreasing = T),][1:bin_length,]
+least_conserved <- asymp_shared[order(asymp_shared$asymp_shared, decreasing = F),][1:bin_length,]
+
 # Subset OGs with highest and lowest motif conservation
 bin_length <- round(nrow(mean_cons) * 0.25) # Choose a percentile (we used 25%)
 most_conserved <- mean_cons[order(mean_cons$mean_pct_conserved, decreasing = T),][1:bin_length,]
@@ -336,12 +345,12 @@ Visualize some of these
 ``` {r}
 # Some genes to look at: tb1(OG0007178), EREB138 (OG0001892), dwarf8(OG0009932), dof2 (OG0002450), tbp2 (OG0001180), GATA13 (OG0006101), PEP2(OG0020208),
 # Lowly-conserved: Glutamine synthase 4 (OG0017637), SOD2(OG0003730)
-indiv_gene <- pct_conserved_by_gene[["OG0020208"]]
+indiv_gene <- pct_conserved_by_gene[["OG0026611"]]
 merged_df_indiv_gene <- merge(indiv_gene, merged_df, by = "row.names") %>%
   na.omit() %>%
   dplyr::select(assemblyID = Row.names, indiv_gene_pct_motifs_conserved = x, global_pct_motifs_conserved = pct_motifs_conserved, genDist = focal_dist)
 
-nls_model_indiv <- fit_nls(prepped.ogs[["OG0020208"]])
+nls_model_indiv <- fit_nls(prepped.ogs[["OG0026611"]])
 
 # View model coefficients
 nls_model_indiv
@@ -386,9 +395,10 @@ mappingFile = read.table(paste0(rootDir, "output/ogs/OGToZm_mapping_v2.txt")) %>
 mutate(V1=sapply(V1, function(x) strsplit(x, "_")[[1]][1]))
 
 # For background genes, use OGs in analysis that were not in the focal quartile
-all_ogs <- unique(mappingFile[mappingFile[,2]%in%mean_cons$OG,1]) 
-top_ogs = unique(mappingFile[mappingFile[,2]%in%least_conserved$OG,1])
-#top_ogs = unique(mappingFile[mappingFile[,2]%in%most_conserved$OG,1])
+#all_ogs <- unique(mappingFile[mappingFile[,2]%in%mean_cons$OG,1])
+all_ogs <- unique(mappingFile[mappingFile[,2]%in%asymp_shared$OG,1])
+#top_ogs = unique(mappingFile[mappingFile[,2]%in%least_conserved$OG,1])
+top_ogs = unique(mappingFile[mappingFile[,2]%in%most_conserved$OG,1])
 GODB <- readMappings(paste0(rootDir, "output/go_enrichment/Zm00001eb.1.fulldata_goList.txt"),IDsep = ",")
 background = intersect(names(GODB),all_ogs) 
 tmp=factor(as.integer(background%in%top_ogs))
@@ -438,18 +448,18 @@ View(merged_results_most_conserved[,c(2,3,4,5,6,8,10)])
 top_terms <- merged_results_most_conserved[1:10,] # 10 most significant terms for ploting
 top_terms$Term <- sapply(top_terms$Term, function(x) substr(x, 1, 30)) # Truncate terms to make plotting prettier
 # Create the bubble plot
-ggplot(top_terms, aes(
+go_plot <- ggplot(top_terms, aes(
   x = neglog10Fisher, 
   y = reorder(Term, neglog10Fisher), 
   size = Significant, 
   color = enrichment
 )) +
   geom_point(alpha = 0.7) +
-  scale_x_continuous(limits = c(2, 4)) +
-  scale_color_gradient(low = "red", high = "blue", limits = c(0.8, 4)) +
+  scale_x_continuous(limits = c(2.5, 6)) +
+  scale_color_gradient(low = "red", high = "blue", limits = c(1, 4)) +
   scale_size(range = c(5, 20)) + 
   labs(
-    title = "GO enrichment for 25% least conserved genes",
+    title = "Functional enrichment for genes in the bottom quartile of shared motif occupancy",
     x = "-log10(p)", 
     y = NULL,
     size = "Significant",
@@ -465,37 +475,43 @@ ggplot(top_terms, aes(
     panel.grid.major.y = element_line(size = 0.5, color = "grey80"),
     plot.title = element_text(hjust = 0.5, size = 14))
 
+go_plot
 # Write all sig results to table
-write.csv(merged_results_most_conserved[,c(2,3,4,5,6,8,10)], "/workdir/coh22/poaceae_tfbs/results/GO_high_conservation.csv", quote = F, row.names = F)
-#write.csv(merged_results_least_conserved[,c(2,3,4,5,6,8,10)], "/workdir/coh22/poaceae_tfbs/results/GO_low_conservation.csv", quote = F, row.names = F)
+#write.csv(merged_results_most_conserved[,c(2,3,4,5,6,8,10)], "/workdir/coh22/poaceae_tfbs/results/GO_high_conservation.csv", quote = F, row.names = F)
+#write.csv(merged_results_most_conserved[,c(2,3,4,5,6,8,10)], "/workdir/coh22/poaceae_tfbs/results/GO_low_conservation.csv", quote = F, row.names = F)
 ```
 
 Compare turnover of TFs with non-TFs (maize TFs from Grassius: https://grassius.org/download_species_gene_list/Maize/v5) 
 ``` {r}
 library(ggridges)
-tf_ogs <- read.table(paste0(rootDir, "output/turnover_analysis/tf_turnover/TF_OGs.txt")) %>%
+tf_ogs <- read.table(paste0(rootDir, "output/turnover_analysis/TF_OGs.txt")) %>%
   dplyr::select(OG=V2)
 tf.og.ids <- tf_ogs$OG[tf_ogs$OG %in% names(mat.list)]
-tf.genes <- filter(mean_cons, OG %in% tf.og.ids)
+#tf.genes <- filter(mean_cons, OG %in% tf.og.ids)
+tf.genes <- filter(asymp_shared, OG %in% tf.og.ids)
 tf.genes$og.class <- "TF"
-background.genes <- filter(mean_cons, !OG %in% tf.og.ids)
+#background.genes <- filter(mean_cons, !OG %in% tf.og.ids)
+background.genes <- filter(asymp_shared, !OG %in% tf.og.ids)
 background.genes$og.class <- "non-TF"
 merged.turnover <- rbind(background.genes,tf.genes)
 
 # Perform t test for difference in means
-test <- t.test(filter(merged.turnover, og.class == "non-TF")$mean_pct_conserved, filter(merged.turnover, og.class == "TF")$mean_pct_conserved, var.equal = TRUE)
-
+#test <- t.test(filter(merged.turnover, og.class == "non-TF")$mean_pct_conserved, filter(merged.turnover, og.class == "TF")$mean_pct_conserved, var.equal = TRUE)
+test <- t.test(filter(merged.turnover, og.class == "non-TF")$asymp_shared, filter(merged.turnover, og.class == "TF")$asymp_shared, var.equal = TRUE)
 # Perform K-S test for difference in distributions
-ks.test <- ks.test(tf.genes$mean_pct_conserved, background.genes$mean_pct_conserved)
+#ks.test <- ks.test(tf.genes$mean_pct_conserved, background.genes$mean_pct_conserved)
+ks.test <- ks.test(tf.genes$asymp_shared, background.genes$asymp_shared)
 
 # Ridgeline plot
-means <- aggregate(mean_pct_conserved ~ og.class, data = merged.turnover, mean)
-
+#means <- aggregate(mean_pct_conserved ~ og.class, data = merged.turnover, mean)
+means <- aggregate(asymp_shared ~ og.class, data = merged.turnover, mean)
 # Plot density comparison with mean lines
-tf_nonTF <- ggplot(merged.turnover, aes(x = mean_pct_conserved, fill = og.class)) +
+tf_nonTF <- ggplot(merged.turnover, aes(x = asymp_shared, fill = og.class)) +
+#tf_nonTF <- ggplot(merged.turnover, aes(x = mean_pct_conserved, fill = og.class)) +
   geom_density(alpha = 0.3) + 
   scale_fill_manual(values = c("purple", "lightgreen")) +  
-  geom_vline(data = means, aes(xintercept = mean_pct_conserved, color = og.class),
+  #geom_vline(data = means, aes(xintercept = mean_pct_conserved, color = og.class),
+  geom_vline(data = means, aes(xintercept = asymp_shared, color = og.class),
              linetype = "dotted", size = 2) +  # dotted mean lines
   scale_color_manual(values = c("mediumpurple4", "darkgreen"), guide = "none") + 
   labs(
@@ -517,7 +533,7 @@ View(tf.genes)
 # TF vs non-TF conservation comparison for maize vs sorghum syntenic OGs
  # This is just comparating the maize vs sorghum conservation values, not the mean conservation across all assemblies like in the previous analysis
 ``` {r}
-syntenic_ogs <- read.table(paste0(rootDir, "output/turnover_analysis/syntenic_only/ZmSb_syntenicOGs.txt")) %>%
+syntenic_ogs <- read.table(paste0(rootDir, "output/turnover_analysis/ZmSb_syntenicOGs.txt")) %>%
   dplyr::select(OG=V2)
 syntenic_tfs <- intersect(tf_ogs$OG, syntenic_ogs$OG)
 syntenic.bkg <- syntenic_ogs$OG[!syntenic_ogs$OG %in% syntenic_tfs]
@@ -568,9 +584,10 @@ cds.conservation <- fread(paste0(rootDir, "output/ogs/distToB73_Charlie.txt")) %
 mean.cds.conservation <- cds.conservation %>%
   group_by(OG) %>%
   dplyr::summarize(mean_cds_conservation = mean(cds_conservation, na.rm = TRUE))
-
-motif_vs_cds_cons <- left_join(mean_cons, mean.cds.conservation) %>%
-  dplyr::rename(mean_motif_conservation = mean_pct_conserved) %>%
+motif_vs_cds_cons <- left_join(asymp_shared, mean.cds.conservation) %>%
+#motif_vs_cds_cons <- left_join(mean_cons, mean.cds.conservation) %>%
+  #dplyr::rename(mean_motif_conservation = mean_pct_conserved) %>%
+  dplyr::rename(mean_motif_conservation = asymp_shared) %>%
   dplyr::filter(mean_cds_conservation > 0.7) # Remove outlier OGs with low mean CDS conservation
 plot(motif_vs_cds_cons$mean_cds_conservation, motif_vs_cds_cons$mean_motif_conservation)
 

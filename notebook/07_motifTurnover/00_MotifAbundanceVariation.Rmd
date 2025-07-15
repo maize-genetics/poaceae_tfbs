@@ -22,7 +22,7 @@ source("/workdir/coh22/poaceae_tfbs/src/07_motifTurnover/load_motif_data.R")
 mat.list <- load_motif_data(
   unenriched_clusters_path = "/workdir/coh22/poaceae_tfbs/lists/unenriched_clusters.txt",
   cluster_meta_path = "/workdir/coh22/poaceae_tfbs/data/JASPAR2024_SummarizedClusters.txt",
-  motifs_dir = "/workdir/coh22/poaceae_tfbs/output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies"
+  motifs_dir = "/workdir/coh22/poaceae_tfbs/output/motifOutput/motifs_by_orthogroup/summarized_by_OG"
 )
 
 mats_to_df <- function(mat) {
@@ -110,7 +110,7 @@ p <- ggplot(results, aes(x = Median, y = Coefficient_of_Variation, label = Motif
   ylim(0, 0.15) + 
   theme_minimal(base_size = 24) + 
   labs(
-    x = "Median Occurrence Rate (per 500bp upstream region)",
+    x = "Median Occurrence Rate (per 1000bp upstream region)",
     y = "Coefficient of Variation"
   ) +
   theme(

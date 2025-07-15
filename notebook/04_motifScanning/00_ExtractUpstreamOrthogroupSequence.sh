@@ -21,6 +21,11 @@ cat lists/longreads.txt lists/shortreads.txt > lists/assembly_list.txt
 
 nJobs=$((threads / 40))
 # Miniprot alignments were run on SciNet using 02_orthogroup/02_miniprotQuery.sh
+
+# Index fastas
+echo "Indexing fastas..."
+parallel -j "$threads" "samtools faidx {}" :::: lists/assembly_list.txt
+
 #Filter to retain  alignments without stop codons or frameshifts
 echo "Filtering miniprot alignments..."
 parallel -j "$threads" "grep mRNA output/miniProt_alignments/unfiltered/{/.}.gff | grep -v -e 'StopCodon=1;' -e 'Frameshift=1;' | sort | uniq > output/miniProt_alignments/filtered_mRNA_stop_frameshift/{/.}.gff" :::: lists/assembly_list.txt

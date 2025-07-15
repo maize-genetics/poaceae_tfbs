@@ -8,7 +8,6 @@ library(tidyverse)
 library(data.table)
 library(rstatix)
 library(parallel)
-library(qqman)
 library(doParallel)
 library(ape)
 ```
@@ -18,7 +17,8 @@ library(ape)
 rootDir <- "/workdir/coh22/poaceae_tfbs/"
 metadata <- read.table(paste0(rootDir, "data/Poaceae_metadata_filtered_2025.04.16.tsv"), sep = "\t", header = T)
 env <- read.table(paste0(rootDir, "output/modelData/envData_759Poaceae_20240821.txt")) %>%
-  mutate(assemblyID = rownames(.))
+  mutate(assemblyID = rownames(.)) %>%
+  dplyr::filter(assemblyID %in% metadata$assemblyID)
 phyloK <- read.table(paste0(rootDir, "output/modelData/phyloK_728Poaceae_astral_20250407.txt"))
 tree <- read.tree(paste0(rootDir, "output/modelData/PoaceaeTree_angiosperm353_astral_filtered_20250407.nwk"))
 colnames(phyloK) <- rownames(phyloK)
@@ -27,11 +27,6 @@ colnames(phyloK) <- rownames(phyloK)
 Calculate environmental residuals for ePC1 after controlling for phylogeny
 ``` {r}
 library(asreml)
-env_for_model <- mutate(env, assemblyID = as.factor(assemblyID))
-envPC1_phyloK <- asreml(envPC_1 ~ 1, random = ~ vm(assemblyID, phyloK), ai.sing = TRUE, data = env_for_model)
-# Calculate variance explained by phylogeny
-modelSummary <- summary(envPC1_phyloK)
-phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2]) # 89% explained
 
 # Write resids to file
 envPC1_resids <- residuals(envPC1_phyloK)
@@ -45,7 +40,8 @@ source(paste0(rootDir, "src/07_motifTurnover/load_motif_data.R"))  # Adjust the 
 mat.list <- load_motif_data(
   unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
   cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
-  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies")
+  #motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies")
+  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG")
 )
 ```
 
@@ -145,8 +141,8 @@ Run_MLMs_OrthoSpecific <- function(Kphylo, EnvTraitMatrix, motifMatList) {
 # Must supply named cols/rows with assembly IDs
 EnvTraitMatrix <- env[,286:295] # first 10 ePCs
 rownames(EnvTraitMatrix) <- env$assemblyID
-models_phyloK_envPC1.10_poaceae<- Run_MLMs_OrthoSpecific(phyloK, EnvTraitMatrix, mat.list)
-save(models_phyloK_envPC1.10_poaceae, file="/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_astralV3.RData")
+models_phyloK_envPC1.10_poaceae<- Run_MLMs_OrthoSpecific(phyloK, EnvTraitMatrix, mat.list[1:5000])
+save(models_phyloK_envPC1.10_poaceae, file="/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_1000bpUpstream_1_5000.RData")
 ```
 
 
