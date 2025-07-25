@@ -2,7 +2,7 @@
 # Charlie Hale, 2025.07.24
 
 # input_df should have named columns corresponding to the assemblyID, orthogroup, response variable, predictor variable, and covariates
-permulate <- function(input_df, response_var_name, predictor_var_name, sp.tree, phyloK, n) {
+permulate <- function(input_df, response_var_name, predictor_var_name, sp.tree, Kphylo, n) {
     ## 1. Initialize matrix to store results
     nPredictors <- ncol(input_df) - 3 # Assuming first three columns are assemblyID, OG, and response variable
     results_mat <- matrix(NA, nrow = n + 1, ncol = 5 + 2 * nPredictors)
@@ -21,7 +21,7 @@ permulate <- function(input_df, response_var_name, predictor_var_name, sp.tree, 
     names(named_resp) <- input_df$assemblyID
 
     ## 1. Run model with empirical data
-    results_mat[1,5:ncol(results_mat)] <- run_model_asreml(input_df, phyloK)
+    results_mat[1,5:ncol(results_mat)] <- run_model_asreml(input_df, Kphylo)
 
     ## 2. Running permulated models
     # Calculate evolutionary rate from the focal predictor variable  using geiger::rate.matrix
@@ -39,7 +39,7 @@ permulate <- function(input_df, response_var_name, predictor_var_name, sp.tree, 
         # Run association model with permulated data
         perm_input_df <- input_df
         perm_input_df[, predictor_var_name] <- permulated_for_model # Sub in permulated values for focal predictor variable
-        results_mat[sim + 1, 5:ncol(results_mat)] <- run_model_asreml(perm_input_df, phyloK)
+        results_mat[sim + 1, 5:ncol(results_mat)] <- run_model_asreml(perm_input_df, Kphylo)
     }
 
     # Return a matrix with results from empirical and permulated models
@@ -48,7 +48,7 @@ permulate <- function(input_df, response_var_name, predictor_var_name, sp.tree, 
 
 # Function to run phylogenetic association model using asreml
 # Input_df should have the first three columns as assemblyID, OG, and response variable, then the other columns as the predictors
-run_model_asreml <- function(input_df, phyloK) {
+run_model_asreml <- function(input_df, Kphylo) {
   # fit model within tryCatch
   tryCatch({
     OG <- input_df[1,2] # Assuming second column is the orthogroup ID
@@ -58,7 +58,7 @@ run_model_asreml <- function(input_df, phyloK) {
     form  <- as.formula(paste(resp_var_name, "~", paste(pred_names, collapse = " + ")))
     model <- asreml(
       fixed  = form,
-      random = ~ vm(assemblyID, phyloK),
+      random = ~ vm(assemblyID, Kphylo),
       ai.sing = TRUE,
       data   = input_df
     )

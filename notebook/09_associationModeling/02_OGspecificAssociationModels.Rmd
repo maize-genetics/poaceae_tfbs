@@ -295,10 +295,10 @@ Run_Permulations <- function(top_model_list, EnvTraitMatrix, motifMatList, tree,
     timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
     write(paste(timestamp, msg), file = logfile, append = TRUE)
   }
-
+  
   cl <- parallel::makeCluster(1)
   doParallel::registerDoParallel(cl)
-
+  
   results <- foreach::foreach(
     i = seq_along(top_model_list),
     .errorhandling = 'pass',
@@ -306,12 +306,13 @@ Run_Permulations <- function(top_model_list, EnvTraitMatrix, motifMatList, tree,
     .export    = c('phyloK','rootDir','permulate', 'run_model_asreml')
     ) %dopar% {
     ogID <- top_model_list[[i]][["OG"]]
-    focal_motif <- gsub("-", "_", top_model_list[[i]][["motif"]])
+    focal_motif <- top_model_list[[i]][["motif"]]
+    focal_motif_cleaned <- gsub("-", ".", top_model_list[[i]][["motif"]])
     focal_envPC <- paste0("envPC_", top_model_list[[i]][["ePC"]])
     log_to_file(paste("Running permulations for", ogID, focal_motif, focal_envPC), logfile)
     
     motifVec <- motifMatList[[ogID]][,focal_motif]
-
+    
     common_rows <- sort(Reduce(base::intersect, list(
       names(motifVec),
       rownames(EnvTraitMatrix)
@@ -331,10 +332,11 @@ Run_Permulations <- function(top_model_list, EnvTraitMatrix, motifMatList, tree,
       motif = motif_sub,
       Env_sub
     )
-    colnames(input_df)[3] <- focal_motif
+    
+    colnames(input_df)[3] <- focal_motif_cleaned
 
     tryCatch({
-      permulate(input_df, focal_motif, focal_envPC, tree.rooted.resolved, K_sub, n_perm)
+      permulate(input_df, focal_motif_cleaned, focal_envPC, tree.rooted.resolved, K_sub, n_perm)
     }, error = function(e) {
       log_to_file(e$message, logfile)
       NULL
@@ -345,9 +347,13 @@ Run_Permulations <- function(top_model_list, EnvTraitMatrix, motifMatList, tree,
   return(results)
 }
 
+# Run 1000 permulations of each top hit
 perm_top_hits <- Run_Permulations(top_model_list, EnvTraitMatrix, filtered_list, tree, 1000)
+
 save(perm_top_hits, file = paste0(rootDir, "output/models/permulated_1k_topHits_500bpUpstream.RData"))
 load(paste0(rootDir, "output/models/permulated_1k_topHits_500bpUpstream.RData"))
+perm_df <- mclapply(perm_top_hits[1:10], as.data.frame, mc.cores = detectCores() - 1) %>%
+  rbindlist()
 ```
 Compare 500bp vs 1000bp upstream results
 ``` {r}

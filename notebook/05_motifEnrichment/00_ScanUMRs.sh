@@ -14,21 +14,21 @@ umr_key=(
   "Sorghum_bicolor Sbicolor_454_v3.0.1.fa"
 )
 
-for species in "${umr_key[@]}"; do
-  read -r prefix fasta <<< "$species"
-  echo "STARTING ${prefix}" 
-  bash src/05_motifEnrichment/ScanFeatureIntervals.sh \
-      output/motif_enrichment/umrs_crisp2020/beds/${prefix}.bed \
-      data/genomes/motif_enrichment/${fasta} \
-      dinuc \
-      data/homogenousNucFreqs.txt \
-      output/JASPAR2024_CORE_plants_nr_PFM/pwms \
-      output/motif_enrichment/umrs_crisp2020/fimo \
-      $COPIES $THREADS 100
-  echo "FINISHED ${prefix}"
-done
+# for species in "${umr_key[@]}"; do
+#   read -r prefix fasta <<< "$species"
+#   echo "STARTING ${prefix}" 
+#   bash src/05_motifEnrichment/ScanFeatureIntervals.sh \
+#       output/motif_enrichment/umrs_crisp2020/beds/${prefix}.bed \
+#       data/genomes/motif_enrichment/${fasta} \
+#       dinuc \
+#       data/homogenousNucFreqs.txt \
+#       output/JASPAR2024_CORE_plants_nr_PFM/pwms \
+#       output/motif_enrichment/umrs_crisp2020/fimo \
+#       $COPIES $THREADS 100
+#   echo "FINISHED ${prefix}"
+# done
 
-# Create key for UMRs
+#$ Scan ACRs 
 acr_key=(
   "Zea_mays Maize_7days_leaf_ACRs.bed Zea_mays.AGPv4.dna.toplevel.fa"
   "Brachypodium_distachyon Brachypodium_7days_leaf_ACRs.bed Bdistachyon_314_v3.0.fa"
@@ -39,18 +39,19 @@ acr_key=(
   "Arabidopsis_thaliana Arabidopsis_7days_leaf_ACRs.bed Athaliana_447_TAIR10.fa"
 )
 
-# for species in "${acr_key[@]}"; do
-#   read -r prefix bed fasta <<< "$species"
-#   echo "STARTING ${prefix}" 
-#   bash src/05_motifEnrichment/ScanFeatureIntervals.sh \
-#       output/motif_enrichment/umrs_crisp2020/beds/${bed} \
-#       data/genomes/motif_enrichment/${fasta} \
-#       data/homogenousNucFreqs.txt \
-#       output/JASPAR2024_CORE_plants_nr_PFM/pwms \
-#       output/motif_enrichment/umrs_crisp2020/fimo \
-#       $COPIES $THREADS
-#   echo "FINISHED ${prefix}"
-# done
+for species in "${acr_key[@]}"; do
+  read -r prefix bed fasta <<< "$species"
+  echo "STARTING ${prefix}" 
+  bash src/05_motifEnrichment/ScanFeatureIntervals.sh \
+      output/motif_enrichment/acrs_lu2019/beds/${bed} \
+      data/genomes/motif_enrichment/${fasta} \
+      dinuc \
+      data/homogenousNucFreqs.txt \
+      output/JASPAR2024_CORE_plants_nr_PFM/pwms \
+      output/motif_enrichment/acrs_lu2019/fimo \
+      $COPIES $THREADS 100
+  echo "FINISHED ${prefix}"
+done
 
 
 
