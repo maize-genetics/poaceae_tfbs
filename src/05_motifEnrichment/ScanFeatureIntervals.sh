@@ -97,13 +97,3 @@ else
   echo "Error: Invalid background type '${BG_TYPE}'. Use 'dinuc' or 'random'."
   exit 1
 fi
-
-
-# # 6) Filter out negative scores
-# echo "6) Filtering out negative scores"
-# find "${BASE_OUT}/empirical_fimo" -name '*.fimo.txt' | parallel -j "${THREADS}" \
-#   "awk 'NR==1||\$7+0>=1' {} > ${BASE_OUT}/empirical_fimo/filt_neg/{/}"
-
-# find "${BASE_OUT}/bg_fimo" -name '*.fimo.txt' | parallel -j "${THREADS}" \
-#   "awk 'NR==1||\$7+0>=1' {} > ${BASE_OUT}/bg_fimo/filt_neg/{/}"
-# echo "Done. Outputs in ${BASE_OUT}/"
