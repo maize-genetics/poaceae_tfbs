@@ -1,7 +1,7 @@
 # Calculates motif enrichment in empirical vs background regions.
 # Charlie Hale, 2025.07.10
 # File names should begin with the motif ID, e.g. "MA0001.1.fimo.txt"
-calculateMotifEnrichment <- function(motif_id, emp_dir, bg_dir, method = "scores") {
+calculateMotifEnrichment <- function(motif_id, emp_dir, bg_dir, method = "counts") {
     library(fitdistrplus)
     library(tibble)
     library(data.table)
@@ -10,7 +10,7 @@ calculateMotifEnrichment <- function(motif_id, emp_dir, bg_dir, method = "scores
 
     # Load empirical motif data
     emp_file <- list.files(emp_dir, pattern = paste0("^", motif_id), full.names = TRUE)[1] # Empirical regions
-    bg_files  <- list.files(bg_dir,  pattern = paste0("^", motif_id), full.names = TRUE) # 100 Dinucleotide-shuffled regions
+    bg_files  <- list.files(bg_dir,  pattern = paste0("^", motif_id), full.names = TRUE) # Background regions
     if ( method == "scores" ) {
         # Enrichment based on motif scores
         emp <- sum(data.table::fread(emp_file)$score)

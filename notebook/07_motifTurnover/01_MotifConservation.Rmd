@@ -28,7 +28,7 @@ source(paste0(rootDir, "src/07_motifTurnover/load_motif_data.R"))  # Adjust the 
 mat.list <- load_motif_data(
   unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
   cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
-  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG")
+  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG_500")
 )
 ```
 Calculate % motifs in focal assembly retained in comparison assembly
@@ -328,12 +328,12 @@ mean_cons <- apply(combined_results, 2, function(x) mean(x, na.rm = TRUE)) %>%
   mutate(OG = rownames(.)) %>%
   left_join(OGkey)
 
-asymp_shared <- nls.models.by.gene %>%
-  dplyr::select(c(OG, asymp_shared = c_global)) %>%
-  left_join(OGkey) %>%
-  dplyr::filter(asymp_shared > 0.01)
-most_conserved <- asymp_shared[order(asymp_shared$asymp_shared, decreasing = T),][1:bin_length,]
-least_conserved <- asymp_shared[order(asymp_shared$asymp_shared, decreasing = F),][1:bin_length,]
+# asymp_shared <- nls.models.by.gene %>%
+#   dplyr::select(c(OG, asymp_shared = c_global)) %>%
+#   left_join(OGkey) %>%
+#   dplyr::filter(asymp_shared > 0.01)
+# most_conserved <- asymp_shared[order(asymp_shared$asymp_shared, decreasing = T),][1:bin_length,]
+# least_conserved <- asymp_shared[order(asymp_shared$asymp_shared, decreasing = F),][1:bin_length,]
 
 # Subset OGs with highest and lowest motif conservation
 bin_length <- round(nrow(mean_cons) * 0.25) # Choose a percentile (we used 25%)
@@ -395,10 +395,10 @@ mappingFile = read.table(paste0(rootDir, "output/ogs/OGToZm_mapping_v2.txt")) %>
 mutate(V1=sapply(V1, function(x) strsplit(x, "_")[[1]][1]))
 
 # For background genes, use OGs in analysis that were not in the focal quartile
-#all_ogs <- unique(mappingFile[mappingFile[,2]%in%mean_cons$OG,1])
-all_ogs <- unique(mappingFile[mappingFile[,2]%in%asymp_shared$OG,1])
-#top_ogs = unique(mappingFile[mappingFile[,2]%in%least_conserved$OG,1])
-top_ogs = unique(mappingFile[mappingFile[,2]%in%most_conserved$OG,1])
+all_ogs <- unique(mappingFile[mappingFile[,2]%in%mean_cons$OG,1])
+#all_ogs <- unique(mappingFile[mappingFile[,2]%in%asymp_shared$OG,1])
+top_ogs = unique(mappingFile[mappingFile[,2]%in%least_conserved$OG,1])
+#top_ogs = unique(mappingFile[mappingFile[,2]%in%most_conserved$OG,1])
 GODB <- readMappings(paste0(rootDir, "output/go_enrichment/Zm00001eb.1.fulldata_goList.txt"),IDsep = ",")
 background = intersect(names(GODB),all_ogs) 
 tmp=factor(as.integer(background%in%top_ogs))
@@ -487,31 +487,31 @@ library(ggridges)
 tf_ogs <- read.table(paste0(rootDir, "output/turnover_analysis/TF_OGs.txt")) %>%
   dplyr::select(OG=V2)
 tf.og.ids <- tf_ogs$OG[tf_ogs$OG %in% names(mat.list)]
-#tf.genes <- filter(mean_cons, OG %in% tf.og.ids)
-tf.genes <- filter(asymp_shared, OG %in% tf.og.ids)
+tf.genes <- filter(mean_cons, OG %in% tf.og.ids)
+#tf.genes <- filter(asymp_shared, OG %in% tf.og.ids)
 tf.genes$og.class <- "TF"
-#background.genes <- filter(mean_cons, !OG %in% tf.og.ids)
-background.genes <- filter(asymp_shared, !OG %in% tf.og.ids)
+background.genes <- filter(mean_cons, !OG %in% tf.og.ids)
+#background.genes <- filter(asymp_shared, !OG %in% tf.og.ids)
 background.genes$og.class <- "non-TF"
 merged.turnover <- rbind(background.genes,tf.genes)
 
 # Perform t test for difference in means
-#test <- t.test(filter(merged.turnover, og.class == "non-TF")$mean_pct_conserved, filter(merged.turnover, og.class == "TF")$mean_pct_conserved, var.equal = TRUE)
-test <- t.test(filter(merged.turnover, og.class == "non-TF")$asymp_shared, filter(merged.turnover, og.class == "TF")$asymp_shared, var.equal = TRUE)
+test <- t.test(filter(merged.turnover, og.class == "non-TF")$mean_pct_conserved, filter(merged.turnover, og.class == "TF")$mean_pct_conserved, var.equal = TRUE)
+#test <- t.test(filter(merged.turnover, og.class == "non-TF")$asymp_shared, filter(merged.turnover, og.class == "TF")$asymp_shared, var.equal = TRUE)
 # Perform K-S test for difference in distributions
-#ks.test <- ks.test(tf.genes$mean_pct_conserved, background.genes$mean_pct_conserved)
-ks.test <- ks.test(tf.genes$asymp_shared, background.genes$asymp_shared)
+ks.test <- ks.test(tf.genes$mean_pct_conserved, background.genes$mean_pct_conserved)
+#ks.test <- ks.test(tf.genes$asymp_shared, background.genes$asymp_shared)
 
 # Ridgeline plot
-#means <- aggregate(mean_pct_conserved ~ og.class, data = merged.turnover, mean)
-means <- aggregate(asymp_shared ~ og.class, data = merged.turnover, mean)
+means <- aggregate(mean_pct_conserved ~ og.class, data = merged.turnover, mean)
+#means <- aggregate(asymp_shared ~ og.class, data = merged.turnover, mean)
 # Plot density comparison with mean lines
-tf_nonTF <- ggplot(merged.turnover, aes(x = asymp_shared, fill = og.class)) +
-#tf_nonTF <- ggplot(merged.turnover, aes(x = mean_pct_conserved, fill = og.class)) +
+#tf_nonTF <- ggplot(merged.turnover, aes(x = asymp_shared, fill = og.class)) +
+tf_nonTF <- ggplot(merged.turnover, aes(x = mean_pct_conserved, fill = og.class)) +
   geom_density(alpha = 0.3) + 
   scale_fill_manual(values = c("purple", "lightgreen")) +  
-  #geom_vline(data = means, aes(xintercept = mean_pct_conserved, color = og.class),
-  geom_vline(data = means, aes(xintercept = asymp_shared, color = og.class),
+  geom_vline(data = means, aes(xintercept = mean_pct_conserved, color = og.class),
+  #geom_vline(data = means, aes(xintercept = asymp_shared, color = og.class),
              linetype = "dotted", size = 2) +  # dotted mean lines
   scale_color_manual(values = c("mediumpurple4", "darkgreen"), guide = "none") + 
   labs(

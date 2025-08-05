@@ -4,6 +4,7 @@
 
 threads="100"
 
+mkdir -p lists
 mkdir -p output/miniProt_alignments/unfiltered
 mkdir -p output/miniProt_alignments/filtered_mRNA_stop_frameshift
 mkdir -p output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG
@@ -28,7 +29,7 @@ parallel -j "$threads" "samtools faidx {}" :::: lists/assembly_list.txt
 
 #Filter to retain  alignments without stop codons or frameshifts
 echo "Filtering miniprot alignments..."
-parallel -j "$threads" "grep mRNA output/miniProt_alignments/unfiltered/{/.}.gff | grep -v -e 'StopCodon=1;' -e 'Frameshift=1;' | sort | uniq > output/miniProt_alignments/filtered_mRNA_stop_frameshift/{/.}.gff" :::: lists/assembly_list.txt
+parallel -j "$threads" "grep mRNA output/miniProt_alignments/unfiltered/{/.}.gff | grep -v -e 'StopCodon' -e 'Frameshift' | sort | uniq > output/miniProt_alignments/filtered_mRNA_stop_frameshift/{/.}.gff" :::: lists/assembly_list.txt
 
 # Retain alignments starting with ATG
 # First pull out sequence for aligned regions
@@ -38,8 +39,6 @@ parallel -j 2 "bedtools getfasta -fi {} -bed output/miniProt_alignments/filtered
 # Then filter by ATG
 parallel -j $threads "bash src/04_motifScanning/FilterGFF_byATG.sh {/.} {} output/miniProt_alignments/filtered_mRNA_stop_frameshift output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG 4" :::: lists/assembly_list.txt
 
-echo "Extracting upstream sequence..."
-# 5kb upstream (no length filter)
 echo "Extracting upstream sequence..."
 # 5kb upstream (no length filter)
 parallel -j $threads "bash src/04_motifScanning/ExtractUpstreamCoords.sh {/.} 5000 {//} output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG_5kbUpstream F F" :::: lists/assembly_list.txt

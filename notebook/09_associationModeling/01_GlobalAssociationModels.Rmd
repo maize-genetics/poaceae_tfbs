@@ -11,17 +11,13 @@ knitr::opts_chunk$set(
 ```
 
 ```{r, echo = F}
-library(ggpubr)
 library(data.table)
 library(rstatix)
 library(parallel)
-library(qqman)
-library(knitr)
 library(doParallel)
 library(ape)
-library(pheatmap)
-library(ggridges)
 library(tidyverse)
+library(ade4)
 ```
 
 ```{r}
@@ -34,7 +30,7 @@ metadata <- read.csv(paste0(rootDir, "data/Poaceae_metadata_filtered_2025.04.16.
 env <- read.table(paste0(rootDir, "output/modelData/envData_759Poaceae_20240821.txt")) %>%
   mutate(assemblyID = rownames(.))
 
-# Load phylogenetic kernel matrix
+# Load phylogenetic K matrix
 phyloK <- read.table(paste0(rootDir, "output/modelData/phyloK_728Poaceae_astral_20250407.txt"))
 colnames(phyloK) <- rownames(phyloK)
 
@@ -51,7 +47,7 @@ source(paste0(rootDir, "src/07_motifTurnover/load_motif_data.R"))  # Adjust the 
 mat.list <- load_motif_data(
   unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
   cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
-  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/filtered_OGs_200assemblies")
+  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG_500")
 )
 
 mats_to_df <- function(mat) {
@@ -94,85 +90,91 @@ rownames(motif.densities) <- motif.densities$assemblyID
 ```
 
 ``` {r}
-library(dplyr)
 library(asreml)
-library(data.table)
-library(ade4)
-library(factoextra)
 
-# Extract environmental PCs
-EnvTraitMatrix <- env[,286:295] # first 10 ePCs
+# Prepare data as before
+EnvTraitMatrix <- env[,286:295]
 rownames(EnvTraitMatrix) <- env$assemblyID
-# Generate nucFreq PCs as covariates
+
 nucPC <- dudi.pca(nucFreqs[,-21], scannf = FALSE, nf = 20)
-fviz_eig(nucPC) # See how much variance is explained by each PC axis - first explains 70%, first five explain nearly all
-nucPCaxes <- nucPC$li[1:5]
+nucPCaxes <- nucPC$li[,1:5]
 rownames(nucPCaxes) <- nucFreqs$assemblyID
 colnames(nucPCaxes) <- paste0("nucPC", 1:5)
-nucPCaxes$assemblyID <- nucFreqs$assemblyID
+nucPCaxes <- as.data.frame(nucPCaxes) %>% mutate(assemblyID = nucFreqs$assemblyID)
 
-# Find common taxa represented in motif, phyloK, and environment datasets
-common_rows <- base::intersect(rownames(all.motif.occurrence.rates), rownames(phyloK)) %>%
-  base::intersect(rownames(EnvTraitMatrix)) %>%
-  base::intersect(nucPCaxes$assemblyID)   %>%
-  sort()
+common_rows <- Reduce(intersect, list(
+  rownames(all.motif.occurrence.rates),
+  rownames(phyloK),
+  rownames(EnvTraitMatrix),
+  nucPCaxes$assemblyID
+)) %>% sort()
 
-# Filter to retain taxa shared across datasets
-EnvTrait_filtered <- EnvTraitMatrix[common_rows,]
-all.motif.occurrence.rates.filtered <- all.motif.occurrence.rates[common_rows,]
-nucFreqs_filtered <- nucPCaxes[common_rows,]
-Kphylo_filtered <- phyloK[common_rows, common_rows]
-motif.densities_filtered <- motif.densities[common_rows,]
+EnvTrait_f    <- EnvTraitMatrix[common_rows, ]
+motif_occ_f   <- all.motif.occurrence.rates[common_rows, ]
+nucFreqs_f    <- nucPCaxes %>% filter(assemblyID %in% common_rows)
+Kphylo_f      <- phyloK[common_rows, common_rows]
+motif_dens_f  <- motif.densities[common_rows, ]
 
-input_mat <- as.data.frame(cbind(EnvTrait_filtered, all.motif.occurrence.rates.filtered)) %>%
-  left_join(nucFreqs_filtered) %>%
-  left_join(motif.densities)
-input_mat$assemblyID <- as.factor(rownames(all.motif.occurrence.rates.filtered))
-setnames(input_mat, gsub("-", "_", names(input_mat))) # Remove hyphens from motif names to enable parsing by model
+input_mat <- as.data.frame(cbind(EnvTrait_f, motif_occ_f)) %>%
+  left_join(nucFreqs_f, by = "assemblyID") %>%
+  left_join(motif_dens_f, by = "assemblyID") %>%
+  mutate(assemblyID = factor(assemblyID)) %>%
+  setnames(gsub("-", "_", names(.)))
 
-## Iterate over all motifs in matrix
-motifModels <- list()
-nMotifs <- ncol(all.motif.occurrence.rates.filtered) - 1
-n_traits <- ncol(EnvTraitMatrix)
-ePC_names <- colnames(EnvTraitMatrix)
+# Set up for parallel loop
+nMotifs    <- ncol(motif_occ_f) - 1
+n_traits   <- ncol(EnvTrait_f)
+ePC_names  <- colnames(EnvTrait_f)
+nCores     <- max(detectCores() - 1, 1)
 
-for(j in 1:nMotifs){
-  motifID <- colnames(input_mat)[j+1+n_traits]
-  # Run association model for each motif
-  formula_str <- paste(motifID, "~", paste(paste(ePC_names, collapse =" + "), collapse = " "), "+ global.motif.density + nucPC1 + nucPC2 + nucPC3 + nucPC4 + nucPC5", collapse = "")
-  formula_obj <- as.formula(formula_str)
-  model <- asreml(fixed = formula_obj, random = ~ vm(assemblyID, Kphylo_filtered), ai.sing = TRUE, data = input_mat)
-  # Extract model results
-  modelSummary <- summary(model)
-  loglik <- modelSummary$loglik
-  phylo_explained <- modelSummary$varcomp$component[1] / sum(modelSummary$varcomp$component[1:2])
-  modelWald <- wald.asreml(model)
-  env_coeffs <- model$coefficients$fixed[2:(1 + n_traits)]
-  env_pvals_log10p <- -(pchisq(modelWald[(2:(1 + n_traits)), 3], 1, log.p = TRUE, lower.tail = FALSE) / log(10))
-  motifModels[[j]] <- list(motifID, phylo_explained, env_coeffs, env_pvals_log10p)
-}
+motifModels <- mclapply(
+  X       = seq_len(nMotifs),
+  FUN     = function(j) {
+    motifID <- colnames(input_mat)[j + n_traits + 1]
+    # build formula
+    fixed_terms <- paste(c(ePC_names, "global.motif.density", paste0("nucPC", 1:5)), collapse = " + ")
+    frm         <- as.formula(paste(motifID, "~", fixed_terms))
+    # fit model
+    m           <- asreml(fixed = frm, random = ~ vm(assemblyID, Kphylo_f), ai.sing = TRUE, data = input_mat)
+    smry        <- summary(m)
+    loglik      <- smry$loglik
+    vc          <- smry$varcomp$component
+    phylo_frac  <- vc[1] / sum(vc[1:2])
+    wald        <- wald.asreml(m)
+    env_coefs   <- m$coefficients$fixed[2:(1 + n_traits)]
+    env_pvals   <- -(pchisq(wald[2:(1 + n_traits), 3], 1, log.p = TRUE, lower.tail = FALSE) / log(10))
+    list(
+      motifID          = motifID,
+      phyloExplained   = phylo_frac,
+      envCoefficients  = env_coefs,
+      envPvalsLog10    = env_pvals
+    )
+  },
+  mc.cores = nCores
+)
+```
 
-
+Process results
+``` {r}
 # Extract p values
 model_output <- mclapply(motifModels, function(x) {
   x <- unlist(x)
   x <- t(x)
   x <- as.data.frame(x)
-  names(x) <- c("motif", "phylo_explained", paste0("coef_ePC", 1:n_traits), paste0("log10pval_ePC", 1:n_traits))
+  names(x) <- c("motif", "phylo_explained", paste0("coef_envPC_", 1:n_traits), paste0("log10pval_envPC_", 1:n_traits))
   return(x)
 }, mc.cores = detectCores() - 1)
 
-results <- rbindlist(model_output, fill = T)# %>%
+results <- rbindlist(model_output, fill = T)
 head(results)
 results_df <- results %>%
   pivot_longer(
     cols = starts_with("coef") | starts_with("log10pval"),
     names_to = c(".value", "ePC"),
-    names_pattern = "(coef|log10pval)_ePC(\\d+)"
+    names_pattern = "(coef|log10pval)_envPC_(\\d+)"
   ) %>%
   arrange(motif, ePC) %>%
-  as.data.frame() %>%
-  dplyr::filter(phylo_explained < 0.95)
+  as.data.frame()
 
 results_df[,c(2,4,5)] <- lapply(results_df[,c(2,4,5)], as.numeric)
 results_df$pval <- 10^(-results_df$log10pval)
@@ -185,7 +187,7 @@ write.table(sorted_results, file="/workdir/coh22/poaceae_tfbs/results/models/mod
 
 # Plot QQ plot
 ``` {r}
-sorted_results <- read.table("/workdir/coh22/poaceae_tfbs/results/models_astralV2/model_globalOcc_envPC1.10.csv",header = TRUE, sep = ",")
+sorted_results <- read.table("/workdir/coh22/poaceae_tfbs/results/model_globalOcc_envPC1.10.csv",header = TRUE, sep = ",")
 
 PlotQQ <- function(df) {
   # Create observed vs expected p values for plot
@@ -227,5 +229,197 @@ chisq_vals <- qchisq(1 - sorted_results$pval, df = 1)
 
 # Calculate lambda
 lambda_gc <- median(chisq_vals) / qchisq(0.5, df = 1)
+```
 
+Run models with permulation
+
+
+``` {r}
+Run_Permulations <- function(model_list, input_df, tree, n_perm) {
+  # load libraries once
+  library(parallel); library(geiger); library(dplyr); library(data.table); library(asreml); library(ape)
+  source(file.path(rootDir, "src/09_associationModeling/Permulate.R"))
+  asreml.options(verbose = FALSE)
+
+  # Set up logging
+  logfile <- file.path(rootDir, "output/perm_output_log.txt")
+  if (file.exists(logfile)) file.remove(logfile)
+  log_to_file <- function(msg) {
+    ts <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+    write(paste(ts, msg), logfile, append = TRUE)
+  }
+
+  # Prep data
+  common   <- intersect(input_df$assemblyID, rownames(phyloK))
+  K_sub    <- phyloK[common, common]
+  tree_sub <- drop.tip(tree, setdiff(tree$tip.label, common)) # subset tree
+  tree_rt  <- midpoint.root(tree_sub) # root with midpoint
+  tree_rt$edge.length[is.na(tree_rt$edge.length)] <- 0.1 # coerce NA branch lengths
+  tree_res <- multi2di(tree_rt) # resolve multichotomies randomly
+
+  nCores <- max(detectCores() - 1, 1)
+
+  # Run models in parallel
+  results <- mclapply(model_list, function(mdl) {
+    ogID        <- mdl[["OG"]]
+    motif       <- mdl[["motif"]]
+    motif_clean <- gsub("-", "_", motif)
+    envPC       <- paste0("envPC_", mdl[["ePC"]])
+    log_to_file(paste("Permulating", ogID, motif, envPC))
+
+    # Prep dataframe for model
+    clean_df <- input_df %>%
+      transmute(
+        OG         = "global",
+        assemblyID = assemblyID,
+        motif_val  = .data[[motif_clean]],
+        across(c(1:10, 47:52))
+      ) %>%
+      rename(!!motif_clean := motif_val) %>%
+      filter(assemblyID %in% common)
+
+    # Run permulation
+    tryCatch(
+      permulate(clean_df, motif_clean, envPC, tree_res, K_sub, n_perm),
+      error = function(e) { log_to_file(e$message); e }
+    )
+  }, mc.cores = nCores)
+
+  names(results) <- vapply(model_list, `[[`, "", "OG")
+  results
+}
+
+# Run across top hits
+perm_top_hits_global <- Run_Permulations(top_model_list, input_mat, tree, 1000)
+
+save(perm_top_hits_global, file = paste0(rootDir, "output/models/permulated_1k_globalTopHits_500bpUpstream.RData"))
+
+# # Run across all models
+perm_all_global <- Run_Permulations(all.global.models, input_mat, tree, 1000)
+
+# Process output data
+load(paste0(rootDir, "output/models/permulated_1k_globalTopHits_500bpUpstream.RData"))
+perm_df <- mclapply(perm_top_hits_global, as.data.frame, mc.cores = detectCores() - 1) %>%
+  rbindlist() %>%
+  rowwise() %>%
+  mutate(across(
+      phylo_explained:last_col(),
+      ~ as.numeric(.))) %>%
+  mutate(
+    waldStat = get(paste0("waldStat_", focal_predVar)),
+    coef = get(paste0("coef_", focal_predVar)),
+    pval = get(paste0("pval_log10_", focal_predVar))
+  ) %>%
+  ungroup() %>%
+  select(OG, responseVar, focal_predVar, model, phylo_explained, waldStat, coef, pval) %>%
+  mutate(model_class = if_else(model == "empirical", "empirical", "perm")) 
+
+perm_pvals <- perm_df %>%
+  group_by(OG, responseVar, focal_predVar) %>%
+  dplyr::reframe(
+    empirical_waldStat = waldStat[model_class == "empirical"],
+    pval_permulatedNull = mean(abs(waldStat[model_class == "perm"]) >= abs(empirical_waldStat))
+  ) %>%
+  dplyr::select(OG, responseVar, focal_predVar, pval_permulatedNull)
+
+emp_models <- perm_df %>%
+  filter(model_class == "empirical")
+
+perm_models <- perm_df %>%
+  filter(model_class == "perm")
+
+ggplot(data = perm_models, aes(x = waldStat)) +
+  geom_histogram() +
+  geom_vline(
+    data = emp_models,
+    aes(xintercept = waldStat),
+    color = "red", linetype = "dashed", size = 1
+  ) +
+  facet_wrap(
+    ~ responseVar + focal_predVar,
+    scales = "free",
+    ncol = 2
+  ) +
+  labs(
+    x = "Permulated Wald Statistic",
+    y = "Count",
+    title = "Permulated null distributions vs observed for motif occurrence rate association models"
+  ) +
+  theme_minimal()
+```
+
+OLD foreach version that was buggy
+``` {r}
+top_model_list <- dplyr::filter(sorted_results, p.fdr < 0.01) %>%
+  dplyr::select(c("motif", "ePC")) %>%
+  mutate(OG = rep("global", nrow(.))) %>%
+  split(seq(nrow(.))) # produces a list of rows
+  
+all.global.models <- sorted_results %>%
+  mutate(OG = rep("global", nrow(.))) %>%
+  split(seq(nrow(.))) # produces a list of rows
+
+Run_Permulations <- function(model_list, input_df, tree, n_perm) {
+  # Load functions and packages once
+    source(paste0(rootDir,"src/09_associationModeling/Permulate.R"))
+    library(geiger)
+    library(dplyr)
+    library(data.table)
+    library(asreml)
+    asreml.options(verbose = FALSE) 
+
+  # Set up logging
+  logfile <- paste0(rootDir, "/output/perm_output_log.txt")
+  if (file.exists(logfile)) file.remove(logfile)
+  log_to_file <- function(msg, logfile) {
+    timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+    write(paste(timestamp, msg), file = logfile, append = TRUE)
+  }
+  
+  cl <- parallel::makeCluster(1)
+  doParallel::registerDoParallel(cl)
+  
+  results <- foreach::foreach(
+    i = seq_along(model_list),
+    .errorhandling = 'pass',
+    .packages  = c('geiger', 'dplyr','data.table', 'ape', 'asreml'),
+    .export = c('phyloK','rootDir','permulate','run_model_asreml')
+    ) %dopar% {
+
+    ogID <- model_list[[i]][["OG"]]
+    focal_motif <- model_list[[i]][["motif"]]
+    focal_motif_cleaned <- gsub("-", "_", model_list[[i]][["motif"]])
+    focal_envPC <- paste0("envPC_", model_list[[i]][["ePC"]])
+    log_to_file(paste("Running permulations for", ogID, focal_motif, focal_envPC), logfile)
+    
+    # prep data for permulation models
+    common_rows <- intersect(input_df$assemblyID, rownames(phyloK))
+    K_sub     <- phyloK[common_rows, common_rows]
+    tree_sub <- drop.tip(tree, setdiff(tree$tip.label, common_rows))
+    tree_rooted <- midpoint.root(tree_sub)
+    tree_rooted$edge.length[is.na(tree_rooted$edge.length)] = 0.1
+    tree.rooted.resolved = ape::multi2di(tree_rooted)
+
+    cleaned_input_df <- data.frame(
+      OG = rep("global", times = nrow(input_df)),
+      assemblyID = input_df$assemblyID,
+      motif = input_df[,focal_motif_cleaned],
+      input_df[,c(1:10, 47:52)] # all predictor variables (envPCs, nucPCs, and global motif density)
+    )
+    
+    colnames(cleaned_input_df)[3] <- focal_motif_cleaned
+    cleaned_input_df <- cleaned_input_df[ cleaned_input_df$assemblyID %in% common_rows, ]
+
+    # Run permulation
+    tryCatch({
+      permulate(cleaned_input_df, focal_motif_cleaned, focal_envPC, tree.rooted.resolved, K_sub, n_perm)
+    }, error = function(e) {
+      log_to_file(e$message, logfile)
+      e
+    })
+  }
+
+  parallel::stopCluster(cl)
+  return(results)
+}
 ```
