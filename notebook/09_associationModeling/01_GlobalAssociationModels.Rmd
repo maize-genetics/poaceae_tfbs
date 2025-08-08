@@ -235,6 +235,15 @@ Run models with permulation
 
 
 ``` {r}
+top_model_list <- dplyr::filter(sorted_results, p.fdr < 0.01) %>%
+  dplyr::select(c("motif", "ePC")) %>%
+  mutate(OG = rep("global", nrow(.))) %>%
+  split(seq(nrow(.))) # produces a list of rows
+  
+all.global.models <- sorted_results %>%
+  mutate(OG = rep("global", nrow(.))) %>%
+  split(seq(nrow(.))) # produces a list of rows
+
 Run_Permulations <- function(model_list, input_df, tree, n_perm) {
   # load libraries once
   library(parallel); library(geiger); library(dplyr); library(data.table); library(asreml); library(ape)

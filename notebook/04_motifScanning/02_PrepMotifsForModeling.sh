@@ -1,7 +1,7 @@
 # # Reads in collapsed motif intervals and outputs counts for each species per OG
 threads="80"
 OG_dir="output/motifOutput/motifs_by_orthogroup"
-upstream_length=500 # Length of upstream sequence to consider for motif scanning
+upstream_length=1000 # Length of upstream sequence to consider for motif scanning
 
 mkdir -p output/miniProt_alignments/filtered_mRNA_stop_frameshift_ATG_${upstream_length}_primaryAlignment
 mkdir -p $OG_dir/summarized_by_assembly_${upstream_length}

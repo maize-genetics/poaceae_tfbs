@@ -44,7 +44,7 @@ mat.list <- load_motif_data(
   unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
   cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
   #motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG_500")
-  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/archive/summarized_by_OG_500bp")
+  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG_1000")
 )
 
 filtered_list <- mat.list[sapply(mat.list, function(df) nrow(df) >= 200)] # Retain only OGs with at least 200 taxa represented to avoid singularities
@@ -151,7 +151,7 @@ Run_MLMs_OrthoSpecific <- function(Kphylo, EnvTraitMatrix, motifMatList) {
 models_phyloK_envPC1.10_poaceae <-
   Run_MLMs_OrthoSpecific(phyloK, EnvTraitMatrix, filtered_list)
 
-save(models_phyloK_envPC1.10_poaceae_500, file="/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_500bpUpstream.RData")
+save(models_phyloK_envPC1.10_poaceae_1000, file="/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_1000bpUpstream.RData")
 ```
 
 ```{r}
@@ -201,8 +201,8 @@ results_df <- results %>%
   arrange(OG, motif, envPC) %>%
   as.data.frame() %>%
   mutate(motif = recode(motif,"SMZ_RAP2_7_TOE2" = "SMZ_RAP2-7_TOE2")) %>%
-  #dplyr::filter(phylo_explained < 0.95) %>% # Filter out models where motifs are too highly explained by phylogeny
-  dplyr::anti_join(sparse_motifs, by = c("OG", "motif"))  # filter out sparse motif-OG combinations
+  dplyr::anti_join(sparse_motifs, by = c("OG", "motif"))  %>% # filter out sparse motif-OG combinations
+  na.exclude()
 
 
 results_df[,c(3,5,6)] <- lapply(results_df[,c(3,5,6)], as.numeric)
@@ -246,7 +246,7 @@ top_model_list <- dplyr::filter(results_df, p.fdr < 0.01) %>%
   split(seq(nrow(.))) # produces a list of rows
 
 set.seed(0)
-random.10k.models <- slice_sample(results_df, n = 10000, replace = F) %>%
+random.100.model.list <- slice_sample(results_df, n = 100, replace = F) %>%
   dplyr::select(c("OG", "motif", "envPC")) %>%
   split(seq(nrow(.))) # produces a list of rows
 
@@ -319,71 +319,117 @@ perm_top_hits <- Run_Permulations(top_model_list,
 #save(perm_top_hits, file = paste0(rootDir, "output/models/permulated_1k_topHits_500bpUpstream.RData"))
 
 
- # Permulate 100k random models once to compare empirical vs permulated distributions
-random.10k.models <- Run_Permulations(random.10k.models, 
+ # Permulate 1000 random models to compare empirical vs permulated distributions
+random.100.models <- Run_Permulations(random.100.model.list, 
                                   EnvTraitMatrix, 
                                   filtered_list, 
                                   tree, 
-                                  n_perm = 5, 
-                                  model_threads = 20, 
-                                  perm_threads = 5)
-#save(random.10k.models, file = paste0(rootDir, "output/models/random.100k.models.single.perm_500bpUpstream.RData"))
+                                  n_perm = 1000, 
+                                  model_threads = 5, 
+                                  perm_threads = 20)
+save(random.100.models, file = paste0(rootDir, "output/models/random.100.models.1kPerm_500bpUpstream.RData"))
 
 ```
+
 Look at permulation results
 ``` {r}
 load(paste0(rootDir, "output/models/permulated_1k_topHits_500bpUpstream.RData"))
 names(perm_top_hits) <- unlist(lapply(perm_top_hits, function(x) paste0(x[1,"OG"], "_", x[1,"responseVar"], "_", x[1,"focal_predVar"])))
-
 perm_df <- mclapply(perm_top_hits, as.data.frame, mc.cores = detectCores() - 1) %>%
   rbindlist() %>%
   rowwise() %>%
+  mutate(across(
+      phylo_explained:last_col(),
+      ~ as.numeric(.))) %>%
   mutate(
-    key = sub("^envPC_", "ePC", focal_predVar),
-    waldStat = get(paste0("waldStat_", key)),
-    coef = get(paste0("coef_", key)),
-    pval = get(paste0("pval_log10_", key))
+    waldStat = get(paste0("waldStat_", focal_predVar)),
+    coef = get(paste0("coef_", focal_predVar)),
+    pval = get(paste0("pval_log10_", focal_predVar))
   ) %>%
   ungroup() %>%
-  select(OG, responseVar, focal_predVar, model, phylo_explained, coef, pval) %>%
-  mutate(model_class = if_else(model == "empirical", "empirical", "perm")) %>%
-  group_by(OG, responseVar, focal_predVar, model_class) %>%
-  dplyr::summarise(
-    across(
-      phylo_explained:last_col(),
-      ~ mean(as.numeric(.), na.rm = TRUE),
-      .names = "mean_{.col}"
-    )
-  ) %>%
-  select(OG, responseVar, focal_predVar, model_class, mean_pval) %>%
-  pivot_wider(
-    names_from    = model_class,
-    values_from   = mean_pval,
-    names_prefix  = "pval_"
-  )
+  dplyr::select(OG, responseVar, responseVar, focal_predVar, model, phylo_explained, waldStat, coef, pval) %>%
+  mutate(model_class = if_else(model == "empirical", "empirical", "perm")) 
 
-# 2. Scatterplot with y=x line
-ggplot(perm_df, aes(x = pval_perm, y = pval_empirical)) +
+perm_pvals <- perm_df %>%
+  group_by(OG, responseVar, focal_predVar) %>%
+  dplyr::reframe(
+    empirical_waldStat = waldStat[model_class == "empirical"],
+    pval_permulatedNull = mean(abs(waldStat[model_class == "perm"]) >= abs(empirical_waldStat), na.rm = T)
+  ) %>%
+  mutate(log10pval_perm = -log10(pval_permulatedNull),
+         envPC = str_split_fixed(focal_predVar, "_", 2)[,2]) %>%
+  dplyr::select(OG, motif = responseVar, envPC, log10pval_perm) %>%
+  left_join(results_df, by = join_by(OG, motif, envPC))
+
+hist(perm_pvals$log10pval_perm, xlim = c(0,3))
+abline(v = 2)
+
+## 2. Compare pvalues from 100 random models between original and permulated
+load(paste0(rootDir, "output/models/random.100.models.1kPerm_500bpUpstream.RData"))
+
+names(random.100.models) <- unlist(lapply(random.100.models, function(x) paste0(x[1,"OG"], "_", x[1,"responseVar"], "_", x[1,"focal_predVar"])))
+perm_df <- mclapply(random.100.models, as.data.frame, mc.cores = detectCores() - 1) %>%
+  rbindlist() %>%
+  rowwise() %>%
+  mutate(across(
+      phylo_explained:last_col(),
+      ~ as.numeric(.))) %>%
+  mutate(
+    waldStat = get(paste0("waldStat_", focal_predVar)),
+    coef = get(paste0("coef_", focal_predVar)),
+    pval = get(paste0("pval_log10_", focal_predVar))
+  ) %>%
+  ungroup() %>%
+  dplyr::select(OG, responseVar, responseVar, focal_predVar, model, phylo_explained, waldStat, coef, pval) %>%
+  mutate(model_class = if_else(model == "empirical", "empirical", "perm")) 
+
+perm_pvals <- perm_df %>%
+  group_by(OG, responseVar, focal_predVar) %>%
+  dplyr::reframe(
+    empirical_waldStat = waldStat[model_class == "empirical"],
+    pval_permulatedNull = mean(abs(waldStat[model_class == "perm"]) >= abs(empirical_waldStat), na.rm = T)
+  ) %>%
+  mutate(pval_permulatedNull = ifelse(pval_permulatedNull == 0, 0.001, pval_permulatedNull),
+    log10pval_perm = -log10(pval_permulatedNull),
+    envPC = str_split_fixed(focal_predVar, "_", 2)[,2]) %>%
+  dplyr::select(OG, motif = responseVar, envPC, log10pval_perm) %>%
+  left_join(results_df, by = join_by(OG, motif, envPC)) %>%
+  na.exclude()
+
+# Coerce any inf values to minimum possible from 1000 permulations (0.001)
+
+ggplot(perm_pvals, aes(x = log10pval, y = log10pval_perm)) +
   geom_point() +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   labs(
-    x = "Permulated mean p-value",
-    y = "Empirical  p-value",
+    x = "Original p-value (-log10)",
+    y = "Permulation-derived p-value (log10)",
     title = "Permulated vs empirical p-values"
   ) +
   theme_minimal() +
-  xlim(0,110) +
-  ylim(0,110)
+  xlim(0,5) +
+  ylim(0,5)
+
+# Compute spearman correlation between models 
+spearman <- cor.test(
+  perm_pvals$log10pval,
+  perm_pvals$log10pval_perm,
+  method = "spearman",
+  use = "complete.obs"
+)
+# 95% correlation
+
+
+# 2. Scatterplot with y=x line
+
 
 ```
 
 Compare 500bp vs 1000bp upstream results
 ``` {r}
-load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_1000bpUpstream_1_10000.RData")
-load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_1000bpUpstream_10001_19058.RData")
+load("/workdir/coh22/poaceae_tfbs/output/models/models_phyloK_envPC1.10_poaceae_1000bpUpstream.RData")
 
-#cat_models <- models_phyloK_envPC1.10_poaceae_1_5000 %>%
-cat_models_1000bp <- c(models_phyloK_envPC1.10_poaceae_1kbUpstream_1_10000, models_phyloK_envPC1.10_poaceae_1kbUpstream_10001_19058) %>%
+cat_models_1000bp <- models_phyloK_envPC1.10_poaceae %>%
    lapply(unlist)
 
 model_output_1000bp <- mclapply(cat_models_1000bp, function(x) {
