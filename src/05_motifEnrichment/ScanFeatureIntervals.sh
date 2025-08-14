@@ -3,9 +3,7 @@
 # Scan genomic intervals of interest for motifs using FIMO. Also performs scanning of dinucleotide-shuffled intervals for background motif comparison.
 # Charlie Hale, 2025.07.07
 
-#!/usr/bin/env bash
-set -eo pipefail
-# Usage: ScanFeatureIntervals.sh <bed_file> <genome_fa> <bfile> <meme_dir> <outdir> <copies> <threads> [num_batches]
+# Usage: ScanFeatureIntervals.sh <bed_file> <genome_fa> <bg_type:dinuc|random> <bfile> <meme_dir> <outdir> <copies> <threads> [num_batches]
 
 BED_FILE=$1        # e.g. regions.bed
 GENOME_FA=$2       # e.g. genome.fa
@@ -53,12 +51,12 @@ if [[ "${BG_TYPE}" == "random" ]]; then
       bedtools getfasta -fi ${GENOME_FA} -bed ${BASE_OUT}/bg_random/${PREFIX}_batch{}.bed \
       -fo ${BASE_OUT}/bg_random/${PREFIX}_batch{}.fa"
 
-  #  sanitize headers to enable parsing by FIMO
+  #  Sanitize headers to enable parsing by FIMO
   echo "Sanitizing names"
   sed -i 's/:/_/g' "${BASE_OUT}/${PREFIX}.fa" \
               "${BASE_OUT}/bg_random/${PREFIX}_batch"*.fa
 
-  # scan random sequences
+  # Scan random sequences
   echo "Scanning random background sequences with ${THREADS} threads"
   parallel -j "${THREADS}" \
     "fimo -bfile ${BFILE} --max-strand --no-qvalue --skip-matched-sequence \
@@ -68,7 +66,6 @@ if [[ "${BG_TYPE}" == "random" ]]; then
     ::: "${MOTIF_DIR}"/*.meme \
     ::: "${BASE_OUT}/bg_random/${PREFIX}_batch"*.fa
 
-# elif [[ "${BG_TYPE}" == "dinuc" ]]; then
 elif [[ "${BG_TYPE}" == "dinuc" ]]; then
   echo " Using dinucleotide shuffle"
   mkdir -p "${BASE_OUT}/shuffled_batches"
@@ -79,11 +76,11 @@ elif [[ "${BG_TYPE}" == "dinuc" ]]; then
       -kmer 2 -copies $((COPIES/NUM_BATCHES)) -dna ${BASE_OUT}/${PREFIX}.fa \
     > ${BASE_OUT}/shuffled_batches/${PREFIX}_batch{}.fa"
 
-  # 4) sanitize headers to enable parsing by FIMO
+  # 4) Sanitize headers to enable parsing by FIMO
   echo "Sanitizing names"
   sed -i 's/:/_/g' "${BASE_OUT}/${PREFIX}.fa" \
               "${BASE_OUT}/shuffled_batches/${PREFIX}_batch"*.fa
-  # scan shuffled sequences
+  # Scan shuffled sequences
   echo "Scanning shuffled batches with ${THREADS} threads"
   parallel -j "${THREADS}" \
     "fimo -bfile ${BFILE} --max-strand --no-qvalue --skip-matched-sequence \

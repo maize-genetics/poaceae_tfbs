@@ -182,12 +182,12 @@ results_df$p.fdr <- p.adjust(results_df$pval, method = "fdr")
 sorted_results <- arrange(results_df, desc(log10pval))
 
 # Must supply named cols/rows with assembly IDs
-write.table(sorted_results, file="/workdir/coh22/poaceae_tfbs/results/models/model_globalOcc_envPC1.10.csv", sep = ",", quote = F, row.names = F)
+write.table(sorted_results, file="/workdir/coh22/poaceae_tfbs/results/model_globalOcc_500bp_envPC1.10.csv", sep = ",", quote = F, row.names = F)
 ```
 
 # Plot QQ plot
 ``` {r}
-sorted_results <- read.table("/workdir/coh22/poaceae_tfbs/results/model_globalOcc_envPC1.10.csv",header = TRUE, sep = ",")
+sorted_results <- read.table("/workdir/coh22/poaceae_tfbs/results/model_globalOcc_500bp_envPC1.10.csv",header = TRUE, sep = ",")
 
 PlotQQ <- function(df) {
   # Create observed vs expected p values for plot
@@ -215,7 +215,9 @@ PlotQQ <- function(df) {
       panel.grid.minor = element_blank() 
     )
 }
+jpeg(paste0(rootDir, "results/figs/model_globalOcc_500bp_envPC1.10.jpeg"), width = 7, height = 8, units = "in", res = 1500)
 PlotQQ(sorted_results)
+dev.off()
 ```
 Quantify inflation
 ``` {r}
@@ -233,16 +235,12 @@ lambda_gc <- median(chisq_vals) / qchisq(0.5, df = 1)
 
 Run models with permulation
 
-
 ``` {r}
 top_model_list <- dplyr::filter(sorted_results, p.fdr < 0.01) %>%
   dplyr::select(c("motif", "ePC")) %>%
   mutate(OG = rep("global", nrow(.))) %>%
   split(seq(nrow(.))) # produces a list of rows
   
-all.global.models <- sorted_results %>%
-  mutate(OG = rep("global", nrow(.))) %>%
-  split(seq(nrow(.))) # produces a list of rows
 
 Run_Permulations <- function(model_list, input_df, tree, n_perm) {
   # load libraries once
@@ -303,8 +301,6 @@ perm_top_hits_global <- Run_Permulations(top_model_list, input_mat, tree, 1000)
 
 save(perm_top_hits_global, file = paste0(rootDir, "output/models/permulated_1k_globalTopHits_500bpUpstream.RData"))
 
-# # Run across all models
-perm_all_global <- Run_Permulations(all.global.models, input_mat, tree, 1000)
 
 # Process output data
 load(paste0(rootDir, "output/models/permulated_1k_globalTopHits_500bpUpstream.RData"))
@@ -337,7 +333,7 @@ emp_models <- perm_df %>%
 perm_models <- perm_df %>%
   filter(model_class == "perm")
 
-ggplot(data = perm_models, aes(x = waldStat)) +
+perm_hists <- ggplot(data = perm_models, aes(x = waldStat)) +
   geom_histogram() +
   geom_vline(
     data = emp_models,
@@ -355,80 +351,4 @@ ggplot(data = perm_models, aes(x = waldStat)) +
     title = "Permulated null distributions vs observed for motif occurrence rate association models"
   ) +
   theme_minimal()
-```
-
-OLD foreach version that was buggy
-``` {r}
-top_model_list <- dplyr::filter(sorted_results, p.fdr < 0.01) %>%
-  dplyr::select(c("motif", "ePC")) %>%
-  mutate(OG = rep("global", nrow(.))) %>%
-  split(seq(nrow(.))) # produces a list of rows
-  
-all.global.models <- sorted_results %>%
-  mutate(OG = rep("global", nrow(.))) %>%
-  split(seq(nrow(.))) # produces a list of rows
-
-Run_Permulations <- function(model_list, input_df, tree, n_perm) {
-  # Load functions and packages once
-    source(paste0(rootDir,"src/09_associationModeling/Permulate.R"))
-    library(geiger)
-    library(dplyr)
-    library(data.table)
-    library(asreml)
-    asreml.options(verbose = FALSE) 
-
-  # Set up logging
-  logfile <- paste0(rootDir, "/output/perm_output_log.txt")
-  if (file.exists(logfile)) file.remove(logfile)
-  log_to_file <- function(msg, logfile) {
-    timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-    write(paste(timestamp, msg), file = logfile, append = TRUE)
-  }
-  
-  cl <- parallel::makeCluster(1)
-  doParallel::registerDoParallel(cl)
-  
-  results <- foreach::foreach(
-    i = seq_along(model_list),
-    .errorhandling = 'pass',
-    .packages  = c('geiger', 'dplyr','data.table', 'ape', 'asreml'),
-    .export = c('phyloK','rootDir','permulate','run_model_asreml')
-    ) %dopar% {
-
-    ogID <- model_list[[i]][["OG"]]
-    focal_motif <- model_list[[i]][["motif"]]
-    focal_motif_cleaned <- gsub("-", "_", model_list[[i]][["motif"]])
-    focal_envPC <- paste0("envPC_", model_list[[i]][["ePC"]])
-    log_to_file(paste("Running permulations for", ogID, focal_motif, focal_envPC), logfile)
-    
-    # prep data for permulation models
-    common_rows <- intersect(input_df$assemblyID, rownames(phyloK))
-    K_sub     <- phyloK[common_rows, common_rows]
-    tree_sub <- drop.tip(tree, setdiff(tree$tip.label, common_rows))
-    tree_rooted <- midpoint.root(tree_sub)
-    tree_rooted$edge.length[is.na(tree_rooted$edge.length)] = 0.1
-    tree.rooted.resolved = ape::multi2di(tree_rooted)
-
-    cleaned_input_df <- data.frame(
-      OG = rep("global", times = nrow(input_df)),
-      assemblyID = input_df$assemblyID,
-      motif = input_df[,focal_motif_cleaned],
-      input_df[,c(1:10, 47:52)] # all predictor variables (envPCs, nucPCs, and global motif density)
-    )
-    
-    colnames(cleaned_input_df)[3] <- focal_motif_cleaned
-    cleaned_input_df <- cleaned_input_df[ cleaned_input_df$assemblyID %in% common_rows, ]
-
-    # Run permulation
-    tryCatch({
-      permulate(cleaned_input_df, focal_motif_cleaned, focal_envPC, tree.rooted.resolved, K_sub, n_perm)
-    }, error = function(e) {
-      log_to_file(e$message, logfile)
-      e
-    })
-  }
-
-  parallel::stopCluster(cl)
-  return(results)
-}
 ```

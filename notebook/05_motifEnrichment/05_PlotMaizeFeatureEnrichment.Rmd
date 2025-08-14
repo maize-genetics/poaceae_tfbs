@@ -18,12 +18,12 @@ library(parallel)
 rootDir <- "/workdir/coh22/poaceae_tfbs/"
 source(paste0(rootDir, "src/05_motifEnrichment/CalculateMotifEnrichment.R"))
 
-nCores <- 10
+nCores <- 30
 ```
 
 ```{r load_data}
 features <- c("umrs_crisp2020", "cns", "moa", "scATAC")
-feature_files <- c("Zea_mays_B73v5", "panand_cns", "MOA_all_peaks.merged.21_NAMs_new0624", "Marand_scATAC_allCellTypes_B73v5")
+feature_files <- c("Zea_mays_B73v5", "panand_cns_intronsRemoved", "MOA_all_peaks.merged.21_NAMs_new0624", "Marand_scATAC_allCellTypes_B73v5")
 plant_motif_key <- read.table("/workdir/coh22/poaceae_tfbs/data/JASPAR2024_CORE_plants_nr_PFM_key.txt", header = T, sep = "\t") %>%
   dplyr::rename(motif_id = MatrixID) #%>%
 plant_motif_list <- dplyr::select(plant_motif_key, motif_id)
@@ -70,6 +70,8 @@ write.table(enrich_by_feat_df, file = paste0(rootDir, "results/maize_feature_enr
 ```
 Visualize results
 ``` {r}
+# Load umr enrichment by dinucleotide shuffle
+umr_dinuc <- read.csv(paste0(rootDir, "results/TableS1_UMR_enriched_motifs.csv"))
 enrich_by_feat_df <- read.table("/workdir/coh22/poaceae_tfbs/results/maize_feature_enrichment.csv", sep = ",") %>%
   mutate(log2_fc = log2(fold_change)) %>%
    dplyr::select(motif_id, log2_fc, feature) %>%
@@ -90,7 +92,7 @@ mat <- umr.enriched %>%
 pheatmap::pheatmap(
   mat,
   cluster_rows = TRUE,
-  cluster_cols = TRUE,
+  cluster_cols = T,
   scale = "none",
   color = colorRampPalette(c("blue", "white", "red"))(100),
   breaks = seq(-2.1, 2.1, length.out = 101), 

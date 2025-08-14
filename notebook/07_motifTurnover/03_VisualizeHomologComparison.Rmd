@@ -1,0 +1,41 @@
+# Calculate correlation between motif counts across wheat homologs
+Charlie Hale, 2025.08.11
+
+``` {r}
+library(tidyverse)
+rootDir <- "/workdir/coh22/poaceae_tfbs/"
+
+# Load in counts - note that this doesn't consider motifs that aren't present in any of the triad members
+wheat.counts.partial <- read.table(paste0(rootDir, "output/turnover_analysis/paralog_correlation/IWGSC_CS_RefSeq_v2.1_homologCounts.txt"), header = F) %>%
+  rename(orthogroup = V2, motif = V1, count = V3) %>%
+  separate(orthogroup, into = c("OG", "rank"), sep = "_") %>%
+  pivot_wider(names_from = rank, values_from = count, values_fill = 0) %>%
+  dplyr::select(c(OG,motif,Rank1,Rank2,Rank3))
+
+all_OGs <- sort(unique(wheat.counts.partial$OG))
+all_motifs <- sort(unique(wheat.counts.partial$motif))  
+wheat.counts.full <- wheat.counts.partial %>%
+  tidyr::complete(
+    OG = all_OGs,
+    motif = all_motifs,
+    fill = list(Rank1 = 0L, Rank2 = 0L, Rank3 = 0L)
+  ) %>%
+  arrange(OG, motif)
+
+# Calculate correlation
+cor_val <- cor(wheat.counts.full$Rank1, wheat.counts.full$Rank3, method = "pearson")
+spearman.cor <- cor(wheat.counts.full$Rank1, wheat.counts.full$Rank3, method = "spearman")
+ggplot(wheat.counts.full, aes(Rank1, Rank3)) +
+  geom_count(aes(color = after_stat(n), fill = after_stat(n)), shape = 21) +
+  scale_size_area(max_size = 12, guide = "legend") +
+  scale_color_viridis_c(trans = "log", guide = "none") +
+  scale_fill_viridis_c(trans = "log", name = "Count") +
+  coord_fixed(xlim = c(0,10), ylim = c(0,10)) +
+  scale_x_continuous(breaks = 0:10) +
+  scale_y_continuous(breaks = 0:10) +
+  xlab("Motif count in primary alignment") +
+  ylab("Motif count in secondary alignment") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```

@@ -43,8 +43,8 @@ source(paste0(rootDir, "src/07_motifTurnover/load_motif_data.R"))  # Adjust the 
 mat.list <- load_motif_data(
   unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
   cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
-  #motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG_500")
-  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG_1000")
+  motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG_500")
+  #motifs_dir = paste0(rootDir, "output/motifOutput/motifs_by_orthogroup/summarized_by_OG_1000")
 )
 
 filtered_list <- mat.list[sapply(mat.list, function(df) nrow(df) >= 200)] # Retain only OGs with at least 200 taxa represented to avoid singularities
@@ -634,7 +634,7 @@ ggplot(all_rep_taxa, aes(x = factor(motifCount), y = envPC_1)) +
   theme_minimal(base_size = 36)
 
 # Taxa with more than 2 copies of the motif
-top_taxa <- filter(all_rep_taxa, as.numeric(motifCount) > -1) %>% 
+top_taxa <- filter(all_rep_taxa, as.numeric(motifCount) > 2) %>% 
   left_join(metadata) %>%
   dplyr::select(c(Species, assemblyID, envPC_1, motifCount))
 ```
