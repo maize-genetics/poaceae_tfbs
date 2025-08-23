@@ -14,6 +14,7 @@ fasterq.tmp*
 data/sra
 *.fa
 *final.contigs*
+*.gz
 # Other directories that shouldn't be committed
 tassel-5-standalone
 lists/
