@@ -8,7 +8,7 @@ output: html_document
 Load data
 ``` {r}
 library(tidyverse)
-
+library(phytools)
 # Load covariates
 rootDir = "/workdir/coh22/poaceae_tfbs/"
 metadata <- read.table(paste0(rootDir, 'data/Poaceae_metadata_filtered_2025.04.16.tsv'), header = T, sep = "\t")
@@ -58,7 +58,11 @@ simmap <- make.simmap(tree, tipStates, model = "ER", nsim = 1)
 # - colors: the branch segments are colored according to stateColors
 # - fsize: set to 0 to omit tip labels (you could adjust this if you want labels)
 # - lwd: line width for the branches
-plotSimmap(simmap, colors = stateColors, fsize = 0.0000001, lwd = 3)
+
+png(filename = file.path(rootDir, "results/figs/clade.phylo.png"),
+    width = 6, height = 8, res = 1500, units = "in")
+plotSimmap(simmap, colors = stateColors, fsize = 0.00000000001, lwd = 3)  # fsize=0 hides labels
+dev.off()
 
 ```
 
@@ -67,7 +71,7 @@ Plot reconstructed env values (Mean annual temp)
 source(paste0(rootDir, "src/08_envirotyping/PlotTraitsOnTree.R"))
 
 # Export to large PDF
-pdf("/workdir/coh22/poaceae_tfbs/output/env_phylogeny_without_labels.pdf", width = 8, height = 24)  # Adjust size as needed
+png(paste0(rootDir, "results/figs/env_phylogeny_without_labels.png"), width = 7, height = 18, res = 1500, units = "in")  # Adjust size as needed
 
 # Plot with tip labels and legend
 plotTraitOnTree(trait = env$bio01_Annual_Mean_Temperature_quan50, taxa = env$assemblyID, tree = tree, visible_tip_labels = F, shape = "phylogram", colors = c("blue","lightblue","red"))

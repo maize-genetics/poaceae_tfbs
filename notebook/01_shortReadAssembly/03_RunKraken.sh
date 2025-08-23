@@ -14,7 +14,7 @@ tar -xzvf output/kraken/k2protocol_db/k2_pluspfp_20240112.tar.gz -C output/krake
 # Update taxonomy for Krona
 cd ~/miniconda3/envs/androMotifs/opt/krona/
 ./updateTaxonomy.sh
-cd /workdir/coh22/andro_tfbs
+cd /workdir/coh22/poaceae_tfbs
 # Run Kraken on each accession and generate krona visualization
 while IFS= read -r accession; do
     Concatenate forward and reverse reads into a single file

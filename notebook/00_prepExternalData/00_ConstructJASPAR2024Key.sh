@@ -2,7 +2,7 @@
 # matching JASPAR motif IDs to TF metadata, cluster info, etc
 # Charlie Hale, 2024.05.14
 
-# Scrape motif profile metadatafrom JASPAR (Travis's code)
+# Scrape motif profile metadatafrom JASPAR 
 mkdir -p output/JASPAR2024_CORE_plants_nr_PFM/meta
 mkdir -p output/JASPAR2024_CORE_plants_nr_PFM/pwms
 wget 'https://jaspar.elixir.no/download/data/2024/CORE/JASPAR2024_CORE_plants_non-redundant_pfms_meme.zip' -P output/JASPAR2024_CORE_plants_nr_PFM/

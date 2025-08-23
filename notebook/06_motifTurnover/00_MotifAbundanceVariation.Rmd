@@ -1,0 +1,123 @@
+---
+title: "Motif Abundance & Variation"
+author: "Charlie Hale"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r}
+library(matrixStats)   
+library(parallel)      
+library(data.table)
+library(dplyr)
+```
+
+# Load motifs
+``` {r}
+rootDir <- "/workdir/coh22/poaceae_tfbs/"
+source(paste0(rootDir,"src/06_motifTurnover/load_motif_data.R")) 
+mat.list <- load_motif_data(
+  unenriched_clusters_path = paste0(rootDir,"lists/unenriched_clusters.txt"),
+  cluster_meta_path = paste0(rootDir,"data/JASPAR2024_SummarizedClusters.txt"),
+  motifs_dir = paste0(rootDir,"output/motifOutput/motifs_by_orthogroup/summarized_by_OG_500")
+)
+
+mats_to_df <- function(mat) {
+  mat <- as.data.frame(mat)
+  mat$assemblyID <- rownames(mat)
+  return(mat)
+}
+
+df.list <- lapply(mat.list, mats_to_df)
+# Combine into a single df
+combined_df <- rbindlist(df.list, use.names = TRUE, fill = TRUE)
+```
+
+Plot distribution of taxa per OG
+``` {r}
+taxa_per_og_df <- unlist(lapply(mat.list, nrow)) %>%
+  as.data.frame()
+colnames(taxa_per_og_df) <- "n_taxa"
+# Calculate median
+median_val <- median(taxa_per_og_df$n_taxa, na.rm = TRUE)
+std.deviation <- sd(taxa_per_og_df$n_taxa)
+# Create histogram
+taxa_per_og_plot <- ggplot(taxa_per_og_df, aes(x = n_taxa)) +
+  geom_histogram(binwidth = 5, fill = "steelblue", color = "black") +
+  geom_vline(aes(xintercept = median_val),
+             linetype = "dashed", color = "orange", size = 2) +
+  labs(
+    x = "Number of Taxa represented in Orthogroup",
+    y = "Frequency"
+  ) +
+  theme_minimal(base_size = 24)
+
+ggsave(paste0(rootDir, "results/figs/taxa_per_og.png"), plot = taxa_per_og_plot, width = 8, height = 8, units = "in", dpi = 1500)
+```
+
+``` {r}
+## Calculate motif occurrence rates for each taxon
+all.motifs.by.taxa <- split(combined_df, combined_df$assemblyID)
+og.counts <- lapply(all.motifs.by.taxa, nrow)
+
+calculateMotifOccurrenceRate <- function(mat, og.count) {
+  # Sum motifs across all orthogroups
+  sums <- colSums(mat[,1:(ncol(mat) - 1)], na.rm = TRUE) # for candidate list
+  # Divide by number of orthogroups represented in the species
+  occurrence.rates <- sums / og.count
+  # join with assemblyID
+  results <- c(mat$assemblyID[1], occurrence.rates)
+  names(results)[1] <- "assemblyID"
+  return(results)
+}
+
+all.motif.occurrence.list <- mapply(calculateMotifOccurrenceRate,  all.motifs.by.taxa, og.counts)
+all.motif.occurrence.rates <- as.data.frame(t(all.motif.occurrence.list)) 
+all.motif.occurrence.rates[,-1] <- sapply(all.motif.occurrence.rates[,-1], as.numeric)
+
+# Function to calculate the coefficient of variation
+coefficient_of_variation <- function(x) {
+  return (sd(x) / mean(x))
+}
+
+# Calculate the medians for each column
+medians <- sapply(all.motif.occurrence.rates[, -1], median, na.rm = TRUE)
+
+# Calculate the coefficients of variation for each column
+coefficients_of_variation <- sapply(all.motif.occurrence.rates[, -1], function(x) {
+  if(is.numeric(x)) {
+    coefficient_of_variation(x)
+  } else {
+    NA
+  }
+})
+
+# Combine the results into a dataframe
+results <- data.frame(
+  Motif_cluster = names(all.motif.occurrence.rates[, -1]),
+  Median = medians,
+  Coefficient_of_Variation = coefficients_of_variation
+)
+library(ggrepel)
+
+# Plot occurrence rate vs coef of variation for each motif cluster
+p <- ggplot(results, aes(x = Median, y = Coefficient_of_Variation, label = Motif_cluster)) +
+  geom_point(color = "darkgreen", size = 7) +  
+  geom_text_repel(size = 6, box.padding = 0.5, max.overlaps = 12) +  # Space out labels
+  ylim(0, 0.15) + 
+  theme_minimal(base_size = 24) + 
+  labs(
+    x = "Median Occurrence Rate (per 500bp upstream region)",
+    y = "Coefficient of Variation"
+  ) +
+  theme(
+    axis.title = element_text(face = "bold"),  
+    axis.text = element_text(size = 24) 
+  )
+p
+
+```

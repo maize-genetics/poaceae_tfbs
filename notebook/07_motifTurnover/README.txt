@@ -1,2 +1,0 @@
-00_MotifAbundanceVariation calculates the mean occurrence rate of motifs across taxa as well as coef. of variation. Creates Fig 2b.
-01_MotifConservation quantifies conservation of motif instances across species relative to maize. Creates the plots for Fig 3 and the corresponding supplemental figures.

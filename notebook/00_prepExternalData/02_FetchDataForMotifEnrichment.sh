@@ -1,7 +1,17 @@
-# Fetches genome assembly and bed files necessary to run motif enrichment analysis.
+#!/bin/bash
+
+## Fetches genome assembly and bed files necessary to run motif enrichment analysis.
 # Charlie Hale, 2025.07.09
 
-#!/bin/bash
+# NOTE #1: The crossMap conda environment should be activated to run liftover of scATAC regions.
+# NOTE #2: the following assemblies will need to be downloaded manually from Phytozome (account necessary):
+# S. bicolor v3.1.1
+# O. sativa v7.0
+# B. distachyon v3.1
+# H vulgare L. (ensembl v42)
+# Arabidopsis thaliana (TAIR10)
+# Setaria viridis (v1.0)
+
 mkdir -p output/motif_enrichment/ref 
 mkdir -p output/motif_enrichment/{fastas,umrs_crisp2020,acrs_lu2019}/{fimo,beds}
 fasta_dir="data/genomes/motif_enrichment"
@@ -35,13 +45,6 @@ fi
 download_decmp "ftp://ftp.ensemblgenomes.org/pub/plants/release-42/fasta/hordeum_vulgare/dna/Hordeum_vulgare.IBSC_v2.dna.toplevel.fa.gz" "$fasta_dir/Hordeum_vulgare.fa"
 download_decmp "ftp://ftp.ensemblgenomes.org/pub/plants/release-38/fasta/zea_mays/dna/Zea_mays.AGPv4.dna.toplevel.fa.gz" "$fasta_dir/Zea_mays.AGPv4.dna.toplevel.fa"
 
-#TODO: code to download other genomes from JGI
-# S. bicolor v3.1.1
-# O. sativa v7.0
-# B. distachyon v3.1
-# H vulgare L. (ensembl v42)
-# Arabidopsis thaliana (TAIR10)
-# Setaria viridis (v1.0)
 
 # Download UMR intervals from supplementary data of Crisp et al 2020 (https://doi.org/10.1073/pnas.2010250117) 
 if [ ! -f output/motif_enrichment/umrs_crisp2020/beds/Zea_mays.bed ]; then

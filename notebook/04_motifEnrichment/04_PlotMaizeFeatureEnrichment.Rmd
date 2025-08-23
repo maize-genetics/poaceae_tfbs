@@ -1,0 +1,130 @@
+---
+title: "Calculate and plot motif enrichment in maize regulatory features"
+author: "Charlie Hale"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+options(scipen = 20)
+library(stats)
+library(tidyverse)
+library(pheatmap)
+library(data.table)
+library(fitdistrplus)
+library(parallel)
+library(UpSetR)
+
+# Set the root directory for the project
+rootDir <- "/workdir/coh22/poaceae_tfbs/"
+source(paste0(rootDir, "src/04_motifEnrichment/CalculateMotifEnrichment.R"))
+
+nCores <- 10
+```
+
+```{r load_data}
+features <- rep(c("umrs_crisp2020", "cns", "moa", "scATAC"), times = 2)
+feature_files <- rep(c("Zea_mays_B73v5", "panand_cns_intronsRemoved", "MOA_all_peaks.merged.21_NAMs_new0624", "Marand_scATAC_allCellTypes_B73v5"), times = 2)
+bg_dirs <- c(rep("dinuc_bg_fimo", times = 4), rep("random_bg_fimo", times = 4))
+plant_motif_key <- read.table("/workdir/coh22/poaceae_tfbs/data/JASPAR2024_CORE_plants_nr_PFM_key.txt", header = T, sep = "\t") %>%
+  dplyr::rename(motif_id = MatrixID) #%>%
+plant_motif_list <- dplyr::select(plant_motif_key, motif_id)
+#umr.enriched.motifs <- read.table(paste0(rootDir, "results/TableS1_UMR_enriched_motifs.csv"), sep = ",", header = T)
+# Load motif scanning data
+dfs_by_feature <- vector("list", length(features))
+names(dfs_by_feature) <- features
+
+for(i in seq_along(features)) {
+  emp_dir <- paste0(rootDir, "output/motif_enrichment/", features[i],
+                    "/fimo/", feature_files[i], "/empirical_fimo/")
+  bg_dir  <- paste0(rootDir, "output/motif_enrichment/", features[i],
+                    "/fimo/", feature_files[i], "/", bg_dirs[i], "/")
+
+  # Compute enrichment for each motif
+  enrich_results_list_counts <- mclapply(plant_motif_list$motif_id, function(motif_id) {
+    tryCatch({
+      result <- calculateMotifEnrichment(motif_id, emp_dir, bg_dir, method="counts")
+      if(!is.null(result)) result
+    }, error=function(e){
+      message("Error processing motif:", motif_id, "in species:", species)
+      NULL
+    })
+  }, mc.cores=nCores)
+
+  # Clean up results and merge into a single df
+  df <- do.call(rbind, enrich_results_list_counts[!sapply(enrich_results_list_counts, is.null)]) %>%
+    as.data.frame() %>%
+    setNames(c("motif_id","emp_score","bg_mean","bg_sd","p.value","fold_change","method")) %>%
+    mutate(across(2:(ncol(.)-1), as.numeric),
+           p.adj = p.adjust(p.value, method="fdr"),
+           feature = features[i],
+           bg_type = str_split(bg_dirs[i], "_")[[1]][1]) %>%
+    filter(emp_score != 0, bg_mean != 0)
+
+  # Store in list
+  dfs_by_feature[[i]] <- df
+}
+
+# Combine into a single df
+enrich_by_feat_df <- rbindlist(dfs_by_feature)
+
+# write results to csv
+write.table(enrich_by_feat_df, file = paste0(rootDir, "results/maize_feature_enrichment.csv"), sep =",", quote = F)
+```
+Visualize results
+``` {r}
+# Load umr enrichment by dinucleotide shuffle
+umr_dinuc <- read.csv(paste0(rootDir, "results/TableS1_UMR_enriched_motifs.csv"))
+enrich_by_feat_res <- read.table("/workdir/coh22/poaceae_tfbs/results/maize_feature_enrichment.csv", sep = ",") %>%
+  dplyr::filter(fold_change > 1 & p.adj < 0.01) # sig enriched motifs 
+
+
+enrich_comp_list <- list(
+  umr_dinuc = dplyr::filter(enrich_by_feat_res, feature == "umrs_crisp2020" & bg_type == "dinuc")$motif_id,
+  umr_random = dplyr::filter(enrich_by_feat_res, feature == "umrs_crisp2020" & bg_type == "random")$motif_id,
+  scATAC_dinuc = dplyr::filter(enrich_by_feat_res, feature == "scATAC" & bg_type == "dinuc")$motif_id,
+  scATAC_random = dplyr::filter(enrich_by_feat_res, feature == "scATAC" & bg_type == "random")$motif_id,
+  
+  moa_dinuc = dplyr::filter(enrich_by_feat_res, feature == "moa" & bg_type == "dinuc")$motif_id,
+  moa_random = dplyr::filter(enrich_by_feat_res, feature == "moa" & bg_type == "random")$motif_id,
+  cns_dinuc = dplyr::filter(enrich_by_feat_res, feature == "cns" & bg_type == "dinuc")$motif_id,
+  cns_random = dplyr::filter(enrich_by_feat_res, feature == "cns" & bg_type == "random")$motif_id
+)
+upset_data <- fromList(enrich_comp_list)
+
+# Plot all intersections
+upset(upset_data, 
+      order.by = "freq", 
+      nsets = 8, 
+      keep.order = TRUE, 
+      text.scale = 2.5, 
+      nintersects = 15,
+      sets = c("umr_dinuc", "umr_random", "scATAC_dinuc", "scATAC_random", "moa_dinuc",
+               "moa_random", "cns_dinuc", "cns_random"))
+
+upset(upset_data, order.by = "freq", nsets = 4, keep.order = T, text.scale = 2.5, sets = c("umr_dinuc", "umr_random", "scATAC_dinuc", "scATAC_random", "moa_dinuc",
+               "moa_random", "cns_dinuc", "cns_random"))
+
+# Plot comparison between dinucleotide-shuffled enrichments
+upset(upset_data, 
+      order.by = "freq", 
+      nsets = 8, 
+      keep.order = TRUE, 
+      text.scale = 2.5, 
+      nintersects = 15,
+      sets = c("umr_dinuc", "scATAC_dinuc",  "moa_dinuc",
+                "cns_dinuc"))
+
+
+# Plot comparison between random background enrichments
+upset(upset_data, 
+      order.by = "freq", 
+      nsets = 4, 
+      keep.order = TRUE, 
+      text.scale = 2.5, 
+      nintersects = 15,
+      sets = c("umr_random", "scATAC_random",  "moa_random","cns_random"))
+
+
+```
+

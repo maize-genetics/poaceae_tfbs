@@ -9,52 +9,60 @@ output: html_document
 # Load required libraries
 library(tidyr)
 library(ggplot2)
-
+rootDir <- "/workdir/coh22/poaceae_tfbs/"
 # Load data
-metadata <- read.table("/workdir/coh22/poaceae_tfbs/data/Poaceae_metadata_filtered_2025.04.16.tsv", sep = "\t", header = T)
+metadata <- read.table(paste0(rootDir, "data/Poaceae_metadata_filtered_2025.04.16.tsv"), sep = "\t", header = T)
 metadata$complete_plus_duplicated <- metadata$complete + metadata$duplicated
 ordered_metadata <- arrange(metadata, complete_plus_duplicated)
 # Convert data to long format for ggplot
-df_long <- pivot_longer(ordered_metadata, cols = c("complete", "duplicated", "fraged", "missing"),
-                        names_to = "Category", values_to = "Count")
+df_long <- pivot_longer(
+  ordered_metadata,
+  cols = c(complete, duplicated, fraged, missing),
+  names_to = "Category", values_to = "Count"
+) %>%
+  group_by(assemblyID) %>%
+  mutate(Total = sum(Count, na.rm = TRUE),
+         Percent = Count / Total) %>%
+  ungroup()
 
-
-# Order samples based on complete + duplicated score (descending)
+# Keep order in the plot
 df_long$assemblyID <- factor(df_long$assemblyID, levels = ordered_metadata$assemblyID)
 ```
 Function to make busco-style plot
 ``` {r}
 plot_tabasco <- function(df, text_size = 24) {
   library(ggplot2)
-  
-  ggplot(df, aes(y = assemblyID, x = Count, fill = Category)) +
-  geom_bar(stat = "identity", width = 1) +
-  theme_minimal() +
-  labs(title = "",
-       x = "Count",
-       y = NULL) +
-  scale_fill_manual(values = c("complete"   = "#F5C242",
-                               "duplicated" = "#D47500",
-                               "fraged"     = "dodgerblue1",
-                               "missing"    = "#3B67A4")) +
-  scale_y_discrete(expand = c(0, 0)) +
-  theme(axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        panel.grid.major.y = element_blank(),
-        text = element_text(size = text_size))
+  library(scales)
+
+  ggplot(df, aes(y = assemblyID, x = Percent, fill = Category)) +
+    geom_col(width = 1) +
+    theme_minimal() +
+    labs(title = "",
+         x = "Percent of TABASCO genes",
+         y = NULL) +
+    scale_fill_manual(values = c("complete"   = "#F5C242",
+                                 "duplicated" = "#D47500",
+                                 "fraged"     = "dodgerblue1",
+                                 "missing"    = "#3B67A4")) +
+    scale_x_continuous(labels = percent_format(accuracy = 1)) +
+    scale_y_discrete(expand = c(0, 0)) +
+    theme(axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          panel.grid.major.y = element_blank(),
+          text = element_text(size = text_size))
 }
 ```
 
 ``` {r}
 #Plot all assemblies
-# Create the horizontal stacked bar plot
-plot_tabasco(df_long)
+all_tabasco <- plot_tabasco(df_long)
+ggsave(paste0(rootDir, "results/figs/all_tabasco.png"), plot = all_tabasco, width = 7, height = 8, units = "in", dpi = 1500)
 ```
 
 ``` {r}
 # Plot SRA assemblies only
 sra <- dplyr::filter(df_long, source == "SRA")
-plot_tabasco(sra)
-#ggsave("busco_plot.png", plot = busco_plot, width = 8, height = 6, dpi = 300)
+sra_tabasco <- plot_tabasco(sra)
+ggsave(paste0(rootDir, "results/figs/sra_tabasco.png"), plot = sra_tabasco, width = 7, height = 8, units = "in", dpi = 1500)
 ```
 

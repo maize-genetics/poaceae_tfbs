@@ -5,6 +5,7 @@
 # Sample	FilePath1	FilePath2
 # MySample1	path/to/file1	path/to/file2 # This is for a sample with a single set of paired-end reads
 # MySample2	path/to/file1a,path/to/file1b	path/to/file2a,path/to/file2b #This is for a sample that needs multiple merged raw read files
+# NOTE: We manually batched files based on whether reads were interleaved or not, also to run across multiple machines.
 
 import multiprocessing
 import subprocess
@@ -159,11 +160,9 @@ def myFunction (filePath1, filePath2, sampleName):
         reversePaths = ",".join([os.path.realpath(file) for file in reverseFiles])
         print(reversePaths)
         if args.interleaved:
-            #cmd = f"megahit --12 {workDir}/input1.fastq.gz -m {memFraction} -t {threadFraction} --k-min 31 -o {workDir}/megahit"
             cmd = f"megahit --12 {forwardPaths} -m {memFraction} -t {threadFraction} --k-min 31 -o {workDir}/megahit"
 
         else:
-            #cmd = f"megahit -1 {workDir}/input1.fastq.gz -2 {workDir}/input2.fastq.gz -m {memFraction} -t {threadFraction} --k-min 31 -o {workDir}/megahit"
             cmd = f"megahit -1 {forwardPaths} -2 {reversePaths} -m {memFraction} -t {threadFraction} --k-min 31 -o {workDir}/megahit"
         returned_value = subprocess.call(cmd, shell=True)
         if (returned_value==0):

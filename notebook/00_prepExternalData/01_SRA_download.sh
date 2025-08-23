@@ -13,12 +13,12 @@ threads=${2:-$default_threads}
 # Download files to user repository
 vdb-config --prefetch-to-user-repo
 
-# Load accession list to iterate over
-list="lists/accessions_with_run_accessions.txt"
+# Accession list to iterate over
+list="data/sra_accessions.csv"
 
 mkdir -p data/sra
 # Iteratively download accessions
-while IFS=, read -r exp_accession run_accession
+while IFS=, read -r run_accession exp_accession
 do
 	echo "Downloading .sra file for ${run_accession}..."
 	prefetch $run_accession --max-size u -O data/sra/${run_accession}/

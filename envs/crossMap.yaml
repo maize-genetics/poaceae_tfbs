@@ -1,0 +1,6 @@
+name: crossMap
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+prefix: /home/coh22/miniconda3/envs/crossMap
