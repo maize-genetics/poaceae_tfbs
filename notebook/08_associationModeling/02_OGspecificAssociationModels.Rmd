@@ -39,7 +39,7 @@ write.table(envPC1_resids, file = "/workdir/coh22/andro_tfbs/results/models/envP
 
 ``` {r}
 # Load motif counts
-source(paste0(rootDir, "src/07_motifTurnover/load_motif_data.R"))  # Adjust the filename as needed
+source(paste0(rootDir, "src/06_motifTurnover/load_motif_data.R"))  # Adjust the filename as needed
 mat.list <- load_motif_data(
   unenriched_clusters_path = paste0(rootDir, "lists/unenriched_clusters.txt"),
   cluster_meta_path = paste0(rootDir, "data/JASPAR2024_SummarizedClusters.txt"),
@@ -213,7 +213,7 @@ sorted_results <- arrange(results_df, desc(log10pval))
 
 # How many motifs/OGs are significant?
 sig_motif_ogs <- dplyr::filter(results_df, p.fdr < 0.01) %>%
-  dplyr::select(c(OG, motif)) %>%
+  dplyr::select(c(motif, OG)) %>%
   unique()
 
 # Compare p value boxplots across envPCs
