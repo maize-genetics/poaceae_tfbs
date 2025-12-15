@@ -1,5 +1,5 @@
 # poaceae_tfbs
-Evolution of cis-regulatory motifs across 589 grass species. Preprint here: https://www.biorxiv.org/content/10.1101/2025.04.23.650228v2
+Evolution of cis-regulatory motifs across 589 grass species. MBE paper here: https://doi.org/10.1093/molbev/msaf324
 
 Questions? Contact Charlie Hale (chale295 AT gmail DOT com)
 
